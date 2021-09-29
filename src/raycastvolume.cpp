@@ -37,6 +37,7 @@
 RayCastVolume::RayCastVolume(void)
     : m_volume_texture {0}
     , m_noise_texture {0}
+    , m_tf_texture {0}
     , m_cube_vao {
           {
               -1.0f, -1.0f,  1.0f,
@@ -139,6 +140,37 @@ void RayCastVolume::load_volume(const QString& filename) {
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_size.x(),m_size.y(),m_size.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
         glGenerateMipmap(GL_TEXTURE_3D);
         glBindTexture(GL_TEXTURE_3D, 0);
+
+
+
+
+        /*
+         * initialize transferfunction
+         * causes segfauls somehow
+        uint32_t* tf = (uint32_t*)malloc(256*256*256);
+        int index = 0;
+        for(int i = 0; i < 256; i++)
+        {
+            for(int j = 0; j < 256; j++)
+            {
+                for(int k = 0; k < 256; k++)
+                {
+                    tf[index++] = rgb(k, j, i, 256);
+                }
+            }
+        }
+        glDeleteTextures(1, &m_tf_texture);
+        glGenTextures(1, &m_tf_texture);
+        glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, 256, 256, 256, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, tf);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        */
+
     }
     else {
         throw std::runtime_error("Unrecognised extension '" + extension + "'.");
@@ -183,6 +215,7 @@ void RayCastVolume::paint(void)
 {
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, m_noise_texture);
+    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
 
     m_cube_vao.paint();
 }
@@ -206,4 +239,11 @@ float RayCastVolume::scale_factor(void)
 {
     auto e = m_size * m_spacing;
     return std::max({e.x(), e.y(), e.z()});
+}
+
+uint32_t RayCastVolume::rgb(int x, int y, int z, int size)
+{
+    if (x < size*tf_threshold && y < size*tf_threshold && z < size*tf_threshold)
+       return ((uint32_t)x << 16 | (uint32_t)y << 8 | (uint32_t)z);
+    return (uint32_t)0;
 }

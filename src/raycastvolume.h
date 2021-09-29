@@ -98,9 +98,11 @@ public:
         return b;
     }
 
+    float tf_threshold = 0.85;
 private:
     GLuint m_volume_texture;
     GLuint m_noise_texture;
+    GLuint m_tf_texture;
     Mesh m_cube_vao;
     std::pair<double, double> m_range;
     QVector3D m_origin;
@@ -108,4 +110,5 @@ private:
     QVector3D m_size;
 
     float scale_factor(void);
+    uint32_t rgb(int x, int y, int z, int size);
 };

@@ -40,6 +40,7 @@ uniform vec3 light_position;
 
 uniform float step_length;
 uniform float threshold;
+uniform float transfer_function_threshold;
 
 uniform sampler3D volume;
 uniform sampler2D jitter;
@@ -122,6 +123,9 @@ void main()
 
         vec4 intensity = texture(volume, position).gbar;
         vec4 c = intensity;
+
+        if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
+            c = vec4(0.0);
 
         // enable this for single channel datasets
         //float intensity = texture(volume, position).r;
