@@ -87,7 +87,6 @@ RayCastVolume::~RayCastVolume()
  * \param File to be loaded.
  */
 void RayCastVolume::load_volume(const QString& filename) {
-    std::vector<unsigned char> data;
 
     QRegularExpression re {"^.*\\.([^\\.]+)$"};
     QRegularExpressionMatch match = re.match(filename);
@@ -98,6 +97,7 @@ void RayCastVolume::load_volume(const QString& filename) {
 
     const std::string extension {match.captured(1).toLower().toStdString()};
     if ("vtk" == extension) {
+        std::vector<unsigned char> data;
         VTKVolume volume {filename.toStdString()};
         volume.uint8_normalised();
         m_size = QVector3D(std::get<0>(volume.size()), std::get<1>(volume.size()), std::get<2>(volume.size()));
@@ -105,30 +105,45 @@ void RayCastVolume::load_volume(const QString& filename) {
         m_spacing = QVector3D(std::get<0>(volume.spacing()), std::get<1>(volume.spacing()), std::get<2>(volume.spacing()));
         m_range = volume.range();
         data = volume.data();
+
+        glDeleteTextures(1, &m_volume_texture);
+        glGenTextures(1, &m_volume_texture);
+        glBindTexture(GL_TEXTURE_3D, m_volume_texture);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);  // The array on the host has 1 byte alignment
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, m_size.x(), m_size.y(), m_size.z(), 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+        glBindTexture(GL_TEXTURE_3D, 0);
     }
     else if ("tiff" == extension || "svs" == extension) {
+        uint32_t* data;
         OSVolume volume {filename.toStdString()};
 
         data = volume.data();
         m_spacing = QVector3D(0.5f,0.5f, 0.5f);
         m_origin = QVector3D(0.0f, 0.0f, 0.0f);
         m_size = volume.size();
+
+        glDeleteTextures(1, &m_volume_texture);
+        glGenTextures(1, &m_volume_texture);
+        glBindTexture(GL_TEXTURE_3D, m_volume_texture);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_size.x(),m_size.y(),m_size.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
+        glGenerateMipmap(GL_TEXTURE_3D);
+        glBindTexture(GL_TEXTURE_3D, 0);
     }
     else {
         throw std::runtime_error("Unrecognised extension '" + extension + "'.");
     }
 
-    glDeleteTextures(1, &m_volume_texture);
-    glGenTextures(1, &m_volume_texture);
-    glBindTexture(GL_TEXTURE_3D, m_volume_texture);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);  // The array on the host has 1 byte alignment
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, m_size.x(), m_size.y(), m_size.z(), 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
-    glBindTexture(GL_TEXTURE_3D, 0);
 }
 
 

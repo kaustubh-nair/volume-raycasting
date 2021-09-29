@@ -2,23 +2,37 @@
 
 OSVolume::OSVolume(const std::string& filename)
 {
+    _depth = 32;
+
     openslide_t *image = openslide_open(filename.c_str());
 
     _levels = openslide_get_level_count(image);
     _curr_level = _levels-1;
 
     openslide_get_level_dimensions(image, _curr_level, &_width, &_height);
-    printf("levels %ld \n", _levels);
+    printf("Image loaded! levels %d \n", _levels);
+
+	long long int size = _width*_height*4;
+    _data = (uint32_t*)malloc(size);
+    openslide_read_region(image, _data, 0, 0, _curr_level, _width, _height);
+
+    // duplicate data multiple times
+    std::vector<uint32_t> *data3d = new std::vector<uint32_t>(_data, _data + _width*_height);
+    std::vector<uint32_t> temp(data3d->begin(), data3d->end());
+    for(int i = 0; i < _depth-1; i++)
+        std::copy(data3d->begin(),data3d->end(), std::back_inserter(temp));
+    std::swap(temp, *data3d);
+    free(_data);
+    _data = &(*data3d)[0];
 }
 
-std::vector<unsigned char> OSVolume::data()
+uint32_t* OSVolume::data()
 {
     return _data;
 }
 
 QVector3D OSVolume::size()
 {
-    _depth = 1;
     return QVector3D(_width, _height, _depth);
 }
 
