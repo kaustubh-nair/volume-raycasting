@@ -23,6 +23,7 @@
 
 #include "raycastvolume.h"
 #include "vtkvolume.h"
+#include "osvolume.h"
 
 #include <QRegularExpression>
 
@@ -104,6 +105,14 @@ void RayCastVolume::load_volume(const QString& filename) {
         m_spacing = QVector3D(std::get<0>(volume.spacing()), std::get<1>(volume.spacing()), std::get<2>(volume.spacing()));
         m_range = volume.range();
         data = volume.data();
+    }
+    else if ("tiff" == extension || "svs" == extension) {
+        OSVolume volume {filename.toStdString()};
+
+        data = volume.data();
+        m_spacing = QVector3D(0.5f,0.5f, 0.5f);
+        m_origin = QVector3D(0.0f, 0.0f, 0.0f);
+        m_size = volume.size();
     }
     else {
         throw std::runtime_error("Unrecognised extension '" + extension + "'.");

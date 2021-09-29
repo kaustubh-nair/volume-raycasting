@@ -30,6 +30,7 @@ SOURCES += \
     src/raycastcanvas.cpp \
     src/vtkvolume.cpp \
     src/mesh.cpp \
+    src/osvolume.cpp \
     src/raycastvolume.cpp
 
 HEADERS += \
@@ -38,6 +39,7 @@ HEADERS += \
     src/raycastcanvas.h \
     src/vtkvolume.h \
     src/mesh.h \
+    src/osvolume.h \
     src/raycastvolume.h
 
 INCLUDEPATH += \
@@ -53,6 +55,6 @@ DISTFILES +=
 
 gcc:QMAKE_CXXFLAGS += -std=c++17
 gcc:QMAKE_CXXFLAGS_RELEASE += -fopenmp -Ofast
-gcc:LIBS += -fopenmp
+gcc:LIBS += -fopenmp -L/usr/local/lib -lopenslide
 
 msvc:QMAKE_CXXFLAGS_RELEASE += /openmp /O2

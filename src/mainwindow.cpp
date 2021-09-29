@@ -120,7 +120,7 @@ void MainWindow::on_stepLength_valueChanged(double arg1)
  */
 void MainWindow::on_loadVolume_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("VTK images (*.vtk)"));
+    QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
     if (!path.isNull()) {
         load_volume(path);
     }
