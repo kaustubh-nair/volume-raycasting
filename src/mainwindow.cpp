@@ -161,6 +161,11 @@ void MainWindow::on_threshold_slider_valueChanged(int value)
     ui->threshold_spinbox->setValue(threshold);
 }
 
+void MainWindow::on_tf_slider_valueChanged(int value)
+{
+
+}
+
 /*!
  * \brief Set the visualisation mode.
  * \param arg1 Name of the visualisation mode.
