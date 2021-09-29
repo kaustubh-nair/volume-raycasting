@@ -120,9 +120,12 @@ void main()
     // Ray march until reaching the end of the volume, or colour saturation
     while (ray_length > 0 && colour.a < 1.0) {
 
-        float intensity = texture(volume, position).r;
+        vec4 intensity = texture(volume, position).gbar;
+        vec4 c = intensity;
 
-        vec4 c = colour_transfer(intensity);
+        // enable this for single channel datasets
+        //float intensity = texture(volume, position).r;
+        //vec4 c = colour_transfer(intensity);
 
         // Alpha-blending
         colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;

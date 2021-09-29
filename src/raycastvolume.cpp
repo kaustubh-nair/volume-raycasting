@@ -118,7 +118,7 @@ void RayCastVolume::load_volume(const QString& filename) {
         glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, m_size.x(), m_size.y(), m_size.z(), 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
         glBindTexture(GL_TEXTURE_3D, 0);
     }
-    else if ("tiff" == extension || "svs" == extension) {
+    else if ("tiff" == extension || "svs" == extension || "tif" == extension) {
         uint32_t* data;
         OSVolume volume {filename.toStdString()};
 

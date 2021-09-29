@@ -7,10 +7,9 @@ OSVolume::OSVolume(const std::string& filename)
     openslide_t *image = openslide_open(filename.c_str());
 
     _levels = openslide_get_level_count(image);
-    _curr_level = _levels-1;
+    _curr_level = 0;
 
     openslide_get_level_dimensions(image, _curr_level, &_width, &_height);
-    printf("Image loaded! levels %d \n", _levels);
 
 	long long int size = _width*_height*4;
     _data = (uint32_t*)malloc(size);
@@ -22,8 +21,12 @@ OSVolume::OSVolume(const std::string& filename)
     for(int i = 0; i < _depth-1; i++)
         std::copy(data3d->begin(),data3d->end(), std::back_inserter(temp));
     std::swap(temp, *data3d);
+    // clear memory
+    temp = std::vector<uint32_t>();
     free(_data);
     _data = &(*data3d)[0];
+
+    printf("Image loaded! levels: %d width: %ld height %ld\n ", _levels, _width, _height);
 }
 
 uint32_t* OSVolume::data()
