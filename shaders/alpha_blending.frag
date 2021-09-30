@@ -41,6 +41,9 @@ uniform vec3 light_position;
 uniform float step_length;
 uniform float threshold;
 uniform float transfer_function_threshold;
+uniform float hsv_tf_h_threshold;
+uniform float hsv_tf_s_threshold;
+uniform float hsv_tf_v_threshold;
 
 uniform sampler3D volume;
 uniform sampler2D jitter;
@@ -58,6 +61,52 @@ struct AABB {
     vec3 top;
     vec3 bottom;
 };
+
+vec3 rgb2hsv(vec3 rgb)
+{
+    vec3 hsv;
+    float min_val, max_val, delta;
+
+    min_val = (rgb.r < rgb.g) ? rgb.r : rgb.g;
+    min_val = (min_val  < rgb.b) ? min_val  : rgb.b;
+
+    max_val = (rgb.r > rgb.g) ? rgb.r : rgb.g;
+    max_val = (max_val  > rgb.b) ? max_val  : rgb.b;
+
+    hsv.z = max_val;                                // v
+    delta = max_val - min_val;
+    if (delta < 0.00001)
+    {
+        hsv.y = 0;
+        hsv.x = 0; // undefrgbed, maybe nan?
+        return hsv;
+    }
+    if( max_val > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
+        hsv.y = (delta / max_val);                  // s
+    } else {
+        // if max_val is 0, then r = g = b = 0              
+        // s = 0, h is undefrgbed
+        hsv.y = 0.0;
+        hsv.x = 0.0;
+        return hsv;
+    }
+    if( rgb.r >= max_val )                           // > is bogus, just keeps compilor happy
+        hsv.x = ( rgb.g - rgb.b ) / delta;        // between yellow & magenta
+    else
+    if( rgb.g >= max_val )
+        hsv.x = 2.0 + ( rgb.b - rgb.r ) / delta;  // between cyan & yellow
+    else
+        hsv.x = 4.0 + ( rgb.r - rgb.g ) / delta;  // between magenta & cyan
+
+    hsv.x *= 60.0;                              // degrees
+
+    if( hsv.x < 0.0 )
+        hsv.x += 360.0;
+
+	hsv.x = hsv.x/360.0;  // convert 0 ,1
+
+    return hsv;
+}
 
 // Estimate normal from a finite difference approximation of the gradient
 vec3 normal(vec3 position, float intensity)
@@ -126,6 +175,16 @@ void main()
 
         if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
             c = vec4(0.0);
+		else
+        {
+            vec3 hsv_value = rgb2hsv(c.xyz);
+            if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
+                c = vec4(0.0);
+        }
+
+
+
+
 
         // enable this for single channel datasets
         //float intensity = texture(volume, position).r;

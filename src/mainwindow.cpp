@@ -182,6 +182,47 @@ void MainWindow::on_tf_checkbox_clicked(bool value)
     }
 }
 
+void MainWindow::on_hsv_tf_checkbox_clicked(bool value)
+{
+    if (value)
+    {
+        ui->HSV_TF_h_slider->setEnabled(true);
+        ui->HSV_TF_s_slider->setEnabled(true);
+        ui->HSV_TF_v_slider->setEnabled(true);
+        ui->canvas->setHSV_TF_HThreshold(ui->HSV_TF_h_slider->value());
+        ui->canvas->setHSV_TF_SThreshold(ui->HSV_TF_s_slider->value());
+        ui->canvas->setHSV_TF_VThreshold(ui->HSV_TF_v_slider->value());
+    }
+    else
+    {
+        ui->HSV_TF_h_slider->setDisabled(true);
+        ui->HSV_TF_s_slider->setDisabled(true);
+        ui->HSV_TF_v_slider->setDisabled(true);
+        ui->canvas->setHSV_TF_HThreshold(100);
+        ui->canvas->setHSV_TF_SThreshold(100);
+        ui->canvas->setHSV_TF_VThreshold(100);
+
+    }
+}
+
+
+void MainWindow::on_HSV_TF_h_slider_valueChanged(int value)
+{
+    ui->canvas->setHSV_TF_HThreshold(value);
+
+}
+
+void MainWindow::on_HSV_TF_s_slider_valueChanged(int value)
+{
+    ui->canvas->setHSV_TF_SThreshold(value);
+
+}
+
+void MainWindow::on_HSV_TF_v_slider_valueChanged(int value)
+{
+    ui->canvas->setHSV_TF_VThreshold(value);
+}
+
 
 /*!
  * \brief Set the visualisation mode.

@@ -163,6 +163,9 @@ void RayCastCanvas::raycasting(const QString& shader)
         m_shaders[shader]->setUniformValue("volume", 0);
         m_shaders[shader]->setUniformValue("jitter", 1);
         m_shaders[shader]->setUniformValue("transfer_function_threshold", m_raycasting_volume->tf_threshold);
+        m_shaders[shader]->setUniformValue("hsv_tf_h_threshold", m_raycasting_volume->hsv_tf_h_threshold);
+        m_shaders[shader]->setUniformValue("hsv_tf_s_threshold", m_raycasting_volume->hsv_tf_s_threshold);
+        m_shaders[shader]->setUniformValue("hsv_tf_v_threshold", m_raycasting_volume->hsv_tf_v_threshold);
 
         glClearColor(m_background.redF(), m_background.greenF(), m_background.blueF(), m_background.alphaF());
         glClear(GL_COLOR_BUFFER_BIT);

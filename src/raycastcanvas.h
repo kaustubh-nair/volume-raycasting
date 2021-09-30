@@ -78,6 +78,24 @@ public:
         update();
     }
 
+    void setHSV_TF_HThreshold(const float t)
+    {
+        m_raycasting_volume->hsv_tf_h_threshold = t/100.0;
+        update();
+    }
+
+    void setHSV_TF_SThreshold(const float t)
+    {
+        m_raycasting_volume->hsv_tf_s_threshold = t/100.0;
+        update();
+    }
+
+    void setHSV_TF_VThreshold(const float t)
+    {
+        m_raycasting_volume->hsv_tf_v_threshold = t/100.0;
+        update();
+    }
+
     std::vector<QString> getModes(void) {
         std::vector<QString> modes;
         for (const auto& [key, val] : m_modes) {

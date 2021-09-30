@@ -99,6 +99,9 @@ public:
     }
 
     float tf_threshold = 1.0;
+    float hsv_tf_h_threshold = 1.0;
+    float hsv_tf_s_threshold = 1.0;
+    float hsv_tf_v_threshold = 1.0;
 private:
     GLuint m_volume_texture;
     GLuint m_noise_texture;

@@ -60,6 +60,14 @@ private slots:
 
     void on_tf_checkbox_clicked(bool value);
 
+    void on_HSV_TF_h_slider_valueChanged(int value);
+
+    void on_HSV_TF_s_slider_valueChanged(int value);
+
+    void on_HSV_TF_v_slider_valueChanged(int value);
+
+    void on_hsv_tf_checkbox_clicked(bool value);
+
 private:
     Ui::MainWindow *ui;
 };
