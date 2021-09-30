@@ -58,6 +58,8 @@ private slots:
 
     void on_background_clicked();
 
+    void on_tf_checkbox_clicked(bool value);
+
 private:
     Ui::MainWindow *ui;
 };

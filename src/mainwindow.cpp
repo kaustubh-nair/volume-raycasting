@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stepLength->valueChanged(ui->stepLength->value());
     ui->threshold_slider->valueChanged(ui->threshold_slider->value());
     ui->canvas->setBackground(Qt::black);
+    ui->tf_slider->setDisabled(true);
 
     // Populate list of visualisation modes
     for (const auto& mode : ui->canvas->getModes()) {
@@ -163,8 +164,24 @@ void MainWindow::on_threshold_slider_valueChanged(int value)
 
 void MainWindow::on_tf_slider_valueChanged(int value)
 {
-
+    ui->canvas->setTFThreshold(value);
 }
+
+void MainWindow::on_tf_checkbox_clicked(bool value)
+{
+    if (value)
+    {
+        ui->tf_slider->setEnabled(true);
+        ui->canvas->setTFThreshold(ui->tf_slider->value());
+    }
+    else
+    {
+        ui->tf_slider->setDisabled(true);
+        ui->canvas->setTFThreshold(100);
+
+    }
+}
+
 
 /*!
  * \brief Set the visualisation mode.

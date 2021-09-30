@@ -98,7 +98,7 @@ public:
         return b;
     }
 
-    float tf_threshold = 0.85;
+    float tf_threshold = 1.0;
 private:
     GLuint m_volume_texture;
     GLuint m_noise_texture;

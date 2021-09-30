@@ -72,6 +72,12 @@ public:
         update();
     }
 
+    void setTFThreshold(const float t)
+    {
+        m_raycasting_volume->tf_threshold = t/100.0;
+        update();
+    }
+
     std::vector<QString> getModes(void) {
         std::vector<QString> modes;
         for (const auto& [key, val] : m_modes) {
