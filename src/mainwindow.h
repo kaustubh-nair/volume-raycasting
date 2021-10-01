@@ -48,10 +48,6 @@ private slots:
 
     void on_loadVolume_clicked();
 
-    void on_threshold_spinbox_valueChanged(double arg1);
-
-    void on_threshold_slider_valueChanged(int value);
-
     void on_tf_slider_valueChanged(int value);
 
     void on_mode_currentTextChanged(const QString &arg1);

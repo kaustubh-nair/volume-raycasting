@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set inital values
     ui->stepLength->valueChanged(ui->stepLength->value());
-    ui->threshold_slider->valueChanged(ui->threshold_slider->value());
     ui->canvas->setBackground(Qt::black);
     ui->tf_slider->setDisabled(true);
 
@@ -95,12 +94,6 @@ void MainWindow::load_volume(const QString& path)
 {
     try {
         ui->canvas->setVolume(path);
-
-        // Update the UI
-        auto range = ui->canvas->getRange();
-        ui->threshold_spinbox->setMinimum(range.first);
-        ui->threshold_spinbox->setMaximum(range.second);
-        ui->threshold_slider->valueChanged(ui->threshold_slider->value());
     }
     catch (std::runtime_error& e) {
         QMessageBox::warning(this, tr("Error"), tr("Cannot load volume ") + path + ": " + e.what());
@@ -125,41 +118,6 @@ void MainWindow::on_loadVolume_clicked()
     if (!path.isNull()) {
         load_volume(path);
     }
-}
-
-/*!
- * \brief MainWindow::on_threshold_spinbox_valueChanged
- * \param arg1 Threshold in image intensity value.
- *
- * The spinbox and the slider are mutually linked, so when the value is changed in one of them,
- * the change is reflected on the other.
- *
- * The spinbox holds the threshold in image intensity value, while the slider holds a percentage.
- */
-void MainWindow::on_threshold_spinbox_valueChanged(double arg1)
-{
-    ui->canvas->setThreshold(arg1);
-
-    QSignalBlocker(ui->threshold_slider);
-    auto range = ui->threshold_spinbox->maximum() - ui->threshold_spinbox->minimum();
-    ui->threshold_slider->setValue(100 * (arg1 - ui->threshold_spinbox->minimum()) / range);
-}
-
-/*!
- * \brief MainWindow::on_threshold_slider_valueChanged
- * \param value Threshold in percentage.
- *
- * \sa MainWindow::on_threshold_spinbox_valueChanged
- */
-void MainWindow::on_threshold_slider_valueChanged(int value)
-{
-    auto range = ui->threshold_spinbox->maximum() - ui->threshold_spinbox->minimum();
-    auto threshold = ui->threshold_spinbox->minimum() + value / 100.0 * range;
-
-    ui->canvas->setThreshold(threshold);
-
-    QSignalBlocker(ui->threshold_spinbox);
-    ui->threshold_spinbox->setValue(threshold);
 }
 
 void MainWindow::on_tf_slider_valueChanged(int value)
@@ -231,17 +189,6 @@ void MainWindow::on_HSV_TF_v_slider_valueChanged(int value)
 void MainWindow::on_mode_currentTextChanged(const QString &mode)
 {
     ui->canvas->setMode(mode);
-
-    if ("Isosurface" == mode) {
-        ui->threshold_slider->setEnabled(true);
-        ui->threshold_spinbox->setEnabled(true);
-        ui->threshold_label->setEnabled(true);
-    }
-    else {
-        ui->threshold_slider->setDisabled(true);
-        ui->threshold_spinbox->setDisabled(true);
-        ui->threshold_label->setDisabled(true);
-    }
 }
 
 

@@ -48,9 +48,9 @@ RayCastCanvas::RayCastCanvas(QWidget *parent)
     , m_raycasting_volume {nullptr}
 {
     // Register the rendering modes here, so they are available to the UI when it is initialised
-    m_modes["Isosurface"] = [&]() { RayCastCanvas::raycasting("Isosurface"); };
+    //m_modes["Isosurface"] = [&]() { RayCastCanvas::raycasting("Isosurface"); };
     m_modes["Alpha blending"] = [&]() { RayCastCanvas::raycasting("Alpha blending"); };
-    m_modes["MIP"] = [&]() { RayCastCanvas::raycasting("MIP"); };
+    //m_modes["MIP"] = [&]() { RayCastCanvas::raycasting("MIP"); };
 }
 
 
