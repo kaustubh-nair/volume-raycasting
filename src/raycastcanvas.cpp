@@ -51,6 +51,8 @@ RayCastCanvas::RayCastCanvas(QWidget *parent)
     //m_modes["Isosurface"] = [&]() { RayCastCanvas::raycasting("Isosurface"); };
     m_modes["Alpha blending"] = [&]() { RayCastCanvas::raycasting("Alpha blending"); };
     //m_modes["MIP"] = [&]() { RayCastCanvas::raycasting("MIP"); };
+    // set default mode to alpha blending
+    m_active_mode = "Alpha blending";
 }
 
 

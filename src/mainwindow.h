@@ -50,8 +50,6 @@ private slots:
 
     void on_tf_slider_valueChanged(int value);
 
-    void on_mode_currentTextChanged(const QString &arg1);
-
     void on_background_clicked();
 
     void on_tf_checkbox_clicked(bool value);

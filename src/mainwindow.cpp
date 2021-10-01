@@ -39,11 +39,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->canvas->setBackground(Qt::black);
     ui->tf_slider->setDisabled(true);
 
-    // Populate list of visualisation modes
-    for (const auto& mode : ui->canvas->getModes()) {
-        ui->mode->addItem(mode);
-    }
-    ui->mode->setCurrentIndex(0);
 
     // Enable file drop
     setAcceptDrops(true);
@@ -179,16 +174,6 @@ void MainWindow::on_HSV_TF_s_slider_valueChanged(int value)
 void MainWindow::on_HSV_TF_v_slider_valueChanged(int value)
 {
     ui->canvas->setHSV_TF_VThreshold(value);
-}
-
-
-/*!
- * \brief Set the visualisation mode.
- * \param arg1 Name of the visualisation mode.
- */
-void MainWindow::on_mode_currentTextChanged(const QString &mode)
-{
-    ui->canvas->setMode(mode);
 }
 
 
