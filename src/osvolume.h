@@ -10,17 +10,22 @@ class OSVolume {
     public:
     OSVolume(const std::string& filename);
 
-    uint32_t* data();
-
     QVector3D size();
+
+    QVector3D low_res_size();
 
     int load_best_res();
 
     int levels, curr_level;
-    private:
-    openslide_t* image;
-    uint32_t *_data;
+
     uint32_t *low_res_data;
+
+    uint32_t *data;
+
+
+    private:
+    QVector3D _low_res_size;
+    openslide_t* image;
     int64_t width, height, depth;  // stores current values
 
     // map keys: width, height, size, num_voxels

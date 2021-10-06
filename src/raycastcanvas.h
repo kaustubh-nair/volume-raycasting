@@ -135,6 +135,12 @@ public:
 
     }
 
+    void switch_to_low_res()
+    {
+        m_raycasting_volume->switch_to_low_res();
+        update();
+    }
+
 signals:
     // NOPE
 

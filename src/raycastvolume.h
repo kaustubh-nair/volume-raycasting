@@ -120,18 +120,23 @@ public:
         return std::vector<int>{volume->curr_level, volume->levels-1};
     }
 
+    void switch_to_low_res()
+    {
+        m_size = volume->low_res_size();
+        switch_volume_texture(volume->low_res_data);
+    }
+
     int load_best_res()
     {
         int level = volume->load_best_res();
         m_size = volume->size();
 
-        glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_size.x(),m_size.y(),m_size.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, volume->data());
-        glGenerateMipmap(GL_TEXTURE_3D);
-        glBindTexture(GL_TEXTURE_3D, 0);
+        switch_volume_texture(volume->data);
 
         return level;
     }
+
+    void switch_volume_texture(uint32_t* data);
 
 private:
     GLuint m_volume_texture;
