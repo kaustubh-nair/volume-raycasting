@@ -122,6 +122,11 @@ public:
         return m_raycasting_volume->getInitialSize();
     }
 
+    void loadBestRes()
+    {
+
+    }
+
 signals:
     // NOPE
 

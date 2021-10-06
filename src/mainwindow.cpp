@@ -95,6 +95,7 @@ void MainWindow::load_volume(const QString& path)
         ui->width_spinbox->setValue(size.y());
         ui->depth_spinbox->setValue(size.z());
 
+        ui->num_levels_label->setText("ASD");
 
     }
     catch (std::runtime_error& e) {
@@ -117,8 +118,7 @@ void MainWindow::on_stepLength_valueChanged(double arg1)
  */
 void MainWindow::on_best_res_button_clicked()
 {
-    printf("CLUCKASD\n");
-
+    ui->canvas->loadBestRes();
 }
 
 

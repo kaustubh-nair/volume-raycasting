@@ -23,7 +23,6 @@
 
 #include "raycastvolume.h"
 #include "vtkvolume.h"
-#include "osvolume.h"
 
 #include <QRegularExpression>
 
@@ -121,12 +120,12 @@ void RayCastVolume::load_volume(const QString& filename) {
     }
     else if ("tiff" == extension || "svs" == extension || "tif" == extension) {
         uint32_t* data;
-        OSVolume volume {filename.toStdString()};
+        volume  = new OSVolume({filename.toStdString()});
 
-        data = volume.data();
+        data = volume->data();
         m_spacing = QVector3D(0.5f,0.5f, 0.5f);
         m_origin = QVector3D(0.0f, 0.0f, 0.0f);
-        m_size = volume.size();
+        m_size = volume->size();
         m_scaling = m_size;
 
         glDeleteTextures(1, &m_volume_texture);
@@ -146,7 +145,7 @@ void RayCastVolume::load_volume(const QString& filename) {
 
 
         /*
-         * initialize transferfunction
+         * initialize texture based transferfunction
          * causes segfauls somehow
         uint32_t* tf = (uint32_t*)malloc(256*256*256);
         int index = 0;

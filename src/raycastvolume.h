@@ -27,6 +27,7 @@
 #include <QVector3D>
 
 #include "mesh.h"
+#include "osvolume.h"
 
 /*!
  * \brief Class for a raycasting volume.
@@ -126,4 +127,7 @@ private:
 
     float scale_factor(void);
     uint32_t rgb(int x, int y, int z, int size);
+
+    OSVolume *volume;
+
 };
