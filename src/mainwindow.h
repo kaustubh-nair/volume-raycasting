@@ -72,4 +72,5 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    std::string curr_level_label, max_level_label;
 };

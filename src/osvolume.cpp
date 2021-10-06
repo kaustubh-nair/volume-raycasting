@@ -10,7 +10,7 @@ OSVolume::OSVolume(const std::string& filename)
 
     store_level_info(image, levels);
 
-    load_volume(0);
+    load_volume(levels-1);
 
     printf("Image loaded! levels: %d width: %ld height %ld\n ", levels, width, height);
 }
@@ -71,16 +71,21 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
 
 int OSVolume::load_best_res()
 {
-    int64_t curr_size = width*height;
+    //int64_t curr_size = width*height;
+   
     // assumes same size per slide, but should be ok?
     // use 75% of total vram for a conservative estimate
     int64_t available_size = (int64_t)(vram*0.75)/depth;
+
+
     for(int i = 0; i < (int)level_info.size(); i++)
     {
         if (level_info[i]["size"] < available_size)
         {
-            if (curr_level == i) return curr_level;
+            if (curr_level == i) break;
             free(_data);
+            load_volume(i);
+            break;
         }
     }
     return curr_level;

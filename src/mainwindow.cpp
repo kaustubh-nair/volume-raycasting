@@ -95,7 +95,11 @@ void MainWindow::load_volume(const QString& path)
         ui->width_spinbox->setValue(size.y());
         ui->depth_spinbox->setValue(size.z());
 
-        ui->num_levels_label->setText("ASD");
+        std::vector<int> levels = ui->canvas->get_initial_levels();
+        curr_level_label = std::to_string(levels[0]);
+        max_level_label =  std::to_string(levels[1]);
+
+        ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 
     }
     catch (std::runtime_error& e) {
@@ -118,9 +122,10 @@ void MainWindow::on_stepLength_valueChanged(double arg1)
  */
 void MainWindow::on_best_res_button_clicked()
 {
-    ui->canvas->load_best_res();
+    int l = ui->canvas->load_best_res();
+    curr_level_label = std::to_string(l);
+    ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 }
-
 
 /*!
  * \brief Load a volume from file.

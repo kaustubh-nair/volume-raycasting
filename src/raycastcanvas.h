@@ -122,10 +122,16 @@ public:
         return m_raycasting_volume->getInitialSize();
     }
 
+    std::vector<int> get_initial_levels() {
+        return m_raycasting_volume->get_initial_levels();
+    }
+
     // returns current level
     int load_best_res()
     {
-        return m_raycasting_volume->load_best_res();
+        int l = m_raycasting_volume->load_best_res();
+        update();
+        return l;
 
     }
 
