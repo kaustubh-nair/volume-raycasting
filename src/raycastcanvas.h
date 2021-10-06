@@ -122,8 +122,10 @@ public:
         return m_raycasting_volume->getInitialSize();
     }
 
-    void loadBestRes()
+    // returns current level
+    int load_best_res()
     {
+        return m_raycasting_volume->load_best_res();
 
     }
 

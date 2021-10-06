@@ -118,7 +118,7 @@ void MainWindow::on_stepLength_valueChanged(double arg1)
  */
 void MainWindow::on_best_res_button_clicked()
 {
-    ui->canvas->loadBestRes();
+    ui->canvas->load_best_res();
 }
 
 

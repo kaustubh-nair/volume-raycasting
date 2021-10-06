@@ -60,3 +60,20 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
         level_info.push_back(m);
     }
 }
+
+int OSVolume::load_best_res()
+{
+    int64_t curr_size = width*height;
+    // assumes same size per slide, but should be ok?
+    // use 75% of total vram for a conservative estimate
+    int64_t available_size = (int64_t)(vram*0.75)/depth;
+    for(int i = 0; i < (int)level_info.size(); i++)
+    {
+        if (level_info[i]["size"] < available_size)
+        {
+            if (curr_level == i) return curr_level;
+            free(_data);
+        }
+    }
+    return curr_level;
+}

@@ -114,6 +114,12 @@ public:
         return m_size;
     }
 
+
+    int load_best_res()
+    {
+        return volume->load_best_res();
+    }
+
 private:
     GLuint m_volume_texture;
     GLuint m_noise_texture;
@@ -129,5 +135,4 @@ private:
     uint32_t rgb(int x, int y, int z, int size);
 
     OSVolume *volume;
-
 };
