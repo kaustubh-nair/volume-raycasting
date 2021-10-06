@@ -4,21 +4,14 @@ OSVolume::OSVolume(const std::string& filename)
 {
     depth = 32;
 
-    openslide_t *image = openslide_open(filename.c_str());
+    image = openslide_open(filename.c_str());
 
     levels = openslide_get_level_count(image);
 
     store_level_info(image, levels);
 
-    curr_level = 0;
-    width = level_info[curr_level]["width"];
-    height = level_info[curr_level]["height"];
+    load_volume(0);
 
-	long long int size = width*height*4;
-    _data = (uint32_t*)malloc(size);
-    openslide_read_region(image, _data, 0, 0, curr_level, width, height);
-
-    duplicate_data();
     printf("Image loaded! levels: %d width: %ld height %ld\n ", levels, width, height);
 }
 
@@ -30,6 +23,21 @@ uint32_t* OSVolume::data()
 QVector3D OSVolume::size()
 {
     return QVector3D(width, height, depth);
+}
+
+void OSVolume::load_volume(int l)
+{
+    curr_level = l;
+
+    width = level_info[curr_level]["width"];
+    height = level_info[curr_level]["height"];
+
+	long long int size = width*height*4;
+    _data = (uint32_t*)malloc(size);
+
+    openslide_read_region(image, _data, 0, 0, curr_level, width, height);
+
+    duplicate_data();
 }
 
 // duplicate data "depth" times

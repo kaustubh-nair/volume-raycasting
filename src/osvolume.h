@@ -17,6 +17,7 @@ class OSVolume {
     int load_best_res();
 
     private:
+    openslide_t* image;
     uint32_t *_data;
     int64_t width, height, depth;  // stores current values
     int levels, curr_level;
@@ -32,4 +33,5 @@ class OSVolume {
     void determine_best_level();
     void store_level_info(openslide_t* image, int levels);
     void duplicate_data();
+    void load_volume(int l);
 };
