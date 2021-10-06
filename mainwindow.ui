@@ -55,7 +55,7 @@
    <property name="minimumSize">
     <size>
      <width>267</width>
-     <height>426</height>
+     <height>469</height>
     </size>
    </property>
    <property name="windowTitle">
@@ -262,8 +262,22 @@
        </property>
       </widget>
      </item>
-     <item row="14" column="0">
+     <item row="16" column="0">
       <layout class="QFormLayout" name="formLayout_2"/>
+     </item>
+     <item row="14" column="0">
+      <widget class="QPushButton" name="zoom_in_button">
+       <property name="text">
+        <string>Zoom in</string>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="0">
+      <widget class="QPushButton" name="zoom_out_button">
+       <property name="text">
+        <string>Zoom out</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>

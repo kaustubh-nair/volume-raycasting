@@ -116,6 +116,15 @@ void MainWindow::on_stepLength_valueChanged(double arg1)
     ui->canvas->setStepLength(static_cast<GLfloat>(arg1));
 }
 
+void MainWindow::on_zoom_in_button_clicked()
+{
+
+}
+
+void MainWindow::on_zoom_out_button_clicked()
+{
+
+}
 
 /* 
  * set best possible resolution

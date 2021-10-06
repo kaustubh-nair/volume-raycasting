@@ -70,6 +70,10 @@ private slots:
 
     void on_best_res_button_clicked();
 
+    void on_zoom_in_button_clicked();
+
+    void on_zoom_out_button_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::string curr_level_label, max_level_label;
