@@ -20,6 +20,7 @@ class OSVolume {
     private:
     openslide_t* image;
     uint32_t *_data;
+    uint32_t *low_res_data;
     int64_t width, height, depth;  // stores current values
 
     // map keys: width, height, size, num_voxels
@@ -35,4 +36,5 @@ class OSVolume {
     void store_level_info(openslide_t* image, int levels);
     void duplicate_data();
     void load_volume(int l);
+
 };
