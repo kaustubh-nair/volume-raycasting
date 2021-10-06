@@ -111,6 +111,17 @@ void MainWindow::on_stepLength_valueChanged(double arg1)
     ui->canvas->setStepLength(static_cast<GLfloat>(arg1));
 }
 
+
+/* 
+ * set best possible resolution
+ */
+void MainWindow::on_best_res_button_clicked()
+{
+    printf("CLUCKASD\n");
+
+}
+
+
 /*!
  * \brief Load a volume from file.
  */
@@ -122,17 +133,17 @@ void MainWindow::on_loadVolume_clicked()
     }
 }
 
-void MainWindow::on_height_spinbox_valueChanged(int value)
+void MainWindow::on_height_spinbox_valueChanged()
 {
     ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
 
-void MainWindow::on_width_spinbox_valueChanged(int value)
+void MainWindow::on_width_spinbox_valueChanged()
 {
     ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
 
-void MainWindow::on_depth_spinbox_valueChanged(int value)
+void MainWindow::on_depth_spinbox_valueChanged()
 {
     ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
