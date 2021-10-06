@@ -51,7 +51,7 @@ public:
      * box is equal to 1.
      */
     QVector3D extent(void) {
-        auto e = m_size * m_spacing;
+        auto e = m_scaling * m_spacing;
         return e / std::max({e.x(), e.y(), e.z()});
     }
 
@@ -102,6 +102,17 @@ public:
     float hsv_tf_h_threshold = 1.0;
     float hsv_tf_s_threshold = 1.0;
     float hsv_tf_v_threshold = 1.0;
+
+    void updateScaling(QVector3D new_val)
+    {
+        m_scaling = new_val;
+    }
+
+    QVector3D getInitialSize() 
+    {
+        return m_size;
+    }
+
 private:
     GLuint m_volume_texture;
     GLuint m_noise_texture;
@@ -111,6 +122,7 @@ private:
     QVector3D m_origin;
     QVector3D m_spacing;
     QVector3D m_size;
+    QVector3D m_scaling;
 
     float scale_factor(void);
     uint32_t rgb(int x, int y, int z, int size);

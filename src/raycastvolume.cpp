@@ -127,6 +127,7 @@ void RayCastVolume::load_volume(const QString& filename) {
         m_spacing = QVector3D(0.5f,0.5f, 0.5f);
         m_origin = QVector3D(0.0f, 0.0f, 0.0f);
         m_size = volume.size();
+        m_scaling = m_size;
 
         glDeleteTextures(1, &m_volume_texture);
         glGenTextures(1, &m_volume_texture);
@@ -237,7 +238,7 @@ std::pair<double, double> RayCastVolume::range() {
  */
 float RayCastVolume::scale_factor(void)
 {
-    auto e = m_size * m_spacing;
+    auto e = m_scaling * m_spacing;
     return std::max({e.x(), e.y(), e.z()});
 }
 

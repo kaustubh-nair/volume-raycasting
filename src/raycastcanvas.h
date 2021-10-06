@@ -96,6 +96,12 @@ public:
         update();
     }
 
+    void updateScaling(QVector3D inc)
+    {
+        m_raycasting_volume->updateScaling(inc);
+        update();
+    }
+
     std::vector<QString> getModes(void) {
         std::vector<QString> modes;
         for (const auto& [key, val] : m_modes) {
@@ -110,6 +116,10 @@ public:
 
     std::pair<double, double> getRange(void) {
         return m_raycasting_volume->range();
+    }
+
+    QVector3D getInitialSize() {
+        return m_raycasting_volume->getInitialSize();
     }
 
 signals:

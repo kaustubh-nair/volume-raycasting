@@ -62,6 +62,12 @@ private slots:
 
     void on_hsv_tf_checkbox_clicked(bool value);
 
+    void on_height_spinbox_valueChanged(int value);
+
+    void on_width_spinbox_valueChanged(int value);
+
+    void on_depth_spinbox_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
 };

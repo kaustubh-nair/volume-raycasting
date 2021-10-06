@@ -39,7 +39,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->canvas->setBackground(Qt::black);
     ui->tf_slider->setDisabled(true);
 
-
     // Enable file drop
     setAcceptDrops(true);
 }
@@ -89,6 +88,14 @@ void MainWindow::load_volume(const QString& path)
 {
     try {
         ui->canvas->setVolume(path);
+
+        // set scaling spinboxes
+        QVector3D size = ui->canvas->getInitialSize();
+        ui->height_spinbox->setValue(size.x());
+        ui->width_spinbox->setValue(size.y());
+        ui->depth_spinbox->setValue(size.z());
+
+
     }
     catch (std::runtime_error& e) {
         QMessageBox::warning(this, tr("Error"), tr("Cannot load volume ") + path + ": " + e.what());
@@ -113,6 +120,21 @@ void MainWindow::on_loadVolume_clicked()
     if (!path.isNull()) {
         load_volume(path);
     }
+}
+
+void MainWindow::on_height_spinbox_valueChanged(int value)
+{
+    ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
+}
+
+void MainWindow::on_width_spinbox_valueChanged(int value)
+{
+    ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
+}
+
+void MainWindow::on_depth_spinbox_valueChanged(int value)
+{
+    ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
 
 void MainWindow::on_tf_slider_valueChanged(int value)
