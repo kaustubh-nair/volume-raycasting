@@ -135,9 +135,15 @@ public:
 
     }
 
-    void switch_to_low_res()
+    void zoom_out()
     {
-        m_raycasting_volume->switch_to_low_res();
+        m_raycasting_volume->zoom_out();
+        update();
+    }
+
+    void zoom_in()
+    {
+        m_raycasting_volume->zoom_in();
         update();
     }
 

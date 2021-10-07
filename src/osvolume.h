@@ -22,6 +22,10 @@ class OSVolume {
 
     uint32_t *data;
 
+    void zoom_in();
+
+    void switch_to_low_res();
+
 
     private:
     QVector3D _low_res_size;

@@ -122,6 +122,7 @@ public:
 
     void switch_to_low_res()
     {
+        volume->switch_to_low_res();
         m_size = volume->low_res_size();
         switch_volume_texture(volume->low_res_data);
     }
@@ -137,6 +138,14 @@ public:
     }
 
     void switch_volume_texture(uint32_t* data);
+
+    void zoom_in()
+    {
+        volume->switch_to_low_res();
+        volume->zoom_in();
+    }
+
+
 
 private:
     GLuint m_volume_texture;

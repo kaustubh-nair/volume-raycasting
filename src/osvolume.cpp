@@ -99,3 +99,16 @@ int OSVolume::load_best_res()
     }
     return curr_level;
 }
+
+void OSVolume::zoom_in()
+{
+
+}
+
+void OSVolume::switch_to_low_res()
+{
+    if(data!=low_res_data)
+        free(data);
+
+    data = low_res_data;
+}
