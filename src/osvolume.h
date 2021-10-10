@@ -12,23 +12,22 @@ class OSVolume {
 
     QVector3D size();
 
-    QVector3D low_res_size();
-
     int load_best_res();
 
     int levels, curr_level;
 
-    uint32_t *low_res_data();
-
-    uint32_t *data;
+    uint32_t *data();
 
     void zoom_in();
 
     void zoom_out();
 
+    void switch_to_low_res();
+
 
     private:
-    uint32_t *_low_res_data;
+    uint32_t* _data;
+    uint32_t* _low_res_data;
     QVector3D _low_res_size;
 
     // scaling and offset as a fraction of the original full volume;
@@ -37,10 +36,13 @@ class OSVolume {
     QVector3D _low_res_scaling;
     QVector3D _low_res_offset;
 
+    uint32_t* zoomed_in_data(uint32_t* data);
+
     openslide_t* image;
 
     // map keys: width, height, size, num_voxels
     // NOTE: assumes 4 bytes per voxel.
+    // vector ordered in decreasing order of resolution
     std::vector<std::map<std::string, int64_t>> level_info;
 
     // for resolution determination; size in bytes

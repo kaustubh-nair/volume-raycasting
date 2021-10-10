@@ -122,34 +122,33 @@ public:
 
     void switch_to_low_res()
     {
-        m_size = volume->low_res_size();
-        switch_volume_texture(volume->low_res_data());
+        volume->switch_to_low_res();
+        update_volume_texture();
     }
 
     int load_best_res()
     {
         int level = volume->load_best_res();
-        m_size = volume->size();
 
-        switch_volume_texture(volume->data);
+        update_volume_texture();
 
         return level;
     }
 
-    void switch_volume_texture(uint32_t* data);
+    void update_volume_texture();
 
     void zoom_in()
     {
         switch_to_low_res();
         volume->zoom_in();
-        switch_volume_texture(volume->low_res_data());
+        update_volume_texture();
     }
 
     void zoom_out()
     {
         switch_to_low_res();
         volume->zoom_out();
-        switch_volume_texture(volume->low_res_data());
+        update_volume_texture();
     }
 
 

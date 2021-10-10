@@ -13,7 +13,7 @@ OSVolume::OSVolume(const std::string& filename)
     curr_level = levels-1;
     load_volume(curr_level);
 
-    _low_res_data = data;
+    _low_res_data = _data;
     _low_res_size = QVector3D(level_info[curr_level]["width"], level_info[curr_level]["height"], level_info[curr_level]["depth"]);
     _low_res_scaling = QVector3D(1.0, 1.0, 1.0);
     _low_res_offset = QVector3D(0.0, 0.0, 0.0);
@@ -30,14 +30,10 @@ QVector3D OSVolume::size()
     return QVector3D(level_info[curr_level]["width"], level_info[curr_level]["height"], level_info[curr_level]["depth"]);
 }
 
-QVector3D OSVolume::low_res_size()
-{
-    return _low_res_size;
-}
-
 void OSVolume::load_volume(int l)
 {
-    data = nullptr;
+    free(_data);
+    _data = nullptr;
 
     curr_level = l;
 
@@ -45,9 +41,9 @@ void OSVolume::load_volume(int l)
     int64_t height = level_info[curr_level]["height"];
 
 	long long int size = width*height*4;
-    data = (uint32_t*)malloc(size);
+    _data = (uint32_t*)malloc(size);
 
-    openslide_read_region(image, data, 0, 0, curr_level, width, height);
+    openslide_read_region(image, _data, 0, 0, curr_level, width, height);
 
     duplicate_data();
 }
@@ -59,15 +55,15 @@ void OSVolume::duplicate_data()
     int64_t width = level_info[curr_level]["width"];
     int64_t depth = level_info[curr_level]["depth"];
 
-    std::vector<uint32_t> *data3d = new std::vector<uint32_t>(data, data + width*height);
+    std::vector<uint32_t> *data3d = new std::vector<uint32_t>(_data, _data + width*height);
     std::vector<uint32_t> temp(data3d->begin(), data3d->end());
     for(int i = 0; i < depth-1; i++)
         std::copy(data3d->begin(),data3d->end(), std::back_inserter(temp));
     std::swap(temp, *data3d);
     // clear memory
     temp = std::vector<uint32_t>();
-    free(data);
-    data = &(*data3d)[0];
+    free(_data);
+    _data = &(*data3d)[0];
 }
 
 void OSVolume::store_level_info(openslide_t* image, int levels)
@@ -98,14 +94,15 @@ int OSVolume::load_best_res()
     int64_t available_size = (int64_t)(vram*0.75)/depth;
 
 
+    // iterate from highest resolution, and load it if it fits.
     for(int i = 0; i < (int)level_info.size(); i++)
     {
         if (level_info[i]["size"] < available_size)
         {
             if (curr_level == i) break;
 
-            if (data != _low_res_data)
-                free(data);
+            if (_data != _low_res_data)
+                free(_data);
             load_volume(i);
             break;
         }
@@ -113,7 +110,7 @@ int OSVolume::load_best_res()
     return curr_level;
 }
 
-uint32_t *OSVolume::low_res_data()
+uint32_t *OSVolume::zoomed_in_data(uint32_t *data)
 {
     return _low_res_data;
     int64_t height = level_info[curr_level]["height"];
@@ -129,6 +126,7 @@ uint32_t *OSVolume::low_res_data()
     int d_offset = level_info[level_info.size()-1]["depth"]*_low_res_offset.z();
 
     // remove x4 ?
+    // TODO: memory leak here! DANGER!
     uint32_t* zoomed_in_data = (uint32_t*)malloc(width*depth*height*4);
     std::copy(_low_res_data, _low_res_data+(width*height*depth*4), zoomed_in_data);
     return zoomed_in_data;
@@ -169,4 +167,16 @@ void OSVolume::zoom_out()
     if (_low_res_scaling.y() > 1.0) _low_res_scaling.setY(1.0);
     if (_low_res_scaling.z() > 1.0) _low_res_scaling.setZ(1.0);
 
+}
+
+void OSVolume::switch_to_low_res()
+{
+    curr_level = levels-1;
+}
+
+uint32_t* OSVolume::data()
+{
+    if (curr_level == levels-1)
+        return _low_res_data;
+    return _data;
 }
