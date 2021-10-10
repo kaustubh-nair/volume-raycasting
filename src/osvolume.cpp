@@ -11,12 +11,12 @@ OSVolume::OSVolume(const std::string& filename)
     // lowest resolution is loaded fully initially.
     // Be careful while changing this - low_res_data values and width/depth/height are initialized based on this.
     _curr_level = levels-1;
+    _scaling_factor = QVector3D(1.0, 1.0, 1.0);
+    _scaling_offset = QVector3D(0.0, 0.0, 0.0);
     load_volume(_curr_level);
 
     _low_res_data = _data;
     _low_res_size = QVector3D(level_info[_curr_level]["width"], level_info[_curr_level]["height"], level_info[_curr_level]["depth"]);
-    _scaling_factor = QVector3D(1.0, 1.0, 1.0);
-    _scaling_offset = QVector3D(0.0, 0.0, 0.0);
 
     printf("Image loaded! levels: %d width: %ld height %ld depth %ld\n ", levels,
             level_info[_curr_level]["width"],
@@ -40,8 +40,8 @@ void OSVolume::load_volume(int l)
 
     _curr_level = l;
 
-    int64_t width = level_info[_curr_level]["width"];
-    int64_t height = level_info[_curr_level]["height"];
+    int64_t width = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.x();
 
 	long long int size = width*height*sizeof(uint32_t);
     _data = (uint32_t*)malloc(size);
@@ -123,15 +123,14 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
     int64_t width = level_info[_curr_level]["width"];
     int64_t depth = level_info[_curr_level]["depth"];
 
-    int w_small = level_info[level_info.size()-1]["width"]*_scaling_factor.x();
-    int h_small = level_info[level_info.size()-1]["height"]*_scaling_factor.y();
-    int d_small = level_info[level_info.size()-1]["depth"]*_scaling_factor.z();
+    int w_small = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int h_small = level_info[_curr_level]["height"]*_scaling_factor.y();
+    int d_small = level_info[_curr_level]["depth"]*_scaling_factor.z();
 
-    int w_offset = level_info[level_info.size()-1]["width"]*_scaling_offset.x();
-    int h_offset = level_info[level_info.size()-1]["height"]*_scaling_offset.y();
-    int d_offset = level_info[level_info.size()-1]["depth"]*_scaling_offset.z();
+    int w_offset = level_info[_curr_level]["width"]*_scaling_offset.x();
+    int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
+    int d_offset = level_info[_curr_level]["depth"]*_scaling_offset.z();
 
-    // remove x4 ?
     // TODO: memory leak here! DANGER!
     uint32_t* zoomed_in = (uint32_t*)malloc(w_small*h_small*d_small*sizeof(uint32_t));
 
@@ -140,7 +139,7 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
     {
         for(int j = h_offset; j < h_small; j++)
         {
-            std::copy(_low_res_data+w_offset+(j*h_offset)+(k*d_offset), _low_res_data+w_offset+w_small+(j*h_offset)+(k*d_offset), zoomed_in+ptr);
+            std::copy(_low_res_data+w_offset + (j*width) + (k*width*height), _low_res_data+w_offset + w_small + (j*width) + (k*width*height), zoomed_in+ptr);
             ptr += w_small;
         }
     }
@@ -162,13 +161,19 @@ void OSVolume::zoom_in()
 void OSVolume::zoom_out()
 {
     // Do only x-y zoom for now
-    _scaling_factor += QVector3D(0.1, 0.1, 0.0);
-    _scaling_offset -= QVector3D(0.05, 0.05, 0.0);
+    _scaling_factor += QVector3D(0.01, 0.01, 0.0);
+    _scaling_offset -= QVector3D(0.005, 0.005, 0.0);
 
     // cap to 1.0
     if (_scaling_factor.x() > 1.0) _scaling_factor.setX(1.0);
     if (_scaling_factor.y() > 1.0) _scaling_factor.setY(1.0);
     if (_scaling_factor.z() > 1.0) _scaling_factor.setZ(1.0);
+
+    // min 0
+    if (_scaling_offset.x() < 0.0) _scaling_offset.setX(0.0);
+    if (_scaling_offset.y() < 0.0) _scaling_offset.setY(0.0);
+    if (_scaling_offset.z() < 0.0) _scaling_offset.setZ(0.0);
+
 
 }
 
