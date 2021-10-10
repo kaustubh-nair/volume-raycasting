@@ -33,8 +33,8 @@ class OSVolume {
     // scaling and offset as a fraction of the original full volume;
     // used for determining size of zoomed-in volume
     // z scaling and offset are ignored for now
-    QVector3D _low_res_scaling;
-    QVector3D _low_res_offset;
+    QVector3D _scaling_factor;
+    QVector3D _scaling_offset;
 
     uint32_t* zoomed_in(uint32_t* data);
 
