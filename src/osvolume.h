@@ -14,7 +14,7 @@ class OSVolume {
 
     int load_best_res();
 
-    int levels, curr_level;
+    int levels, _curr_level;
 
     uint32_t *data();
 
@@ -36,7 +36,7 @@ class OSVolume {
     QVector3D _low_res_scaling;
     QVector3D _low_res_offset;
 
-    uint32_t* zoomed_in_data(uint32_t* data);
+    uint32_t* zoomed_in(uint32_t* data);
 
     openslide_t* image;
 

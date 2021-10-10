@@ -10,40 +10,43 @@ OSVolume::OSVolume(const std::string& filename)
 
     // lowest resolution is loaded fully initially.
     // Be careful while changing this - low_res_data values and width/depth/height are initialized based on this.
-    curr_level = levels-1;
-    load_volume(curr_level);
+    _curr_level = levels-1;
+    load_volume(_curr_level);
 
     _low_res_data = _data;
-    _low_res_size = QVector3D(level_info[curr_level]["width"], level_info[curr_level]["height"], level_info[curr_level]["depth"]);
+    _low_res_size = QVector3D(level_info[_curr_level]["width"], level_info[_curr_level]["height"], level_info[_curr_level]["depth"]);
     _low_res_scaling = QVector3D(1.0, 1.0, 1.0);
     _low_res_offset = QVector3D(0.0, 0.0, 0.0);
 
     printf("Image loaded! levels: %d width: %ld height %ld depth %ld\n ", levels,
-            level_info[curr_level]["width"],
-            level_info[curr_level]["height"],
-            level_info[curr_level]["depth"]
+            level_info[_curr_level]["width"],
+            level_info[_curr_level]["height"],
+            level_info[_curr_level]["depth"]
     );
 }
 
 QVector3D OSVolume::size()
 {
-    return QVector3D(level_info[curr_level]["width"], level_info[curr_level]["height"], level_info[curr_level]["depth"]);
+    return QVector3D(
+            _low_res_scaling.x()*level_info[_curr_level]["width"],
+            _low_res_scaling.y()*level_info[_curr_level]["height"],
+            _low_res_scaling.z()*level_info[_curr_level]["depth"]
+    );
 }
 
 void OSVolume::load_volume(int l)
 {
-    free(_data);
     _data = nullptr;
 
-    curr_level = l;
+    _curr_level = l;
 
-    int64_t width = level_info[curr_level]["width"];
-    int64_t height = level_info[curr_level]["height"];
+    int64_t width = level_info[_curr_level]["width"];
+    int64_t height = level_info[_curr_level]["height"];
 
 	long long int size = width*height*sizeof(uint32_t);
     _data = (uint32_t*)malloc(size);
 
-    openslide_read_region(image, _data, 0, 0, curr_level, width, height);
+    openslide_read_region(image, _data, 0, 0, _curr_level, width, height);
 
     duplicate_data();
 }
@@ -51,9 +54,9 @@ void OSVolume::load_volume(int l)
 // duplicate data "depth" times
 void OSVolume::duplicate_data()
 {
-    int64_t height = level_info[curr_level]["height"];
-    int64_t width = level_info[curr_level]["width"];
-    int64_t depth = level_info[curr_level]["depth"];
+    int64_t height = level_info[_curr_level]["height"];
+    int64_t width = level_info[_curr_level]["width"];
+    int64_t depth = level_info[_curr_level]["depth"];
 
     std::vector<uint32_t> *data3d = new std::vector<uint32_t>(_data, _data + width*height);
     std::vector<uint32_t> temp(data3d->begin(), data3d->end());
@@ -84,9 +87,9 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
 
 int OSVolume::load_best_res()
 {
-    int64_t height = level_info[curr_level]["height"];
-    int64_t width = level_info[curr_level]["width"];
-    int64_t depth = level_info[curr_level]["depth"];
+    int64_t height = level_info[_curr_level]["height"];
+    int64_t width = level_info[_curr_level]["width"];
+    int64_t depth = level_info[_curr_level]["depth"];
     //int64_t curr_size = width*height;
    
     // assumes same size per slide, but should be ok?
@@ -99,7 +102,7 @@ int OSVolume::load_best_res()
     {
         if (level_info[i]["size"] < available_size)
         {
-            if (curr_level == i) break;
+            if (_curr_level == i) break;
 
             if (_data != _low_res_data)
                 free(_data);
@@ -107,19 +110,22 @@ int OSVolume::load_best_res()
             break;
         }
     }
-    return curr_level;
+    return _curr_level;
 }
 
-uint32_t *OSVolume::zoomed_in_data(uint32_t *data)
+uint32_t *OSVolume::zoomed_in(uint32_t *data)
 {
-    return _low_res_data;
-    int64_t height = level_info[curr_level]["height"];
-    int64_t width = level_info[curr_level]["width"];
-    int64_t depth = level_info[curr_level]["depth"];
+    // no zooming required
+    if (_low_res_scaling.x() == 1.0 && _low_res_scaling.y() == 1.0 && _low_res_scaling.z() == 1.0)
+        return data;
 
-    int w = level_info[level_info.size()-1]["width"]*_low_res_scaling.x();
-    int h = level_info[level_info.size()-1]["height"]*_low_res_scaling.y();
-    int d = level_info[level_info.size()-1]["depth"]*_low_res_scaling.z();
+    int64_t height = level_info[_curr_level]["height"];
+    int64_t width = level_info[_curr_level]["width"];
+    int64_t depth = level_info[_curr_level]["depth"];
+
+    int w_small = level_info[level_info.size()-1]["width"]*_low_res_scaling.x();
+    int h_small = level_info[level_info.size()-1]["height"]*_low_res_scaling.y();
+    int d_small = level_info[level_info.size()-1]["depth"]*_low_res_scaling.z();
 
     int w_offset = level_info[level_info.size()-1]["width"]*_low_res_offset.x();
     int h_offset = level_info[level_info.size()-1]["height"]*_low_res_offset.y();
@@ -127,32 +133,29 @@ uint32_t *OSVolume::zoomed_in_data(uint32_t *data)
 
     // remove x4 ?
     // TODO: memory leak here! DANGER!
-    uint32_t* zoomed_in_data = (uint32_t*)malloc(width*depth*height*sizeof(uint32_t));
-    std::copy(_low_res_data, _low_res_data+(width*height*depth*4), zoomed_in_data);
-    return zoomed_in_data;
+    uint32_t* zoomed_in = (uint32_t*)malloc(w_small*h_small*d_small*sizeof(uint32_t));
 
     int ptr = 0;
-    for(int k = d_offset; k < d; k++)
+    for(int k = d_offset; k < d_small; k++)
     {
-        for(int j = h_offset; j < h; j++)
+        for(int j = h_offset; j < h_small; j++)
         {
-            std::copy(_low_res_data+w_offset+(j*h_offset)+(k*d_offset), _low_res_data+w_offset+w+(j*h_offset)+(k*d_offset), zoomed_in_data+ptr);
-            ptr += w;
+            std::copy(_low_res_data+w_offset+(j*h_offset)+(k*d_offset), _low_res_data+w_offset+w_small+(j*h_offset)+(k*d_offset), zoomed_in+ptr);
+            ptr += w_small;
         }
     }
 
-
-    return zoomed_in_data;
+    return zoomed_in;
 }
 
 void OSVolume::zoom_in()
 {
-    if (_low_res_scaling.x() <= 0.1 || _low_res_scaling.y() <= 0.1 || _low_res_scaling.z() <= 0.1)
+    if (_low_res_scaling.x() <= 0.01 || _low_res_scaling.y() <= 0.01 || _low_res_scaling.z() <= 0.01)
         return;
 
     // Do only x-y zoom for now
-    _low_res_scaling -= QVector3D(0.1, 0.1, 0.0);
-    _low_res_offset += QVector3D(0.05, 0.05, 0.0);
+    _low_res_scaling -= QVector3D(0.01, 0.01, 0.0);
+    _low_res_offset += QVector3D(0.005, 0.005, 0.0);
 
 }
 
@@ -171,12 +174,12 @@ void OSVolume::zoom_out()
 
 void OSVolume::switch_to_low_res()
 {
-    curr_level = levels-1;
+    _curr_level = levels-1;
 }
 
 uint32_t* OSVolume::data()
 {
-    if (curr_level == levels-1)
-        return _low_res_data;
+    if (_curr_level == levels-1)
+        return zoomed_in(_low_res_data);
     return _data;
 }

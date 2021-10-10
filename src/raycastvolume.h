@@ -117,7 +117,7 @@ public:
 
     std::vector<int> get_initial_levels()
     {
-        return std::vector<int>{volume->curr_level, volume->levels-1};
+        return std::vector<int>{volume->_curr_level, volume->levels-1};
     }
 
     void switch_to_low_res()
@@ -139,13 +139,14 @@ public:
 
     void zoom_in()
     {
-        switch_to_low_res();
+        volume->switch_to_low_res();
         volume->zoom_in();
         update_volume_texture();
     }
 
     void zoom_out()
     {
+        volume->switch_to_low_res();
         switch_to_low_res();
         volume->zoom_out();
         update_volume_texture();
