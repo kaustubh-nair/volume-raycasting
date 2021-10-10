@@ -2,8 +2,6 @@
 
 OSVolume::OSVolume(const std::string& filename)
 {
-    depth = 32;
-
     image = openslide_open(filename.c_str());
 
     levels = openslide_get_level_count(image);
@@ -12,19 +10,24 @@ OSVolume::OSVolume(const std::string& filename)
 
     // lowest resolution is loaded fully initially.
     // Be careful while changing this - low_res_data values and width/depth/height are initialized based on this.
-    load_volume(levels-1);
+    curr_level = levels-1;
+    load_volume(curr_level);
 
     _low_res_data = data;
-    _low_res_size = QVector3D(width, height, depth);
+    _low_res_size = QVector3D(level_info[curr_level]["width"], level_info[curr_level]["height"], level_info[curr_level]["depth"]);
     _low_res_scaling = QVector3D(1.0, 1.0, 1.0);
     _low_res_offset = QVector3D(0.0, 0.0, 0.0);
 
-    printf("Image loaded! levels: %d width: %ld height %ld\n ", levels, width, height);
+    printf("Image loaded! levels: %d width: %ld height %ld depth %ld\n ", levels,
+            level_info[curr_level]["width"],
+            level_info[curr_level]["height"],
+            level_info[curr_level]["depth"]
+    );
 }
 
 QVector3D OSVolume::size()
 {
-    return QVector3D(width, height, depth);
+    return QVector3D(level_info[curr_level]["width"], level_info[curr_level]["height"], level_info[curr_level]["depth"]);
 }
 
 QVector3D OSVolume::low_res_size()
@@ -38,8 +41,8 @@ void OSVolume::load_volume(int l)
 
     curr_level = l;
 
-    width = level_info[curr_level]["width"];
-    height = level_info[curr_level]["height"];
+    int64_t width = level_info[curr_level]["width"];
+    int64_t height = level_info[curr_level]["height"];
 
 	long long int size = width*height*4;
     data = (uint32_t*)malloc(size);
@@ -52,6 +55,10 @@ void OSVolume::load_volume(int l)
 // duplicate data "depth" times
 void OSVolume::duplicate_data()
 {
+    int64_t height = level_info[curr_level]["height"];
+    int64_t width = level_info[curr_level]["width"];
+    int64_t depth = level_info[curr_level]["depth"];
+
     std::vector<uint32_t> *data3d = new std::vector<uint32_t>(data, data + width*height);
     std::vector<uint32_t> temp(data3d->begin(), data3d->end());
     for(int i = 0; i < depth-1; i++)
@@ -72,6 +79,7 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
         openslide_get_level_dimensions(image, i, &w, &h);
         m["width"] = w;
         m["height"] = h;
+        m["depth"] = 32;        //TODO hardcoded - loads and duplicates single volume
         m["num_voxels"] = w*h;
         m["size"] = m["num_voxels"]*4;
         level_info.push_back(m);
@@ -80,6 +88,9 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
 
 int OSVolume::load_best_res()
 {
+    int64_t height = level_info[curr_level]["height"];
+    int64_t width = level_info[curr_level]["width"];
+    int64_t depth = level_info[curr_level]["depth"];
     //int64_t curr_size = width*height;
    
     // assumes same size per slide, but should be ok?
@@ -105,6 +116,10 @@ int OSVolume::load_best_res()
 uint32_t *OSVolume::low_res_data()
 {
     return _low_res_data;
+    int64_t height = level_info[curr_level]["height"];
+    int64_t width = level_info[curr_level]["width"];
+    int64_t depth = level_info[curr_level]["depth"];
+
     int w = level_info[level_info.size()-1]["width"]*_low_res_scaling.x();
     int h = level_info[level_info.size()-1]["height"]*_low_res_scaling.y();
     int d = level_info[level_info.size()-1]["depth"]*_low_res_scaling.z();

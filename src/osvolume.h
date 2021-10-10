@@ -38,7 +38,6 @@ class OSVolume {
     QVector3D _low_res_offset;
 
     openslide_t* image;
-    int64_t width, height, depth;  // stores current values
 
     // map keys: width, height, size, num_voxels
     // NOTE: assumes 4 bytes per voxel.
