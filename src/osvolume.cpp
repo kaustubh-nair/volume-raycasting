@@ -40,7 +40,7 @@ void OSVolume::load_volume(int l)
     int64_t width = level_info[curr_level]["width"];
     int64_t height = level_info[curr_level]["height"];
 
-	long long int size = width*height*4;
+	long long int size = width*height*sizeof(uint32_t);
     _data = (uint32_t*)malloc(size);
 
     openslide_read_region(image, _data, 0, 0, curr_level, width, height);
@@ -127,7 +127,7 @@ uint32_t *OSVolume::zoomed_in_data(uint32_t *data)
 
     // remove x4 ?
     // TODO: memory leak here! DANGER!
-    uint32_t* zoomed_in_data = (uint32_t*)malloc(width*depth*height*4);
+    uint32_t* zoomed_in_data = (uint32_t*)malloc(width*depth*height*sizeof(uint32_t));
     std::copy(_low_res_data, _low_res_data+(width*height*depth*4), zoomed_in_data);
     return zoomed_in_data;
 
