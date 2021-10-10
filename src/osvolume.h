@@ -18,17 +18,25 @@ class OSVolume {
 
     int levels, curr_level;
 
-    uint32_t *low_res_data;
+    uint32_t *low_res_data();
 
     uint32_t *data;
 
     void zoom_in();
 
-    void switch_to_low_res();
+    void zoom_out();
 
 
     private:
+    uint32_t *_low_res_data;
     QVector3D _low_res_size;
+
+    // scaling and offset as a fraction of the original full volume;
+    // used for determining size of zoomed-in volume
+    // z scaling and offset are ignored for now
+    QVector3D _low_res_scaling;
+    QVector3D _low_res_offset;
+
     openslide_t* image;
     int64_t width, height, depth;  // stores current values
 
