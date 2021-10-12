@@ -139,14 +139,14 @@ public:
 
     void zoom_in()
     {
-        switch_to_low_res();
+        volume->switch_to_low_res();
         volume->zoom_in();
         update_volume_texture();
     }
 
     void zoom_out()
     {
-        switch_to_low_res();
+        volume->switch_to_low_res();
         volume->zoom_out();
         update_volume_texture();
     }

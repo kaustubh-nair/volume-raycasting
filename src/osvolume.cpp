@@ -54,8 +54,8 @@ void OSVolume::load_volume(int l)
 // duplicate data "depth" times
 void OSVolume::duplicate_data(uint32_t** d)
 {
-    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.x();
-    int64_t width = level_info[_curr_level]["width"]*_scaling_factor.y();
+    int64_t width = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.y();
     int64_t depth = level_info[_curr_level]["depth"]*_scaling_factor.z();
 
     std::vector<uint32_t> *data3d = new std::vector<uint32_t>(*d, *d + width*height);
@@ -181,7 +181,7 @@ void OSVolume::switch_to_low_res()
 uint32_t* OSVolume::data()
 {
     if (_curr_level == levels-1)
-        return zoomed_in();
+        return zoomed_in(_low_res_data);
     return _data;
 }
 
@@ -224,8 +224,7 @@ uint32_t* OSVolume::zoomed_in()
 	long long int size = w_small*h_small*sizeof(uint32_t);
     uint32_t* d = (uint32_t*)malloc(size);
 
-    openslide_read_region(image, _data, w_offset, h_offset, _curr_level, w_small, h_small);
+    openslide_read_region(image, d, 0, 0, _curr_level, w_small, h_small);
     duplicate_data(&d);
     return d;
-
 }
