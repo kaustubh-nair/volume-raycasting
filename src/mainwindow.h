@@ -73,6 +73,10 @@ private slots:
     void on_zoom_in_button_clicked();
 
     void on_zoom_out_button_clicked();
+    void on_up_button_clicked();
+    void on_down_button_clicked();
+    void on_left_button_clicked();
+    void on_right_button_clicked();
 
 private:
     Ui::MainWindow *ui;

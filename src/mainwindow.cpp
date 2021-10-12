@@ -126,6 +126,22 @@ void MainWindow::on_zoom_out_button_clicked()
 {
     ui->canvas->zoom_out();
 }
+void MainWindow::on_up_button_clicked()
+{
+    ui->canvas->move_up();
+}
+void MainWindow::on_down_button_clicked()
+{
+    ui->canvas->move_down();
+}
+void MainWindow::on_left_button_clicked()
+{
+    ui->canvas->move_left();
+}
+void MainWindow::on_right_button_clicked()
+{
+    ui->canvas->move_right();
+}
 
 /* 
  * set best possible resolution

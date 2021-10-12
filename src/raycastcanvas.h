@@ -135,6 +135,27 @@ public:
 
     }
 
+    void move_up()
+    {
+        m_raycasting_volume->move_up();
+        update();
+    }
+    void move_left()
+    {
+        m_raycasting_volume->move_left();
+        update();
+    }
+    void move_down()
+    {
+        m_raycasting_volume->move_down();
+        update();
+    }
+    void move_right()
+    {
+        m_raycasting_volume->move_right();
+        update();
+    }
+
     void zoom_out()
     {
         m_raycasting_volume->zoom_out();

@@ -140,6 +140,7 @@ public:
     void zoom_in()
     {
         volume->switch_to_low_res();
+        switch_to_low_res();
         volume->zoom_in();
         update_volume_texture();
     }
@@ -149,6 +150,31 @@ public:
         volume->switch_to_low_res();
         switch_to_low_res();
         volume->zoom_out();
+        update_volume_texture();
+    }
+
+    void move_left()
+    {
+        volume->switch_to_low_res();
+        volume->move_left();
+        update_volume_texture();
+    }
+    void move_up()
+    {
+        volume->switch_to_low_res();
+        volume->move_up();
+        update_volume_texture();
+    }
+    void move_down()
+    {
+        volume->switch_to_low_res();
+        volume->move_down();
+        update_volume_texture();
+    }
+    void move_right()
+    {
+        volume->switch_to_low_res();
+        volume->move_right();
         update_volume_texture();
     }
 

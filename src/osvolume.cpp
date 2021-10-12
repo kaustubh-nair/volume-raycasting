@@ -151,16 +151,16 @@ void OSVolume::zoom_in()
         return;
 
     // Do only x-y zoom for now
-    _scaling_factor -= QVector3D(0.01, 0.01, 0.0);
-    _scaling_offset += QVector3D(0.005, 0.005, 0.0);
+    _scaling_factor -= QVector3D(_scaling_factor_value,_scaling_factor_value,_scaling_factor_value);
+    _scaling_offset += QVector3D(_scaling_offset_value, _scaling_offset_value, _scaling_offset_value);
 
 }
 
 void OSVolume::zoom_out()
 {
     // Do only x-y zoom for now
-    _scaling_factor += QVector3D(0.01, 0.01, 0.0);
-    _scaling_offset -= QVector3D(0.005, 0.005, 0.0);
+    _scaling_factor += QVector3D(_scaling_factor_value, _scaling_factor_value, _scaling_factor_value);
+    _scaling_offset -= QVector3D(_scaling_offset_value, _scaling_offset_value, _scaling_offset_value);
 
     // cap to 1.0
     if (_scaling_factor.x() > 1.0) _scaling_factor.setX(1.0);
@@ -185,4 +185,30 @@ uint32_t* OSVolume::data()
     if (_curr_level == levels-1)
         return zoomed_in(_low_res_data);
     return _data;
+}
+
+
+void OSVolume::move_up()
+{
+    _scaling_offset.setY(_scaling_offset.y()+_scaling_offset_value);
+    if (_scaling_offset.y() > 1.0) _scaling_offset.setY(1.0);
+
+}
+void OSVolume::move_down()
+{
+    _scaling_offset.setY(_scaling_offset.y()-_scaling_offset_value);
+    if (_scaling_offset.y() < 0.0) _scaling_offset.setY(0.0);
+
+}
+void OSVolume::move_right()
+{
+    _scaling_offset.setX(_scaling_offset.x()+_scaling_offset_value);
+    if (_scaling_offset.x() > 1.0) _scaling_offset.setX(1.0);
+
+}
+void OSVolume::move_left()
+{
+    _scaling_offset.setX(_scaling_offset.x()-_scaling_offset_value);
+    if (_scaling_offset.x() < 0.0) _scaling_offset.setX(0.0);
+
 }

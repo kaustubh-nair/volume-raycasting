@@ -24,6 +24,14 @@ class OSVolume {
 
     void switch_to_low_res();
 
+    void move_right();
+    
+    void move_up();
+
+    void move_down();
+
+    void move_left();
+
 
     private:
     uint32_t* _data;
@@ -35,6 +43,8 @@ class OSVolume {
     // z scaling and offset are ignored for now
     QVector3D _scaling_factor;
     QVector3D _scaling_offset;
+    double _scaling_factor_value = 0.06;
+    double _scaling_offset_value = 0.03;
 
     uint32_t* zoomed_in(uint32_t* data);
 
@@ -54,5 +64,6 @@ class OSVolume {
     void store_level_info(openslide_t* image, int levels);
     void load_volume(int l);
     void duplicate_data(uint32_t** d);
+
 
 };
