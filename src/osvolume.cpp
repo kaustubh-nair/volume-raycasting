@@ -181,7 +181,7 @@ void OSVolume::switch_to_low_res()
 uint32_t* OSVolume::data()
 {
     if (_curr_level == levels-1)
-        return zoomed_in(_low_res_data);
+        return zoomed_in();
     return _data;
 }
 
@@ -208,5 +208,24 @@ void OSVolume::move_left()
 {
     _scaling_offset.setX(_scaling_offset.x()-_scaling_offset_value);
     if (_scaling_offset.x() < 0.0) _scaling_offset.setX(0.0);
+
+}
+
+uint32_t* OSVolume::zoomed_in()
+{
+    int w_small = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int h_small = level_info[_curr_level]["height"]*_scaling_factor.y();
+    int d_small = level_info[_curr_level]["depth"]*_scaling_factor.z();
+
+    int w_offset = level_info[_curr_level]["width"]*_scaling_offset.x();
+    int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
+    int d_offset = level_info[_curr_level]["depth"]*_scaling_offset.z();
+
+	long long int size = w_small*h_small*sizeof(uint32_t);
+    uint32_t* d = (uint32_t*)malloc(size);
+
+    openslide_read_region(image, _data, w_offset, h_offset, _curr_level, w_small, h_small);
+    duplicate_data(&d);
+    return d;
 
 }

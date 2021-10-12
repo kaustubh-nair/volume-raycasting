@@ -244,8 +244,7 @@ uint32_t RayCastVolume::rgb(int x, int y, int z, int size)
 
 void RayCastVolume::update_volume_texture()
 {
-    m_size = volume->size();
-    m_scaling = m_size;
+    m_scaling = volume->size();
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_size.x(),m_size.y(),m_size.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, volume->data());
     glGenerateMipmap(GL_TEXTURE_3D);

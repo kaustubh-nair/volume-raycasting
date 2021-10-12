@@ -64,6 +64,7 @@ class OSVolume {
     void store_level_info(openslide_t* image, int levels);
     void load_volume(int l);
     void duplicate_data(uint32_t** d);
+    uint32_t* zoomed_in();
 
 
 };
