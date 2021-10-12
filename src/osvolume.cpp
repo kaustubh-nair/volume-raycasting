@@ -133,12 +133,14 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
     uint32_t* zoomed_in = (uint32_t*)malloc(w_small*h_small*d_small*sizeof(uint32_t));
 
     int ptr = 0;
-    for(int j = h_offset; j < h_small; j++)
+    for(int i = d_offset; i < d_small; i++)
     {
-        std::copy(_low_res_data+w_offset + (j*width), _low_res_data+w_offset + w_small + (j*width), zoomed_in+ptr);
-        ptr += w_small;
+        for(int j = h_offset; j < h_small; j++)
+        {
+            std::copy(_low_res_data+w_offset + (j*width) + (i*width*height), _low_res_data+w_offset + w_small + (j*width) + (i*width*height), zoomed_in+ptr);
+            ptr += w_small;
+        }
     }
-    duplicate_data(&zoomed_in);
 
     return zoomed_in;
 }
@@ -181,26 +183,26 @@ void OSVolume::switch_to_low_res()
 uint32_t* OSVolume::data()
 {
     if (_curr_level == levels-1)
-        return zoomed_in(_low_res_data);
+        return zoomed_in();
     return _data;
 }
 
 
 void OSVolume::move_up()
 {
-    _scaling_offset.setY(_scaling_offset.y()+_scaling_offset_value);
+    _scaling_offset.setY(_scaling_offset.y()+4*_scaling_offset_value);
     if (_scaling_offset.y() > 1.0) _scaling_offset.setY(1.0);
 
 }
 void OSVolume::move_down()
 {
-    _scaling_offset.setY(_scaling_offset.y()-_scaling_offset_value);
+    _scaling_offset.setY(_scaling_offset.y()-4*_scaling_offset_value);
     if (_scaling_offset.y() < 0.0) _scaling_offset.setY(0.0);
 
 }
 void OSVolume::move_right()
 {
-    _scaling_offset.setX(_scaling_offset.x()+_scaling_offset_value);
+    _scaling_offset.setX(_scaling_offset.x()+4*_scaling_offset_value);
     if (_scaling_offset.x() > 1.0) _scaling_offset.setX(1.0);
 
 }
@@ -224,7 +226,7 @@ uint32_t* OSVolume::zoomed_in()
 	long long int size = w_small*h_small*sizeof(uint32_t);
     uint32_t* d = (uint32_t*)malloc(size);
 
-    openslide_read_region(image, d, 0, 0, _curr_level, w_small, h_small);
+    openslide_read_region(image, d, w_offset, h_offset, _curr_level, w_small, h_small);
     duplicate_data(&d);
     return d;
 }
