@@ -52,7 +52,7 @@ class OSVolume {
 
     void determine_best_level();
     void store_level_info(openslide_t* image, int levels);
-    void duplicate_data();
     void load_volume(int l);
+    void duplicate_data(uint32_t** d);
 
 };

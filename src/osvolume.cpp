@@ -48,25 +48,25 @@ void OSVolume::load_volume(int l)
 
     openslide_read_region(image, _data, 0, 0, _curr_level, width, height);
 
-    duplicate_data();
+    duplicate_data(&_data);
 }
 
 // duplicate data "depth" times
-void OSVolume::duplicate_data()
+void OSVolume::duplicate_data(uint32_t** d)
 {
-    int64_t height = level_info[_curr_level]["height"];
-    int64_t width = level_info[_curr_level]["width"];
-    int64_t depth = level_info[_curr_level]["depth"];
+    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.x();
+    int64_t width = level_info[_curr_level]["width"]*_scaling_factor.y();
+    int64_t depth = level_info[_curr_level]["depth"]*_scaling_factor.z();
 
-    std::vector<uint32_t> *data3d = new std::vector<uint32_t>(_data, _data + width*height);
+    std::vector<uint32_t> *data3d = new std::vector<uint32_t>(*d, *d + width*height);
     std::vector<uint32_t> temp(data3d->begin(), data3d->end());
     for(int i = 0; i < depth-1; i++)
         std::copy(data3d->begin(),data3d->end(), std::back_inserter(temp));
     std::swap(temp, *data3d);
     // clear memory
     temp = std::vector<uint32_t>();
-    free(_data);
-    _data = &(*data3d)[0];
+    free(*d);
+    *d = &(*data3d)[0];
 }
 
 void OSVolume::store_level_info(openslide_t* image, int levels)
@@ -140,6 +140,7 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
         std::copy(_low_res_data+w_offset + (j*width), _low_res_data+w_offset + w_small + (j*width), zoomed_in+ptr);
         ptr += w_small;
     }
+    duplicate_data(&zoomed_in);
 
     return zoomed_in;
 }
