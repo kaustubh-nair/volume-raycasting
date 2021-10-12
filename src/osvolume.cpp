@@ -41,7 +41,7 @@ void OSVolume::load_volume(int l)
     _curr_level = l;
 
     int64_t width = level_info[_curr_level]["width"]*_scaling_factor.x();
-    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.x();
+    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.y();
 
 	long long int size = width*height*sizeof(uint32_t);
     _data = (uint32_t*)malloc(size);
@@ -87,8 +87,6 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
 
 int OSVolume::load_best_res()
 {
-    int64_t height = level_info[_curr_level]["height"];
-    int64_t width = level_info[_curr_level]["width"];
     int64_t depth = level_info[_curr_level]["depth"];
     //int64_t curr_size = width*height;
    
@@ -119,8 +117,8 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
     if (_scaling_factor.x() == 1.0 && _scaling_factor.y() == 1.0 && _scaling_factor.z() == 1.0)
         return data;
 
-    int64_t height = level_info[_curr_level]["height"];
     int64_t width = level_info[_curr_level]["width"];
+    int64_t height = level_info[_curr_level]["height"];
     int64_t depth = level_info[_curr_level]["depth"];
 
     int w_small = level_info[_curr_level]["width"]*_scaling_factor.x();
