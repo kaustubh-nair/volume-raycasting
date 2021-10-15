@@ -167,6 +167,9 @@ void main()
     vec3 position = ray_start;
     vec4 colour = vec4(0.0);
 
+    a_colour = vec4(position,1.0);
+    return;
+
     // Ray march until reaching the end of the volume, or colour saturation
     while (ray_length > 0 && colour.a < 1.0) {
 
