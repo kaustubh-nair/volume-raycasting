@@ -43,6 +43,7 @@ class RayCastCanvas : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
     Q_OBJECT
 public:
+
     explicit RayCastCanvas(QWidget *parent = nullptr);
     ~RayCastCanvas();
 
