@@ -196,4 +196,6 @@ private:
     uint32_t rgb(int x, int y, int z, int size);
 
     OSVolume *volume;
+
+    float color_proximity_tf[256][256][256];
 };

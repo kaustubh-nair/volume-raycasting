@@ -47,6 +47,7 @@ uniform float hsv_tf_v_threshold;
 
 uniform sampler3D volume;
 uniform sampler2D jitter;
+uniform sampler3D color_proximity_tf;
 
 uniform float gamma;
 
@@ -184,8 +185,10 @@ void main()
             if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
                 c = vec4(0.0);
         }
-
-
+        if (c.a != 0.0)
+        {
+            c.a = texture(color_proximity_tf, c.rgb).r;
+        }
 
 
 

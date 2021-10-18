@@ -143,6 +143,25 @@ void RayCastVolume::load_volume(const QString& filename) {
 
 
 
+        for(int i = 0; i < 256; i++)
+        {
+            for(int j = 0; j < 256; j++)
+            {
+                for(int k = 0; k < 256; k++)
+                {
+                    color_proximity_tf[i][j][k] = 1.0f;
+                }
+            }
+        }
+        glDeleteTextures(1, &m_tf_texture);
+        glGenTextures(1, &m_tf_texture);
+        glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
+        glBindTexture(GL_TEXTURE_3D, 0);
 
         /*
         uint32_t* tf = (uint32_t*)malloc(256);
@@ -154,15 +173,6 @@ void RayCastVolume::load_volume(const QString& filename) {
             else
                 th[i] = 0;
         }
-        glDeleteTextures(1, &m_tf_texture);
-        glGenTextures(1, &m_tf_texture);
-        glBindTexture(GL_TEXTURE_1D, m_tf_texture);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage3D(GL_TEXTURE_1D, 0, GL_RGBA, 256, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, tf);
-        glBindTexture(GL_TEXTURE_1D, 0);
         */
 
     }
