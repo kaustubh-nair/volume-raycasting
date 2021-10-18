@@ -169,6 +169,12 @@ public:
         update();
     }
 
+    void set_color_proximity_tf(QRgb rgb)
+    {
+        m_raycasting_volume->set_color_proximity_tf(rgb);
+        update();
+    }
+
 signals:
     // NOPE
 

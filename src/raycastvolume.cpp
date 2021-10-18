@@ -251,3 +251,7 @@ void RayCastVolume::update_volume_texture()
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
+void RayCastVolume::set_color_proximity_tf(QRgb rgb)
+{
+
+}

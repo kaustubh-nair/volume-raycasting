@@ -28,6 +28,7 @@
 #include <QtWidgets>
 
 #include "raycastcanvas.h"
+#include "mainwindow.h"
 
 
 /*!
@@ -209,14 +210,11 @@ void RayCastCanvas::mouseMoveEvent(QMouseEvent *event)
  */
 void RayCastCanvas::mousePressEvent(QMouseEvent *event)
 {
-    // use the frambuffer instead of glReadPixels due to some weird qt widget scaling
-    QImage image = grabFramebuffer();
-    QRgb rgb = image.pixel(event->x(), event->y());
-    printf("%d %d %d %d\n", qRed(rgb), qGreen(rgb), qBlue(rgb), 1);
 
     if (event->buttons() & Qt::LeftButton) {
         m_trackBall.push(pixel_pos_to_view_pos(event->pos()), m_scene_trackBall.rotation().conjugated());
     }
+    ((MainWindow*)parentWidget())->mousePressEvent(event);
     update();
 }
 

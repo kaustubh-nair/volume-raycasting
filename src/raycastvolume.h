@@ -25,6 +25,7 @@
 #include <QMatrix4x4>
 #include <QOpenGLExtraFunctions>
 #include <QVector3D>
+#include <QColor>
 #include <vector>
 
 #include "mesh.h"
@@ -175,6 +176,8 @@ public:
         volume->move_right();
         update_volume_texture();
     }
+
+    void set_color_proximity_tf(QRgb rgb);
 
 
 
