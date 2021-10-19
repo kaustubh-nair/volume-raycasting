@@ -30,6 +30,8 @@
 #include <cmath>
 
 
+float eucl_dist(int a, int b, int c, int x, int y, int z);
+
 /*!
  * \brief Create a two-unit cube mesh as the bounding box for the volume.
  */
@@ -261,7 +263,47 @@ void RayCastVolume::update_volume_texture()
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
+void RayCastVolume::update_color_prox_texture()
+{
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
+    glBindTexture(GL_TEXTURE_3D, 0);
+}
+
 void RayCastVolume::set_color_proximity_tf(QRgb rgb)
 {
+    int red = qRed(rgb);
+    int green = qGreen(rgb);
+    int blue = qBlue(rgb);
+    printf("%d %d %d\n", red, green, blue);
+    
+    int min_red = std::max((int)(red-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
+    int max_red = std::min((int)(red+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
 
+    int min_blue = std::max((int)(blue-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
+    int max_blue = std::min((int)(blue+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
+
+    int min_green = std::max((int)(green-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
+    int max_green = std::min((int)(green+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
+    
+    for(int i = min_red; i < max_red; i++)
+    {
+        for(int j = min_green; j < max_green; j++)
+        {
+            for(int k = min_blue; k < max_blue; k++)
+            {
+                if (eucl_dist(i,j,k,red,green,blue)<=COLOR_PROX_TF_DEFAULT_RADIUS)
+                    color_proximity_tf[k][j][i] = 0.0f;
+
+            }
+        }
+    }
+    update_color_prox_texture();
+
+
+}
+
+float eucl_dist(int a, int b, int c, int x, int y, int z)
+{
+    return sqrt(pow(a-x, 2)+pow(b-y, 2)+pow(c-z, 2));
 }

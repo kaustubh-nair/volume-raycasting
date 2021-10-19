@@ -137,6 +137,7 @@ public:
     }
 
     void update_volume_texture();
+    void update_color_prox_texture();
 
     void zoom_in()
     {
@@ -198,4 +199,5 @@ private:
     OSVolume *volume;
 
     float color_proximity_tf[256][256][256];
+    float COLOR_PROX_TF_DEFAULT_RADIUS = 30;
 };

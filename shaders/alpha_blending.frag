@@ -173,8 +173,7 @@ void main()
     // Ray march until reaching the end of the volume, or colour saturation
     while (ray_length > 0 && colour.a < 1.0) {
 
-        vec4 intensity = texture(volume, position).gbar;
-        vec4 c = intensity;
+        vec4 c = texture(volume, position).gbar;
 
         if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
             c = vec4(0.0);
@@ -184,10 +183,7 @@ void main()
             if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
                 c = vec4(0.0);
         }
-        if (c.a != 0.0)
-        {
-            c.a = texture(color_proximity_tf, c.rgb).r;
-        }
+        c.a = texture(color_proximity_tf, c.rgb).r;
 
 
         // enable this for single channel datasets
@@ -208,5 +204,5 @@ void main()
 
     // Gamma correction
     a_colour.rgb = pow(colour.rgb, vec3(1.0 / gamma));
-    a_colour.a = colour.a;
+    a_colour.a = texture(color_proximity_tf, colour.rgb).r;
 }
