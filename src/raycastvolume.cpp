@@ -275,6 +275,28 @@ void RayCastVolume::set_color_proximity_tf(QRgb rgb)
     int red = qRed(rgb);
     int green = qGreen(rgb);
     int blue = qBlue(rgb);
+    if (i==0)
+    {
+        red = 254; green = 254; blue = 254;
+    }
+    else if(i==1)
+    {
+        red = 253; green = 210; blue = 233;
+    }
+    else if(i==2)
+    {
+        red = 190; green = 128; blue = 203;
+
+    }
+    else if(i==3)
+    {
+        red = 206; green = 165; blue = 214;
+    }
+    else if(i==4)
+    {
+        red = 197; green = 137; blue = 207;
+    }
+    i++;
     printf("%d %d %d\n", red, green, blue);
     
     int min_red = std::max((int)(red-COLOR_PROX_TF_DEFAULT_RADIUS), 0);

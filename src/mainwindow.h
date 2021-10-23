@@ -87,4 +87,5 @@ private slots:
 
 private:
     std::string curr_level_label, max_level_label;
+    int i = 0;
 };

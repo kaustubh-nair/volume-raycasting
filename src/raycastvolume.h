@@ -200,4 +200,5 @@ private:
 
     float color_proximity_tf[256][256][256];
     float COLOR_PROX_TF_DEFAULT_RADIUS = 30;
+    int i = 0;
 };
