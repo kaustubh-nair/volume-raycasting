@@ -255,11 +255,18 @@ void MainWindow::on_background_clicked()
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     // use the frambuffer instead of glReadPixels due to some weird qt widget scaling
-    QCheckBox *checkbox = ui->proximity_color_tf_checkbox;
-    if (checkbox->isChecked())
+    QCheckBox *color_checkbox = ui->proximity_color_tf_checkbox;
+    QCheckBox *space_checkbox = ui->proximity_space_tf;
+    if (color_checkbox->isChecked())
     {
         QImage image = ui->canvas->grabFramebuffer();
         QRgb rgb = image.pixel(event->x(), event->y());
         ui->canvas->set_color_proximity_tf(rgb);
+    }
+    else if(space_checkbox->isChecked())
+    {
+        QImage image = ui->canvas->grabFramebuffer();
+        QRgb rgb = image.pixel(event->x(), event->y());
+        ui->canvas->set_space_proximity_tf();
     }
 }

@@ -48,6 +48,7 @@ uniform float hsv_tf_v_threshold;
 uniform sampler3D volume;
 uniform sampler2D jitter;
 uniform sampler3D color_proximity_tf;
+uniform sampler3D space_proximity_tf;
 
 uniform float gamma;
 
@@ -163,7 +164,7 @@ void main()
     vec3 step_vector = step_length * ray / ray_length;
 
     // Random jitter
-    ray_start += step_vector * texture(jitter, gl_FragCoord.xy / viewport_size).r;
+    ray_start += step_vector;
 
     vec3 position = ray_start;
     vec4 colour = vec4(0.0);
@@ -184,6 +185,9 @@ void main()
                 c = vec4(0.0);
         }
         c.a = texture(color_proximity_tf, c.rgb).r;
+        float a = texture(space_proximity_tf, position).r;
+        if (a < c.a)
+            c.a = a;
 
 
         // enable this for single channel datasets

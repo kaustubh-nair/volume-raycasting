@@ -152,6 +152,7 @@ void RayCastVolume::load_volume(const QString& filename) {
                 for(int k = 0; k < 256; k++)
                 {
                     color_proximity_tf[i][j][k] = 1.0f;
+                    space_proximity_tf[i][j][k] = 1.0f;
                 }
             }
         }
@@ -163,6 +164,16 @@ void RayCastVolume::load_volume(const QString& filename) {
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
+        glBindTexture(GL_TEXTURE_3D, 0);
+
+        glDeleteTextures(1, &m_space_prox_tf_texture);
+        glGenTextures(1, &m_space_prox_tf_texture);
+        glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, space_proximity_tf);
         glBindTexture(GL_TEXTURE_3D, 0);
 
         /*
@@ -222,6 +233,7 @@ void RayCastVolume::paint(void)
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, m_noise_texture);
     glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
 
     m_cube_vao.paint();
 }
@@ -263,12 +275,63 @@ void RayCastVolume::update_volume_texture()
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
+void RayCastVolume::update_space_prox_texture()
+{
+    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, space_proximity_tf);
+    glBindTexture(GL_TEXTURE_3D, 0);
+}
+
 void RayCastVolume::update_color_prox_texture()
 {
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
+
+void RayCastVolume::set_space_proximity_tf()
+{
+    int x,y,z;
+    if (j==0)
+    {
+        x=0;y=0;z=0;
+    }
+    else if(j==1)
+    {
+        x=100;y=100;z=30;
+    }
+    else if(j==2)
+    {
+        x=80;y=200;z=0;
+
+    }
+    printf("%d %d %d\n",x,y,z);
+    j++;
+    
+    int min_red = 0;
+    int max_red = 256;
+
+    int min_blue = 0;
+    int max_blue = 256;
+
+    int min_green = 0;
+    int max_green = 256;
+    
+    for(int i = min_red; i < max_red; i++)
+    {
+        for(int j = min_green; j < max_green; j++)
+        {
+            for(int k = min_blue; k < max_blue; k++)
+            {
+                if (eucl_dist(i,j,k,x,y,z)<=SPACE_PROX_TF_DEFAULT_RADIUS)
+                    space_proximity_tf[k][j][i] = 0.0f;
+
+            }
+        }
+    }
+    update_space_prox_texture();
+}
+
 
 void RayCastVolume::set_color_proximity_tf(QRgb rgb)
 {

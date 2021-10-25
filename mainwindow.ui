@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>899</width>
+    <width>947</width>
     <height>626</height>
    </rect>
   </property>
@@ -252,43 +252,10 @@
        <string>TF</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="5" column="0">
-        <widget class="QSlider" name="HSV_TF_s_slider">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="0">
         <widget class="QCheckBox" name="hsv_tf_checkbox">
          <property name="text">
           <string>Enable HSV TF</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QSlider" name="HSV_TF_v_slider">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QSlider" name="tf_slider">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
@@ -305,7 +272,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="9" column="0">
         <widget class="QScrollArea" name="scrollArea">
          <property name="widgetResizable">
           <bool>true</bool>
@@ -316,10 +283,30 @@
             <x>0</x>
             <y>0</y>
             <width>219</width>
-            <height>347</height>
+            <height>320</height>
            </rect>
           </property>
          </widget>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QSlider" name="tf_slider">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QSlider" name="HSV_TF_s_slider">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
         </widget>
        </item>
        <item row="0" column="0">
@@ -333,6 +320,26 @@
         <widget class="QCheckBox" name="proximity_color_tf_checkbox">
          <property name="text">
           <string>Proximity color TF</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QSlider" name="HSV_TF_v_slider">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QCheckBox" name="proximity_space_tf">
+         <property name="text">
+          <string>Proximity space TF</string>
          </property>
         </widget>
        </item>
