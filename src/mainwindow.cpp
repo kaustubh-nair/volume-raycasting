@@ -286,7 +286,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         std::string str = "background:rgb(" + std::to_string(qRed(rgb))+ "," + std::to_string( qGreen(rgb)) + ","+std::to_string( qBlue(rgb))+");";
         color_label->setStyleSheet(QString::fromStdString(str));
         int rows = prox_scroll_layout->rowCount();
+        QWidget *c = new QWidget;
+        QGridLayout *l = new QGridLayout(c);
+        QSlider *opacity_bar = new QSlider(Qt::Horizontal);
+        QSlider *size_bar = new QSlider(Qt::Horizontal);
+        l->addWidget(opacity_bar,0,0);
+        l->addWidget(size_bar,1,0);
         prox_scroll_layout->addWidget(color_label,rows,0);
+        prox_scroll_layout->addWidget(c,rows,1);
         scroll->setWidget(prox_scroll_layout_main);
     }
     else if(space_checkbox->isChecked())
