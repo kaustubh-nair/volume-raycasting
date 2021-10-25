@@ -23,6 +23,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include<QGridLayout>
 
 namespace Ui {
 class MainWindow;
@@ -88,4 +89,6 @@ private slots:
 private:
     std::string curr_level_label, max_level_label;
     int i = 0;
+    QGridLayout *prox_scroll_layout = nullptr;
+    QWidget *prox_scroll_layout_main = nullptr;
 };

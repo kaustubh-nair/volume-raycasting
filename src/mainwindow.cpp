@@ -41,6 +41,19 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Enable file drop
     setAcceptDrops(true);
+
+    // initialize scroll area for TFs
+    QScrollArea *scroll = ui->scrollArea;
+    prox_scroll_layout_main = new QWidget;
+    prox_scroll_layout = new QGridLayout(prox_scroll_layout_main);
+
+    QPushButton *button1 = new QPushButton("One");
+    QPushButton *button2 = new QPushButton("two");
+    prox_scroll_layout->addWidget(button1, 0, 0);
+    prox_scroll_layout->addWidget(button2, 0, 1);
+
+    scroll->setWidget(prox_scroll_layout_main);
+    scroll->setWidgetResizable(true);
 }
 
 MainWindow::~MainWindow()
@@ -158,7 +171,11 @@ void MainWindow::on_best_res_button_clicked()
  */
 void MainWindow::on_loadVolume_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
+    // hardcode data set for quick loading during testing
+    std::string str = "/home/kau/Pictures/dataset.tif";
+    QString path = QString::fromStdString(str);
+
+    //QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
     if (!path.isNull()) {
         load_volume(path);
     }
@@ -260,8 +277,17 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     if (color_checkbox->isChecked())
     {
         QImage image = ui->canvas->grabFramebuffer();
-        QRgb rgb = image.pixel(event->x(), event->y());
+        QPointF pos = event->windowPos();
+        QRgb rgb = image.pixel(pos.x(), pos.y());
         ui->canvas->set_color_proximity_tf(rgb);
+        QScrollArea *scroll = ui->scrollArea;
+
+        QLabel *color_label = new QLabel;
+        std::string str = "background:rgb(" + std::to_string(qRed(rgb))+ "," + std::to_string( qGreen(rgb)) + ","+std::to_string( qBlue(rgb))+");";
+        color_label->setStyleSheet(QString::fromStdString(str));
+        int rows = prox_scroll_layout->rowCount();
+        prox_scroll_layout->addWidget(color_label,rows,0);
+        scroll->setWidget(prox_scroll_layout_main);
     }
     else if(space_checkbox->isChecked())
     {
