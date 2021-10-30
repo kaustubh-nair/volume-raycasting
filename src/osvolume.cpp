@@ -11,9 +11,12 @@ OSVolume::OSVolume(const std::string& filename)
 
     openslide_get_level_dimensions(image, _curr_level, &_width, &_height);
 
-	long long int size = _width*_height*4;
+    long long int size = _width*_height*4;
     _data = (uint32_t*)malloc(size);
     openslide_read_region(image, _data, 0, 0, _curr_level, _width, _height);
+    const char * error = openslide_get_error(image);
+    printf("%s \n", error);
+//    printf("Debug : %ld \n", _data[0]);
 
     // duplicate data multiple times
     std::vector<uint32_t> *data3d = new std::vector<uint32_t>(_data, _data + _width*_height);

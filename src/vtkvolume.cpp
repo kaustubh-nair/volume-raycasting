@@ -138,7 +138,7 @@ static void read_data(std::ifstream& file, const bool binary, const size_t eleme
     }
 
     // Find range
-    range = {std::numeric_limits<double>::max(), std::numeric_limits<double>::min()};
+    // range = {std::numeric_limits<double>::max(), std::numeric_limits<double>::min()};
     for (size_t i = 0; i < element_count; ++i) {
         if (data[i] > range.second) {
             range.second = data[i];

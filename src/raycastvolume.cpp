@@ -127,6 +127,8 @@ void RayCastVolume::load_volume(const QString& filename) {
         m_origin = QVector3D(0.0f, 0.0f, 0.0f);
         m_size = volume.size();
 
+        printf("%ld \n", data[0]);
+
         glDeleteTextures(1, &m_volume_texture);
         glGenTextures(1, &m_volume_texture);
         glBindTexture(GL_TEXTURE_3D, m_volume_texture);

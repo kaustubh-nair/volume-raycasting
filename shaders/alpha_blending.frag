@@ -59,12 +59,12 @@ struct AABB {
 };
 
 // Estimate normal from a finite difference approximation of the gradient
-vec3 normal(vec3 position, float intensity)
+vec3 normal(vec3 position, float position_material)
 {
     float d = step_length;
-    float dx = texture(volume, position + vec3(d,0,0)).r - intensity;
-    float dy = texture(volume, position + vec3(0,d,0)).r - intensity;
-    float dz = texture(volume, position + vec3(0,0,d)).r - intensity;
+    float dx = texture(volume, position + vec3(d,0,0)).gbar.a - position_material;
+    float dy = texture(volume, position + vec3(0,d,0)).gbar.a - position_material;
+    float dz = texture(volume, position + vec3(0,0,d)).gbar.a - position_material;
     return -normalize(NormalMatrix * vec3(dx, dy, dz));
 }
 
@@ -89,6 +89,39 @@ vec4 colour_transfer(float intensity)
     vec3 low = vec3(0.0, 0.0, 0.0);
     float alpha = (exp(intensity) - 1.0) / (exp(1.0) - 1.0);
     return vec4(intensity * high + (1.0 - intensity) * low, alpha);
+}
+
+// Secant method to find the point of intersection between different material boundaries
+vec3 secant_method(vec3 position, vec3 position_next, float p_iso)
+{
+    vec3 position_new;
+
+    for(int i = 0; i < 4; i++)
+    {
+        vec4 intensity = texture(volume, position).gbar;
+        vec4 intensity_next = texture(volume, position_next).gbar;
+        position_new = ((position_next - position) * (p_iso - intensity.a))/(intensity_next.a - intensity.a) + position;
+        vec4 intensity_new = texture(volume, position_new).gbar;
+
+        if(intensity_new.a == p_iso)
+        {
+            return position_new;
+        }
+
+        else if(intensity_new.a > p_iso)
+        {
+            position = position_new;
+        }
+
+        else
+        {
+            position_next = position_new;
+        }
+
+    }
+
+    return position_new;
+
 }
 
 void main()
@@ -122,6 +155,19 @@ void main()
 
         vec4 intensity = texture(volume, position).gbar;
         vec4 c = intensity;
+
+        if((ray_length - step_length) >= 0)
+        {
+            vec3 position_next = position + step_vector;
+            vec4 intensity_next = texture(volume, position_next).gbar;
+
+            if(intensity.a != intensity_next.a)
+            {
+                float p_iso = (intensity.a + intensity_next.a) / 2.0;
+                vec3 material_intersection = secant_method(position, position_next, p_iso);
+
+            }
+        }
 
         // enable this for single channel datasets
         //float intensity = texture(volume, position).r;
