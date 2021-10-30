@@ -69,7 +69,7 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
@@ -258,7 +258,27 @@
        <string>TF</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="10" column="0">
+       <item row="7" column="0">
+        <widget class="QCheckBox" name="proximity_color_tf_checkbox">
+         <property name="text">
+          <string>Color TF</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0">
+        <widget class="QSlider" name="horizontalSlider">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="0">
         <widget class="QScrollArea" name="scrollArea">
          <property name="widgetResizable">
           <bool>true</bool>
@@ -269,31 +289,10 @@
             <x>0</x>
             <y>0</y>
             <width>219</width>
-            <height>299</height>
+            <height>194</height>
            </rect>
           </property>
          </widget>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="hsv_tf_checkbox">
-         <property name="text">
-          <string>Enable HSV TF</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QSlider" name="tf_slider">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QCheckBox" name="proximity_color_tf_checkbox">
-         <property name="text">
-          <string>Color TF</string>
-         </property>
         </widget>
        </item>
        <item row="5" column="0">
@@ -309,6 +308,26 @@
          </property>
         </widget>
        </item>
+       <item row="11" column="0">
+        <widget class="QSlider" name="segment_1_opacity">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Set opacity of segments</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QCheckBox" name="tf_checkbox">
          <property name="text">
@@ -316,15 +335,21 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
-        <widget class="QCheckBox" name="proximity_space_tf">
-         <property name="text">
-          <string>Location TF</string>
+       <item row="4" column="0">
+        <widget class="QSlider" name="HSV_TF_h_slider">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QSlider" name="HSV_TF_h_slider">
+       <item row="12" column="0">
+        <widget class="QSlider" name="segment_2_opacity">
          <property name="maximum">
           <number>100</number>
          </property>
@@ -349,8 +374,8 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
-        <widget class="QSlider" name="horizontalSlider">
+       <item row="13" column="0">
+        <widget class="QSlider" name="segment_3_opacity">
          <property name="maximum">
           <number>100</number>
          </property>
@@ -359,6 +384,34 @@
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="hsv_tf_checkbox">
+         <property name="text">
+          <string>Enable HSV TF</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QSlider" name="tf_slider">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QCheckBox" name="proximity_space_tf">
+         <property name="text">
+          <string>Location TF</string>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Set opacity of whole volume</string>
          </property>
         </widget>
        </item>
