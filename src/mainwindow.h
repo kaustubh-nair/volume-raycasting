@@ -23,6 +23,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include<QGridLayout>
 
 namespace Ui {
 class MainWindow;
@@ -35,6 +36,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    Ui::MainWindow *ui;
+    void mousePressEvent(QMouseEvent *event);
 
 protected:
     virtual void dragEnterEvent(QDragEnterEvent *event);
@@ -48,14 +51,44 @@ private slots:
 
     void on_loadVolume_clicked();
 
-    void on_threshold_spinbox_valueChanged(double arg1);
-
-    void on_threshold_slider_valueChanged(int value);
-
-    void on_mode_currentTextChanged(const QString &arg1);
+    void on_tf_slider_valueChanged(int value);
 
     void on_background_clicked();
 
+    void on_tf_checkbox_clicked(bool value);
+
+    void on_HSV_TF_h_slider_valueChanged(int value);
+
+    void on_HSV_TF_s_slider_valueChanged(int value);
+
+    void on_HSV_TF_v_slider_valueChanged(int value);
+
+    void on_hsv_tf_checkbox_clicked(bool value);
+
+    void on_height_spinbox_valueChanged();
+
+    void on_width_spinbox_valueChanged();
+
+    void on_depth_spinbox_valueChanged();
+
+    void on_best_res_button_clicked();
+
+    void on_zoom_in_button_clicked();
+
+    void on_zoom_out_button_clicked();
+
+    void on_up_button_clicked();
+
+    void on_down_button_clicked();
+
+    void on_left_button_clicked();
+
+    void on_right_button_clicked();
+
+
 private:
-    Ui::MainWindow *ui;
+    std::string curr_level_label, max_level_label;
+    int i = 0;
+    QGridLayout *prox_scroll_layout = nullptr;
+    QWidget *prox_scroll_layout_main = nullptr;
 };

@@ -2,43 +2,233 @@
 
 OSVolume::OSVolume(const std::string& filename)
 {
-    _depth = 32;
+    image = openslide_open(filename.c_str());
 
-    openslide_t *image = openslide_open(filename.c_str());
+    levels = openslide_get_level_count(image);
 
-    _levels = openslide_get_level_count(image);
-    _curr_level = 0;
+    store_level_info(image, levels);
 
-    openslide_get_level_dimensions(image, _curr_level, &_width, &_height);
+    // lowest resolution is loaded fully initially.
+    // Be careful while changing this - low_res_data values and width/depth/height are initialized based on this.
+    _curr_level = levels-1;
+    _scaling_factor = QVector3D(1.0, 1.0, 1.0);
+    _scaling_offset = QVector3D(0.0, 0.0, 0.0);
+    load_volume(_curr_level);
 
-    long long int size = _width*_height*4;
-    _data = (uint32_t*)malloc(size);
-    openslide_read_region(image, _data, 0, 0, _curr_level, _width, _height);
-    const char * error = openslide_get_error(image);
-    printf("%s \n", error);
-//    printf("Debug : %ld \n", _data[0]);
+    _low_res_data = _data;
+    _low_res_size = QVector3D(level_info[_curr_level]["width"], level_info[_curr_level]["height"], level_info[_curr_level]["depth"]);
 
-    // duplicate data multiple times
-    std::vector<uint32_t> *data3d = new std::vector<uint32_t>(_data, _data + _width*_height);
-    std::vector<uint32_t> temp(data3d->begin(), data3d->end());
-    for(int i = 0; i < _depth-1; i++)
-        std::copy(data3d->begin(),data3d->end(), std::back_inserter(temp));
-    std::swap(temp, *data3d);
-    // clear memory
-    temp = std::vector<uint32_t>();
-    free(_data);
-    _data = &(*data3d)[0];
-
-    printf("Image loaded! levels: %d width: %ld height %ld\n ", _levels, _width, _height);
-}
-
-uint32_t* OSVolume::data()
-{
-    return _data;
+    printf("Image loaded! levels: %d width: %ld height %ld depth %ld\n ", levels,
+            level_info[_curr_level]["width"],
+            level_info[_curr_level]["height"],
+            level_info[_curr_level]["depth"]
+    );
 }
 
 QVector3D OSVolume::size()
 {
-    return QVector3D(_width, _height, _depth);
+    return QVector3D(
+            _scaling_factor.x()*level_info[_curr_level]["width"],
+            _scaling_factor.y()*level_info[_curr_level]["height"],
+            _scaling_factor.z()*level_info[_curr_level]["depth"]
+    );
 }
 
+void OSVolume::load_volume(int l)
+{
+    _data = nullptr;
+
+    _curr_level = l;
+
+    int64_t width = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.y();
+
+	long long int size = width*height*sizeof(uint32_t);
+    _data = (uint32_t*)malloc(size);
+
+
+    // WARNING! TODO: level hardcoded to 0
+    openslide_read_region(image, _data, 0, 0, 0, width, height);
+
+    duplicate_data(&_data);
+}
+
+// duplicate data "depth" times
+void OSVolume::duplicate_data(uint32_t** d)
+{
+    int64_t width = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int64_t height = level_info[_curr_level]["height"]*_scaling_factor.y();
+    int64_t depth = level_info[_curr_level]["depth"]*_scaling_factor.z();
+
+    std::vector<uint32_t> *data3d = new std::vector<uint32_t>(*d, *d + width*height);
+    std::vector<uint32_t> temp(data3d->begin(), data3d->end());
+    for(int i = 0; i < depth-1; i++)
+        std::copy(data3d->begin(),data3d->end(), std::back_inserter(temp));
+    std::swap(temp, *data3d);
+    // clear memory
+    temp = std::vector<uint32_t>();
+    free(*d);
+    *d = &(*data3d)[0];
+}
+
+void OSVolume::store_level_info(openslide_t* image, int levels)
+{
+    int64_t w, h;
+    for(int i = 0; i < levels; i++)
+    {
+        std::map<std::string, int64_t> m;
+        openslide_get_level_dimensions(image, i, &w, &h);
+        m["width"] = w;
+        m["height"] = h;
+        m["depth"] = 32;        //TODO hardcoded - loads and duplicates single volume
+        m["num_voxels"] = w*h;
+        m["size"] = m["num_voxels"]*4;
+        level_info.push_back(m);
+    }
+}
+
+int OSVolume::load_best_res()
+{
+    int64_t depth = level_info[_curr_level]["depth"];
+    //int64_t curr_size = width*height;
+   
+    // assumes same size per slide, but should be ok?
+    // use 75% of total vram for a conservative estimate
+    int64_t available_size = (int64_t)(vram*0.75)/depth;
+
+
+    // iterate from highest resolution, and load it if it fits.
+    for(int i = 0; i < (int)level_info.size(); i++)
+    {
+        if (level_info[i]["size"] < available_size)
+        {
+            if (_curr_level == i) break;
+
+            if (_data != _low_res_data)
+                free(_data);
+            load_volume(i);
+            break;
+        }
+    }
+    return _curr_level;
+}
+
+uint32_t *OSVolume::zoomed_in(uint32_t *data)
+{
+    // no zooming required
+    if (_scaling_factor.x() == 1.0 && _scaling_factor.y() == 1.0 && _scaling_factor.z() == 1.0)
+        return data;
+
+    int64_t width = level_info[_curr_level]["width"];
+    int64_t height = level_info[_curr_level]["height"];
+    int64_t depth = level_info[_curr_level]["depth"];
+
+    int w_small = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int h_small = level_info[_curr_level]["height"]*_scaling_factor.y();
+    int d_small = level_info[_curr_level]["depth"]*_scaling_factor.z();
+
+    int w_offset = level_info[_curr_level]["width"]*_scaling_offset.x();
+    int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
+    int d_offset = level_info[_curr_level]["depth"]*_scaling_offset.z();
+
+    // TODO: memory leak here! DANGER!
+    uint32_t* zoomed_in = (uint32_t*)malloc(w_small*h_small*d_small*sizeof(uint32_t));
+
+    int ptr = 0;
+    for(int i = d_offset; i < d_small; i++)
+    {
+        for(int j = h_offset; j < h_small; j++)
+        {
+            std::copy(_low_res_data+w_offset + (j*width) + (i*width*height), _low_res_data+w_offset + w_small + (j*width) + (i*width*height), zoomed_in+ptr);
+            ptr += w_small;
+        }
+    }
+
+    return zoomed_in;
+}
+
+void OSVolume::zoom_in()
+{
+    if (_scaling_factor.x() <= 0.01 || _scaling_factor.y() <= 0.01 || _scaling_factor.z() <= 0.01)
+        return;
+
+    // Do only x-y zoom for now
+    _scaling_factor -= QVector3D(_scaling_factor_value,_scaling_factor_value,_scaling_factor_value);
+    _scaling_offset += QVector3D(_scaling_offset_value, _scaling_offset_value, _scaling_offset_value);
+
+}
+
+void OSVolume::zoom_out()
+{
+    // Do only x-y zoom for now
+    _scaling_factor += QVector3D(_scaling_factor_value, _scaling_factor_value, _scaling_factor_value);
+    _scaling_offset -= QVector3D(_scaling_offset_value, _scaling_offset_value, _scaling_offset_value);
+
+    // cap to 1.0
+    if (_scaling_factor.x() > 1.0) _scaling_factor.setX(1.0);
+    if (_scaling_factor.y() > 1.0) _scaling_factor.setY(1.0);
+    if (_scaling_factor.z() > 1.0) _scaling_factor.setZ(1.0);
+
+    // min 0
+    if (_scaling_offset.x() < 0.0) _scaling_offset.setX(0.0);
+    if (_scaling_offset.y() < 0.0) _scaling_offset.setY(0.0);
+    if (_scaling_offset.z() < 0.0) _scaling_offset.setZ(0.0);
+
+
+}
+
+void OSVolume::switch_to_low_res()
+{
+    _curr_level = levels-1;
+}
+
+uint32_t* OSVolume::data()
+{
+    if (_curr_level == levels-1)
+        return zoomed_in();
+    return _data;
+}
+
+
+void OSVolume::move_up()
+{
+    _scaling_offset.setY(_scaling_offset.y()+4*_scaling_offset_value);
+    if (_scaling_offset.y() > 1.0) _scaling_offset.setY(1.0);
+
+}
+void OSVolume::move_down()
+{
+    _scaling_offset.setY(_scaling_offset.y()-4*_scaling_offset_value);
+    if (_scaling_offset.y() < 0.0) _scaling_offset.setY(0.0);
+
+}
+void OSVolume::move_right()
+{
+    _scaling_offset.setX(_scaling_offset.x()+4*_scaling_offset_value);
+    if (_scaling_offset.x() > 1.0) _scaling_offset.setX(1.0);
+
+}
+void OSVolume::move_left()
+{
+    _scaling_offset.setX(_scaling_offset.x()-_scaling_offset_value);
+    if (_scaling_offset.x() < 0.0) _scaling_offset.setX(0.0);
+
+}
+
+uint32_t* OSVolume::zoomed_in()
+{
+    int w_small = level_info[_curr_level]["width"]*_scaling_factor.x();
+    int h_small = level_info[_curr_level]["height"]*_scaling_factor.y();
+    int d_small = level_info[_curr_level]["depth"]*_scaling_factor.z();
+
+    int w_offset = level_info[_curr_level]["width"]*_scaling_offset.x();
+    int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
+    int d_offset = level_info[_curr_level]["depth"]*_scaling_offset.z();
+
+	long long int size = w_small*h_small*sizeof(uint32_t);
+    uint32_t* d = (uint32_t*)malloc(size);
+
+    openslide_read_region(image, d, w_offset, h_offset, _curr_level, w_small, h_small);
+    duplicate_data(&d);
+    return d;
+}

@@ -25,8 +25,11 @@
 #include <QMatrix4x4>
 #include <QOpenGLExtraFunctions>
 #include <QVector3D>
+#include <QColor>
+#include <vector>
 
 #include "mesh.h"
+#include "osvolume.h"
 
 /*!
  * \brief Class for a raycasting volume.
@@ -51,7 +54,7 @@ public:
      * box is equal to 1.
      */
     QVector3D extent(void) {
-        auto e = m_size * m_spacing;
+        auto e = m_scaling * m_spacing;
         return e / std::max({e.x(), e.y(), e.z()});
     }
 
@@ -98,14 +101,110 @@ public:
         return b;
     }
 
+    float tf_threshold = 1.0;
+    float hsv_tf_h_threshold = 1.0;
+    float hsv_tf_s_threshold = 1.0;
+    float hsv_tf_v_threshold = 1.0;
+
+    void updateScaling(QVector3D new_val)
+    {
+        m_scaling = new_val;
+    }
+
+    QVector3D getInitialSize() 
+    {
+        return m_size;
+    }
+
+    std::vector<int> get_initial_levels()
+    {
+        return std::vector<int>{volume->_curr_level, volume->levels-1};
+    }
+
+    void switch_to_low_res()
+    {
+        volume->switch_to_low_res();
+        update_volume_texture();
+    }
+
+    int load_best_res()
+    {
+        int level = volume->load_best_res();
+
+        update_volume_texture();
+
+        return level;
+    }
+
+    void update_volume_texture();
+    void update_color_prox_texture();
+    void update_space_prox_texture();
+
+    void zoom_in()
+    {
+        volume->switch_to_low_res();
+        volume->zoom_in();
+        update_volume_texture();
+    }
+
+    void zoom_out()
+    {
+        volume->switch_to_low_res();
+        volume->zoom_out();
+        update_volume_texture();
+    }
+
+    void move_left()
+    {
+        volume->switch_to_low_res();
+        volume->move_left();
+        update_volume_texture();
+    }
+    void move_up()
+    {
+        volume->switch_to_low_res();
+        volume->move_up();
+        update_volume_texture();
+    }
+    void move_down()
+    {
+        volume->switch_to_low_res();
+        volume->move_down();
+        update_volume_texture();
+    }
+    void move_right()
+    {
+        volume->switch_to_low_res();
+        volume->move_right();
+        update_volume_texture();
+    }
+
+    void set_color_proximity_tf(QRgb rgb);
+    void set_space_proximity_tf();
+
+
+
 private:
     GLuint m_volume_texture;
     GLuint m_noise_texture;
+    GLuint m_tf_texture;
+    GLuint m_space_prox_tf_texture;
     Mesh m_cube_vao;
     std::pair<double, double> m_range;
     QVector3D m_origin;
     QVector3D m_spacing;
     QVector3D m_size;
+    QVector3D m_scaling;
 
     float scale_factor(void);
+    uint32_t rgb(int x, int y, int z, int size);
+
+    OSVolume *volume;
+
+    float color_proximity_tf[256][256][256];
+    float space_proximity_tf[256][256][256];
+    float COLOR_PROX_TF_DEFAULT_RADIUS = 30;
+    float SPACE_PROX_TF_DEFAULT_RADIUS = 100;
+    int i = 0;
+    int j = 0;
 };

@@ -28,6 +28,7 @@
 #include <QtWidgets>
 
 #include "raycastcanvas.h"
+#include "mainwindow.h"
 
 
 /*!
@@ -48,9 +49,11 @@ RayCastCanvas::RayCastCanvas(QWidget *parent)
     , m_raycasting_volume {nullptr}
 {
     // Register the rendering modes here, so they are available to the UI when it is initialised
-    m_modes["Isosurface"] = [&]() { RayCastCanvas::raycasting("Isosurface"); };
+    //m_modes["Isosurface"] = [&]() { RayCastCanvas::raycasting("Isosurface"); };
     m_modes["Alpha blending"] = [&]() { RayCastCanvas::raycasting("Alpha blending"); };
-    m_modes["MIP"] = [&]() { RayCastCanvas::raycasting("MIP"); };
+    //m_modes["MIP"] = [&]() { RayCastCanvas::raycasting("MIP"); };
+    // set default mode to alpha blending
+    m_active_mode = "Alpha blending";
 }
 
 
@@ -160,8 +163,14 @@ void RayCastCanvas::raycasting(const QString& shader)
         m_shaders[shader]->setUniformValue("step_length", m_stepLength);
         m_shaders[shader]->setUniformValue("threshold", m_threshold);
         m_shaders[shader]->setUniformValue("gamma", m_gamma);
+        m_shaders[shader]->setUniformValue("transfer_function_threshold", m_raycasting_volume->tf_threshold);
+        m_shaders[shader]->setUniformValue("hsv_tf_h_threshold", m_raycasting_volume->hsv_tf_h_threshold);
+        m_shaders[shader]->setUniformValue("hsv_tf_s_threshold", m_raycasting_volume->hsv_tf_s_threshold);
+        m_shaders[shader]->setUniformValue("hsv_tf_v_threshold", m_raycasting_volume->hsv_tf_v_threshold);
         m_shaders[shader]->setUniformValue("volume", 0);
         m_shaders[shader]->setUniformValue("jitter", 1);
+        m_shaders[shader]->setUniformValue("color_proximity_tf", 2);
+        m_shaders[shader]->setUniformValue("space_proximity_tf", 3);
 
         glClearColor(m_background.redF(), m_background.greenF(), m_background.blueF(), m_background.alphaF());
         glClear(GL_COLOR_BUFFER_BIT);
@@ -203,9 +212,11 @@ void RayCastCanvas::mouseMoveEvent(QMouseEvent *event)
  */
 void RayCastCanvas::mousePressEvent(QMouseEvent *event)
 {
+
     if (event->buttons() & Qt::LeftButton) {
         m_trackBall.push(pixel_pos_to_view_pos(event->pos()), m_scene_trackBall.rotation().conjugated());
     }
+    ((MainWindow*)parentWidget())->mousePressEvent(event);
     update();
 }
 

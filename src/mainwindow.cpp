@@ -36,17 +36,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set inital values
     ui->stepLength->valueChanged(ui->stepLength->value());
-    ui->threshold_slider->valueChanged(ui->threshold_slider->value());
     ui->canvas->setBackground(Qt::black);
-
-    // Populate list of visualisation modes
-    for (const auto& mode : ui->canvas->getModes()) {
-        ui->mode->addItem(mode);
-    }
-    ui->mode->setCurrentIndex(0);
+    ui->tf_slider->setDisabled(true);
 
     // Enable file drop
     setAcceptDrops(true);
+
+    // initialize scroll area for TFs
+    QScrollArea *scroll = ui->scrollArea;
+    prox_scroll_layout_main = new QWidget;
+    prox_scroll_layout = new QGridLayout(prox_scroll_layout_main);
+
+    QPushButton *button1 = new QPushButton("One");
+    QPushButton *button2 = new QPushButton("two");
+    prox_scroll_layout->addWidget(button1, 0, 0);
+    prox_scroll_layout->addWidget(button2, 0, 1);
+
+    scroll->setWidget(prox_scroll_layout_main);
+    scroll->setWidgetResizable(true);
 }
 
 MainWindow::~MainWindow()
@@ -95,11 +102,18 @@ void MainWindow::load_volume(const QString& path)
     try {
         ui->canvas->setVolume(path);
 
-        // Update the UI
-        auto range = ui->canvas->getRange();
-        ui->threshold_spinbox->setMinimum(range.first);
-        ui->threshold_spinbox->setMaximum(range.second);
-        ui->threshold_slider->valueChanged(ui->threshold_slider->value());
+        // set scaling spinboxes
+        QVector3D size = ui->canvas->getInitialSize();
+        ui->height_spinbox->setValue(size.x());
+        ui->width_spinbox->setValue(size.y());
+        ui->depth_spinbox->setValue(size.z());
+
+        std::vector<int> levels = ui->canvas->get_initial_levels();
+        curr_level_label = std::to_string(levels[0]);
+        max_level_label =  std::to_string(levels[1]);
+
+        ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
+
     }
     catch (std::runtime_error& e) {
         QMessageBox::warning(this, tr("Error"), tr("Cannot load volume ") + path + ": " + e.what());
@@ -115,70 +129,129 @@ void MainWindow::on_stepLength_valueChanged(double arg1)
     ui->canvas->setStepLength(static_cast<GLfloat>(arg1));
 }
 
+void MainWindow::on_zoom_in_button_clicked()
+{
+    ui->canvas->zoom_in();
+
+}
+
+void MainWindow::on_zoom_out_button_clicked()
+{
+    ui->canvas->zoom_out();
+}
+void MainWindow::on_up_button_clicked()
+{
+    ui->canvas->move_up();
+}
+void MainWindow::on_down_button_clicked()
+{
+    ui->canvas->move_down();
+}
+void MainWindow::on_left_button_clicked()
+{
+    ui->canvas->move_left();
+}
+void MainWindow::on_right_button_clicked()
+{
+    ui->canvas->move_right();
+}
+
+/* 
+ * set best possible resolution
+ */
+void MainWindow::on_best_res_button_clicked()
+{
+    int l = ui->canvas->load_best_res();
+    curr_level_label = std::to_string(l);
+    ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
+}
+
 /*!
  * \brief Load a volume from file.
  */
 void MainWindow::on_loadVolume_clicked()
 {
+
     QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
     if (!path.isNull()) {
         load_volume(path);
     }
 }
 
-/*!
- * \brief MainWindow::on_threshold_spinbox_valueChanged
- * \param arg1 Threshold in image intensity value.
- *
- * The spinbox and the slider are mutually linked, so when the value is changed in one of them,
- * the change is reflected on the other.
- *
- * The spinbox holds the threshold in image intensity value, while the slider holds a percentage.
- */
-void MainWindow::on_threshold_spinbox_valueChanged(double arg1)
+void MainWindow::on_height_spinbox_valueChanged()
 {
-    ui->canvas->setThreshold(arg1);
-
-    QSignalBlocker(ui->threshold_slider);
-    auto range = ui->threshold_spinbox->maximum() - ui->threshold_spinbox->minimum();
-    ui->threshold_slider->setValue(100 * (arg1 - ui->threshold_spinbox->minimum()) / range);
+    ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
 
-/*!
- * \brief MainWindow::on_threshold_slider_valueChanged
- * \param value Threshold in percentage.
- *
- * \sa MainWindow::on_threshold_spinbox_valueChanged
- */
-void MainWindow::on_threshold_slider_valueChanged(int value)
+void MainWindow::on_width_spinbox_valueChanged()
 {
-    auto range = ui->threshold_spinbox->maximum() - ui->threshold_spinbox->minimum();
-    auto threshold = ui->threshold_spinbox->minimum() + value / 100.0 * range;
-
-    ui->canvas->setThreshold(threshold);
-
-    QSignalBlocker(ui->threshold_spinbox);
-    ui->threshold_spinbox->setValue(threshold);
+    ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
 
-/*!
- * \brief Set the visualisation mode.
- * \param arg1 Name of the visualisation mode.
- */
-void MainWindow::on_mode_currentTextChanged(const QString &mode)
+void MainWindow::on_depth_spinbox_valueChanged()
 {
-    ui->canvas->setMode(mode);
+    ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
+}
 
-    if ("Isosurface" == mode) {
-        ui->threshold_slider->setEnabled(true);
-        ui->threshold_spinbox->setEnabled(true);
-        ui->threshold_label->setEnabled(true);
+void MainWindow::on_tf_slider_valueChanged(int value)
+{
+    ui->canvas->setTFThreshold(value);
+}
+
+void MainWindow::on_tf_checkbox_clicked(bool value)
+{
+    if (value)
+    {
+        ui->tf_slider->setEnabled(true);
+        ui->canvas->setTFThreshold(ui->tf_slider->value());
     }
-    else {
-        ui->threshold_slider->setDisabled(true);
-        ui->threshold_spinbox->setDisabled(true);
-        ui->threshold_label->setDisabled(true);
+    else
+    {
+        ui->tf_slider->setDisabled(true);
+        ui->canvas->setTFThreshold(100);
+
     }
+}
+
+void MainWindow::on_hsv_tf_checkbox_clicked(bool value)
+{
+    if (value)
+    {
+        ui->HSV_TF_h_slider->setEnabled(true);
+        ui->HSV_TF_s_slider->setEnabled(true);
+        ui->HSV_TF_v_slider->setEnabled(true);
+        ui->canvas->setHSV_TF_HThreshold(ui->HSV_TF_h_slider->value());
+        ui->canvas->setHSV_TF_SThreshold(ui->HSV_TF_s_slider->value());
+        ui->canvas->setHSV_TF_VThreshold(ui->HSV_TF_v_slider->value());
+    }
+    else
+    {
+        ui->HSV_TF_h_slider->setDisabled(true);
+        ui->HSV_TF_s_slider->setDisabled(true);
+        ui->HSV_TF_v_slider->setDisabled(true);
+        ui->canvas->setHSV_TF_HThreshold(100);
+        ui->canvas->setHSV_TF_SThreshold(100);
+        ui->canvas->setHSV_TF_VThreshold(100);
+
+    }
+}
+
+
+void MainWindow::on_HSV_TF_h_slider_valueChanged(int value)
+{
+    ui->canvas->setHSV_TF_HThreshold(value);
+
+}
+
+void MainWindow::on_HSV_TF_s_slider_valueChanged(int value)
+{
+    ui->canvas->setHSV_TF_SThreshold(value);
+
+}
+
+void MainWindow::on_HSV_TF_v_slider_valueChanged(int value)
+{
+    ui->canvas->setHSV_TF_VThreshold(value);
 }
 
 
@@ -191,5 +264,39 @@ void MainWindow::on_background_clicked()
 
     if (colour.isValid()) {
         ui->canvas->setBackground(colour);
+    }
+}
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    // use the frambuffer instead of glReadPixels due to some weird qt widget scaling
+    QCheckBox *color_checkbox = ui->proximity_color_tf_checkbox;
+    QCheckBox *space_checkbox = ui->proximity_space_tf;
+    if (color_checkbox->isChecked())
+    {
+        QImage image = ui->canvas->grabFramebuffer();
+        QPointF pos = event->windowPos();
+        QRgb rgb = image.pixel(pos.x(), pos.y());
+        ui->canvas->set_color_proximity_tf(rgb);
+        QScrollArea *scroll = ui->scrollArea;
+
+        QLabel *color_label = new QLabel;
+        std::string str = "background:rgb(" + std::to_string(qRed(rgb))+ "," + std::to_string( qGreen(rgb)) + ","+std::to_string( qBlue(rgb))+");";
+        color_label->setStyleSheet(QString::fromStdString(str));
+        int rows = prox_scroll_layout->rowCount();
+        QWidget *c = new QWidget;
+        QGridLayout *l = new QGridLayout(c);
+        QSlider *opacity_bar = new QSlider(Qt::Horizontal);
+        QSlider *size_bar = new QSlider(Qt::Horizontal);
+        l->addWidget(opacity_bar,0,0);
+        l->addWidget(size_bar,1,0);
+        prox_scroll_layout->addWidget(color_label,rows,0);
+        prox_scroll_layout->addWidget(c,rows,1);
+        scroll->setWidget(prox_scroll_layout_main);
+    }
+    else if(space_checkbox->isChecked())
+    {
+        QImage image = ui->canvas->grabFramebuffer();
+        QRgb rgb = image.pixel(event->x(), event->y());
+        ui->canvas->set_space_proximity_tf();
     }
 }

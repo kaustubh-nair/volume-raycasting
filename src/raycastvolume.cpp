@@ -23,7 +23,6 @@
 
 #include "raycastvolume.h"
 #include "vtkvolume.h"
-#include "osvolume.h"
 
 #include <QRegularExpression>
 
@@ -31,12 +30,15 @@
 #include <cmath>
 
 
+float eucl_dist(int a, int b, int c, int x, int y, int z);
+
 /*!
  * \brief Create a two-unit cube mesh as the bounding box for the volume.
  */
 RayCastVolume::RayCastVolume(void)
     : m_volume_texture {0}
     , m_noise_texture {0}
+    , m_tf_texture {0}
     , m_cube_vao {
           {
               -1.0f, -1.0f,  1.0f,
@@ -120,12 +122,13 @@ void RayCastVolume::load_volume(const QString& filename) {
     }
     else if ("tiff" == extension || "svs" == extension || "tif" == extension) {
         uint32_t* data;
-        OSVolume volume {filename.toStdString()};
+        volume  = new OSVolume({filename.toStdString()});
 
-        data = volume.data();
+        data = volume->data();
         m_spacing = QVector3D(0.5f,0.5f, 0.5f);
         m_origin = QVector3D(0.0f, 0.0f, 0.0f);
-        m_size = volume.size();
+        m_size = volume->size();
+        m_scaling = m_size;
 
         printf("%ld \n", data[0]);
 
@@ -141,6 +144,52 @@ void RayCastVolume::load_volume(const QString& filename) {
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_size.x(),m_size.y(),m_size.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
         glGenerateMipmap(GL_TEXTURE_3D);
         glBindTexture(GL_TEXTURE_3D, 0);
+
+
+
+        for(int i = 0; i < 256; i++)
+        {
+            for(int j = 0; j < 256; j++)
+            {
+                for(int k = 0; k < 256; k++)
+                {
+                    color_proximity_tf[i][j][k] = 1.0f;
+                    space_proximity_tf[i][j][k] = 1.0f;
+                }
+            }
+        }
+        glDeleteTextures(1, &m_tf_texture);
+        glGenTextures(1, &m_tf_texture);
+        glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
+        glBindTexture(GL_TEXTURE_3D, 0);
+
+        glDeleteTextures(1, &m_space_prox_tf_texture);
+        glGenTextures(1, &m_space_prox_tf_texture);
+        glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, space_proximity_tf);
+        glBindTexture(GL_TEXTURE_3D, 0);
+
+        /*
+        uint32_t* tf = (uint32_t*)malloc(256);
+        int threshold = (int) (tf_rgb_slider_value*256/100)
+        for(int i = 0; i < 256; i++)
+        {
+            if (i < threshold)
+                tf[i] = 1
+            else
+                th[i] = 0;
+        }
+        */
+
     }
     else {
         throw std::runtime_error("Unrecognised extension '" + extension + "'.");
@@ -185,6 +234,8 @@ void RayCastVolume::paint(void)
 {
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, m_noise_texture);
+    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
 
     m_cube_vao.paint();
 }
@@ -206,6 +257,119 @@ std::pair<double, double> RayCastVolume::range() {
  */
 float RayCastVolume::scale_factor(void)
 {
-    auto e = m_size * m_spacing;
+    auto e = m_scaling * m_spacing;
     return std::max({e.x(), e.y(), e.z()});
+}
+
+uint32_t RayCastVolume::rgb(int x, int y, int z, int size)
+{
+    if (x < size*tf_threshold && y < size*tf_threshold && z < size*tf_threshold)
+       return ((uint32_t)x << 16 | (uint32_t)y << 8 | (uint32_t)z);
+    return (uint32_t)0;
+}
+
+void RayCastVolume::update_volume_texture()
+{
+    m_scaling = volume->size();
+    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_scaling.x(),m_scaling.y(),m_scaling.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, volume->data());
+    glGenerateMipmap(GL_TEXTURE_3D);
+    glBindTexture(GL_TEXTURE_3D, 0);
+}
+
+void RayCastVolume::update_space_prox_texture()
+{
+    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, space_proximity_tf);
+    glBindTexture(GL_TEXTURE_3D, 0);
+}
+
+void RayCastVolume::update_color_prox_texture()
+{
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
+    glBindTexture(GL_TEXTURE_3D, 0);
+}
+
+void RayCastVolume::set_space_proximity_tf()
+{
+    int x,y,z;
+    if (j==0)
+    {
+        x=0;y=0;z=256;
+    }
+    else if(j==1)
+    {
+        x=100;y=100;z=256;
+    }
+    else if(j==2)
+    {
+        x=80;y=200;z=256;
+
+    }
+    printf("%d %d %d\n",x,y,z);
+    j++;
+    
+    int min_red = 0;
+    int max_red = 256;
+
+    int min_blue = 0;
+    int max_blue = 256;
+
+    int min_green = 0;
+    int max_green = 256;
+    
+    for(int i = min_red; i < max_red; i++)
+    {
+        for(int j = min_green; j < max_green; j++)
+        {
+            for(int k = min_blue; k < max_blue; k++)
+            {
+                if (eucl_dist(i,j,k,x,y,z)<=SPACE_PROX_TF_DEFAULT_RADIUS)
+                    space_proximity_tf[k][j][i] = 0.0f;
+
+            }
+        }
+    }
+    update_space_prox_texture();
+}
+
+
+void RayCastVolume::set_color_proximity_tf(QRgb rgb)
+{
+    int red = qRed(rgb);
+    int green = qGreen(rgb);
+    int blue = qBlue(rgb);
+    printf("%d %d %d\n", red, green, blue);
+    
+    int min_red = std::max((int)(red-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
+    int max_red = std::min((int)(red+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
+
+    int min_blue = std::max((int)(blue-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
+    int max_blue = std::min((int)(blue+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
+
+    int min_green = std::max((int)(green-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
+    int max_green = std::min((int)(green+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
+    
+    for(int i = min_red; i < max_red; i++)
+    {
+        for(int j = min_green; j < max_green; j++)
+        {
+            for(int k = min_blue; k < max_blue; k++)
+            {
+                // TODO recheck this
+                if (eucl_dist(i,j,k,red,green,blue)<=COLOR_PROX_TF_DEFAULT_RADIUS)
+                    color_proximity_tf[k][j][i] = 0.0f;
+
+            }
+        }
+    }
+    update_color_prox_texture();
+
+
+}
+
+float eucl_dist(int a, int b, int c, int x, int y, int z)
+{
+    return sqrt(pow(a-x, 2)+pow(b-y, 2)+pow(c-z, 2));
 }

@@ -43,6 +43,7 @@ class RayCastCanvas : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
     Q_OBJECT
 public:
+
     explicit RayCastCanvas(QWidget *parent = nullptr);
     ~RayCastCanvas();
 
@@ -72,6 +73,36 @@ public:
         update();
     }
 
+    void setTFThreshold(const float t)
+    {
+        m_raycasting_volume->tf_threshold = t/100.0;
+        update();
+    }
+
+    void setHSV_TF_HThreshold(const float t)
+    {
+        m_raycasting_volume->hsv_tf_h_threshold = t/100.0;
+        update();
+    }
+
+    void setHSV_TF_SThreshold(const float t)
+    {
+        m_raycasting_volume->hsv_tf_s_threshold = t/100.0;
+        update();
+    }
+
+    void setHSV_TF_VThreshold(const float t)
+    {
+        m_raycasting_volume->hsv_tf_v_threshold = t/100.0;
+        update();
+    }
+
+    void updateScaling(QVector3D inc)
+    {
+        m_raycasting_volume->updateScaling(inc);
+        update();
+    }
+
     std::vector<QString> getModes(void) {
         std::vector<QString> modes;
         for (const auto& [key, val] : m_modes) {
@@ -86,6 +117,68 @@ public:
 
     std::pair<double, double> getRange(void) {
         return m_raycasting_volume->range();
+    }
+
+    QVector3D getInitialSize() {
+        return m_raycasting_volume->getInitialSize();
+    }
+
+    std::vector<int> get_initial_levels() {
+        return m_raycasting_volume->get_initial_levels();
+    }
+
+    // returns current level
+    int load_best_res()
+    {
+        int l = m_raycasting_volume->load_best_res();
+        update();
+        return l;
+
+    }
+
+    void move_up()
+    {
+        m_raycasting_volume->move_up();
+        update();
+    }
+    void move_left()
+    {
+        m_raycasting_volume->move_left();
+        update();
+    }
+    void move_down()
+    {
+        m_raycasting_volume->move_down();
+        update();
+    }
+    void move_right()
+    {
+        m_raycasting_volume->move_right();
+        update();
+    }
+
+    void zoom_out()
+    {
+        m_raycasting_volume->zoom_out();
+        update();
+    }
+
+    void zoom_in()
+    {
+        m_raycasting_volume->zoom_in();
+        update();
+    }
+
+    void set_space_proximity_tf()
+    {
+        m_raycasting_volume->set_space_proximity_tf();
+        update();
+
+    }
+    void set_color_proximity_tf(QRgb rgb)
+    {
+        m_raycasting_volume->set_color_proximity_tf(rgb);
+        update();
     }
 
 signals:
