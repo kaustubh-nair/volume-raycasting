@@ -46,7 +46,9 @@ void OSVolume::load_volume(int l)
 	long long int size = width*height*sizeof(uint32_t);
     _data = (uint32_t*)malloc(size);
 
-    openslide_read_region(image, _data, 0, 0, _curr_level, width, height);
+
+    // WARNING! TODO: level hardcoded to 0
+    openslide_read_region(image, _data, 0, 0, 0, width, height);
 
     duplicate_data(&_data);
 }
