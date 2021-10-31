@@ -136,10 +136,6 @@ public:
         return level;
     }
 
-    void update_volume_texture();
-    void update_color_prox_texture();
-    void update_space_prox_texture();
-
     void zoom_in()
     {
         volume->switch_to_low_res();
@@ -181,14 +177,17 @@ public:
 
     void set_color_proximity_tf(QRgb rgb);
     void set_space_proximity_tf();
+    void update_segment_opacity(int id, int opacity);
 
 
 
 private:
+    const static int MAX_NUM_SEGMENTS = 3;
     GLuint m_volume_texture;
     GLuint m_noise_texture;
     GLuint m_tf_texture;
     GLuint m_space_prox_tf_texture;
+    GLuint m_segment_opacity_texture;
     Mesh m_cube_vao;
     std::pair<double, double> m_range;
     QVector3D m_origin;
@@ -196,15 +195,20 @@ private:
     QVector3D m_size;
     QVector3D m_scaling;
 
-    float scale_factor(void);
-    uint32_t rgb(int x, int y, int z, int size);
-
     OSVolume *volume;
 
     float color_proximity_tf[256][256][256];
     float space_proximity_tf[256][256][256];
+    float segment_opacity_tf[MAX_NUM_SEGMENTS];
     float COLOR_PROX_TF_DEFAULT_RADIUS = 30;
     float SPACE_PROX_TF_DEFAULT_RADIUS = 100;
-    int i = 0;
     int j = 0;
+
+    float scale_factor(void);
+    uint32_t rgb(int x, int y, int z, int size);
+    void initialize_texture_data();
+    void update_segment_opacity_texture();
+    void update_volume_texture();
+    void update_color_prox_texture();
+    void update_space_prox_texture();
 };

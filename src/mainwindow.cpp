@@ -47,11 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
     prox_scroll_layout_main = new QWidget;
     prox_scroll_layout = new QGridLayout(prox_scroll_layout_main);
 
-    QPushButton *button1 = new QPushButton("One");
-    QPushButton *button2 = new QPushButton("two");
-    prox_scroll_layout->addWidget(button1, 0, 0);
-    prox_scroll_layout->addWidget(button2, 0, 1);
-
     scroll->setWidget(prox_scroll_layout_main);
     scroll->setWidgetResizable(true);
 }
@@ -193,18 +188,21 @@ void MainWindow::on_depth_spinbox_valueChanged()
     ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
 
-void MainWindow::segment_1_opacity_valueChanged(int value)
+void MainWindow::on_segment_1_opacity_valueChanged(int value)
 {
+    ui->canvas->update_segment_opacity(0, value);
 
 }
 
-void MainWindow::segment_2_opacity_valueChanged(int value)
+void MainWindow::on_segment_2_opacity_valueChanged(int value)
 {
+    ui->canvas->update_segment_opacity(1, value);
 
 }
 
-void MainWindow::segment_3_opacity_valueChanged(int value)
+void MainWindow::on_segment_3_opacity_valueChanged(int value)
 {
+    ui->canvas->update_segment_opacity(2, value);
 
 }
 

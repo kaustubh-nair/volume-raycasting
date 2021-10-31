@@ -85,11 +85,11 @@ private slots:
 
     void on_right_button_clicked();
 
-    void segment_1_opacity_valueChanged(int value);
+    void on_segment_1_opacity_valueChanged(int value);
 
-    void segment_2_opacity_valueChanged(int value);
+    void on_segment_2_opacity_valueChanged(int value);
 
-    void segment_3_opacity_valueChanged(int value);
+    void on_segment_3_opacity_valueChanged(int value);
 
 
 private:

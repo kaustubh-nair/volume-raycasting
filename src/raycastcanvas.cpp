@@ -171,6 +171,7 @@ void RayCastCanvas::raycasting(const QString& shader)
         m_shaders[shader]->setUniformValue("jitter", 1);
         m_shaders[shader]->setUniformValue("color_proximity_tf", 2);
         m_shaders[shader]->setUniformValue("space_proximity_tf", 3);
+        m_shaders[shader]->setUniformValue("segment_opacity_tf", 4);
 
         glClearColor(m_background.redF(), m_background.greenF(), m_background.blueF(), m_background.alphaF());
         glClear(GL_COLOR_BUFFER_BIT);

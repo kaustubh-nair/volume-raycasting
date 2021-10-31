@@ -49,8 +49,10 @@ uniform sampler3D volume;
 uniform sampler2D jitter;
 uniform sampler3D color_proximity_tf;
 uniform sampler3D space_proximity_tf;
+uniform sampler1D segment_opacity_tf;
 
 uniform float gamma;
+float MAX_NUM_SEGMENTS = 3.0;
 
 // Ray
 struct Ray {
@@ -208,8 +210,16 @@ void main()
     while (ray_length > 0 && colour.a < 1.0) {
 
         vec4 c = texture(volume, position).gbar;
-        float seg_id = c.a;
-        c.a = 1.0;
+        float seg_id_f = c.a;
+        float seg_id = int(c.a * 100)/MAX_NUM_SEGMENTS;
+
+        // so that TF doesn't get affected by segment values
+        c.a = 1.0f;
+        
+         /*
+        // randomize for now
+        seg_id = (int(c.x*100)%3)/3.0;
+        */
 
         if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
             c = vec4(0.0);
@@ -223,6 +233,8 @@ void main()
         float a = texture(space_proximity_tf, position).r;
         if (a < c.a)
             c.a = a;
+
+        c.a = texture(segment_opacity_tf, seg_id).r;
      
 /*
         if((ray_length - step_length) >= 0)
