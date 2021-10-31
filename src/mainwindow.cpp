@@ -193,6 +193,21 @@ void MainWindow::on_depth_spinbox_valueChanged()
     ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));
 }
 
+void MainWindow::segment_1_opacity_valueChanged(int value)
+{
+
+}
+
+void MainWindow::segment_2_opacity_valueChanged(int value)
+{
+
+}
+
+void MainWindow::segment_3_opacity_valueChanged(int value)
+{
+
+}
+
 void MainWindow::on_tf_slider_valueChanged(int value)
 {
     ui->canvas->setTFThreshold(value);

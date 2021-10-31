@@ -257,5 +257,5 @@ void main()
 
     // Gamma correction
     a_colour.rgb = pow(colour.rgb, vec3(1.0 / gamma));
-    //a_colour.a = texture(color_proximity_tf, colour.rgb).r;
+    a_colour.a = colour.a;
 }
