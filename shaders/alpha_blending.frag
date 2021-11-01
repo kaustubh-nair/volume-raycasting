@@ -143,6 +143,67 @@ vec4 colour_transfer(float intensity)
     return vec4(intensity * high + (1.0 - intensity) * low, alpha);
 }
 
+// Blinn-Phong shading model to compute colors
+vec3 blinn_phong(vec3 position, vec3 ray)
+{
+    vec3 colour;
+
+    vec4 position_intensity = texture(volume, position).gbar;
+    vec3 position_color = position_intensity.rgb;
+    float position_material = position_intensity.a;
+    
+    vec3 L = normalize(light_position - position);
+    vec3 V = -normalize(ray);
+    vec3 N = normal(position, position_material);
+    vec3 H = normalize(L + V);
+
+    float Ia, Id, Is;
+    // Material1 : Nucleus, ID : 253
+    if((position_material * 255) == 253)
+    {
+        Ia = 0.1;
+        Id = 0.4 * max(0, dot(N, L));
+        Is = 4.0 * pow(max(0, dot(N, H)), 600);
+    }
+
+    // Material2 : Cytoplasm, ID : 254
+    else if((position_material * 255) == 254)
+    {
+        Ia = 0.3;
+        Id = 1.0 * max(0, dot(N, L));
+        Is = 8.0 * pow(max(0, dot(N, H)), 800);
+    }
+
+    // Material3 : RestOfIt, ID : 255
+    else if((position_material * 255) == 255)
+    {
+        Ia = 0.2;
+        Id = 0.6 * max(0, dot(N, L));
+        Is = 6.0 * pow(max(0, dot(N, H)), 700);
+    }
+
+    // Material4 : Nucleus-Cytoplasm Boundary, ID : 253 ~ 254
+    else if((position_material * 255) > 253 && (position_material * 255) < 254)
+    {
+        Ia = 0.4;
+        Id = 0.5 * max(0, dot(N, L));
+        Is = 5.0 * pow(max(0, dot(N, H)), 650);
+    }
+
+    // Material5 : Cytoplasm-Other Boundary, ID : 254 ~ 255
+    else
+    {
+        Ia = 0.7;
+        Id = 0.6 * max(0, dot(N, L));
+        Is = 3.0 * pow(max(0, dot(N, H)), 750);
+    }
+    
+    
+    colour = (Ia + Id) * position_color + Is * vec3(1.0);
+
+    return colour;
+}
+
 // Secant method to find the point of intersection between different material boundaries
 vec3 secant_method(vec3 position, vec3 position_next, float p_iso)
 {
@@ -204,48 +265,64 @@ void main()
 
     a_colour = vec4(position,1.0);
 
+    float intersect = 0.0; 
+    vec4 colour_intersection = vec4(0.0);
+
     // Ray march until reaching the end of the volume, or colour saturation
     while (ray_length > 0 && colour.a < 1.0) {
 
         vec4 c = texture(volume, position).gbar;
-        float seg_id = c.a;
+        // float seg_id = c.a;
         c.a = 1.0;
 
-        if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
-            c = vec4(0.0);
-		else
-        {
-            vec3 hsv_value = rgb2hsv(c.xyz);
-            if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
-                c = vec4(0.0);
-        }
-        c.a = texture(color_proximity_tf, c.rgb).r;
-        float a = texture(space_proximity_tf, position).r;
-        if (a < c.a)
-            c.a = a;
+        // if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
+        //     c = vec4(0.0);
+		// else
+        // {
+        //     vec3 hsv_value = rgb2hsv(c.xyz);
+        //     if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
+        //         c = vec4(0.0);
+        // }
+
+        // c.a = texture(color_proximity_tf, c.rgb).r;
+        // float a = texture(space_proximity_tf, position).r;
+        // if (a < c.a)
+        //     c.a = a;
      
-/*
+
         if((ray_length - step_length) >= 0)
         {
             vec3 position_next = position + step_vector;
+            vec4 intensity = texture(volume, position).gbar;
             vec4 intensity_next = texture(volume, position_next).gbar;
 
             if(intensity.a != intensity_next.a)
             {
                 float p_iso = (intensity.a + intensity_next.a) / 2.0;
                 vec3 material_intersection = secant_method(position, position_next, p_iso);
+                colour_intersection.xyz = blinn_phong(material_intersection, ray);
+                colour_intersection.w = 1.0;
+                intersect = 1.0;
 
             }
         }
-        */
+
 
         // enable this for single channel datasets
         //float intensity = texture(volume, position).r;
         //vec4 c = colour_transfer(intensity);
-
+        c.rgb = blinn_phong(position, ray);
+        
         // Alpha-blending
         colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
         colour.a = c.a + (1 - c.a) * colour.a;
+
+        if(intersect == 1.0)
+        {
+            colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
+            colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
+            intersect = 0.0;
+        }
 
         ray_length -= step_length;
         position += step_vector;
