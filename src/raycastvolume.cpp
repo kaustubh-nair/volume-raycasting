@@ -30,7 +30,10 @@
 #include <cmath>
 
 
-float eucl_dist(int a, int b, int c, int x, int y, int z);
+float eucl_dist(int a, int b, int c, int x, int y, int z)
+{
+    return sqrt(pow(a-x, 2)+pow(b-y, 2)+pow(c-z, 2));
+}
 
 /*!
  * \brief Create a two-unit cube mesh as the bounding box for the volume.
@@ -39,6 +42,7 @@ RayCastVolume::RayCastVolume(void)
     : m_volume_texture {0}
     , m_noise_texture {0}
     , m_tf_texture {0}
+    , m_segment_opacity_texture {0}
     , m_cube_vao {
           {
               -1.0f, -1.0f,  1.0f,
@@ -132,6 +136,8 @@ void RayCastVolume::load_volume(const QString& filename) {
 
         printf("%ld \n", data[0]);
 
+        initialize_texture_data();
+
         glDeleteTextures(1, &m_volume_texture);
         glGenTextures(1, &m_volume_texture);
         glBindTexture(GL_TEXTURE_3D, m_volume_texture);
@@ -146,23 +152,12 @@ void RayCastVolume::load_volume(const QString& filename) {
         glBindTexture(GL_TEXTURE_3D, 0);
 
 
-
-        for(int i = 0; i < 256; i++)
-        {
-            for(int j = 0; j < 256; j++)
-            {
-                for(int k = 0; k < 256; k++)
-                {
-                    color_proximity_tf[i][j][k] = 1.0f;
-                    space_proximity_tf[i][j][k] = 1.0f;
-                }
-            }
-        }
         glDeleteTextures(1, &m_tf_texture);
         glGenTextures(1, &m_tf_texture);
         glBindTexture(GL_TEXTURE_3D, m_tf_texture);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // TODO: recheck if interpolation is needed
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
@@ -173,10 +168,24 @@ void RayCastVolume::load_volume(const QString& filename) {
         glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        // TODO: recheck if interpolation is needed
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, space_proximity_tf);
         glBindTexture(GL_TEXTURE_3D, 0);
+
+        for(int i = 0; i < 3; i++)
+        {
+            segment_opacity_tf[i] = 1.0f;
+        }
+        glDeleteTextures(1, &m_segment_opacity_texture);
+        glGenTextures(1, &m_segment_opacity_texture);
+        glBindTexture(GL_TEXTURE_1D, m_segment_opacity_texture);
+        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage1D(GL_TEXTURE_1D, 0, GL_RED, MAX_NUM_SEGMENTS, 0, GL_RED, GL_FLOAT, segment_opacity_tf);
+        glBindTexture(GL_TEXTURE_1D, 0);
 
         /*
         uint32_t* tf = (uint32_t*)malloc(256);
@@ -236,6 +245,7 @@ void RayCastVolume::paint(void)
     glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, m_noise_texture);
     glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
     glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
+    glActiveTexture(GL_TEXTURE4); glBindTexture(GL_TEXTURE_1D, m_segment_opacity_texture);
 
     m_cube_vao.paint();
 }
@@ -271,7 +281,7 @@ uint32_t RayCastVolume::rgb(int x, int y, int z, int size)
 void RayCastVolume::update_volume_texture()
 {
     m_scaling = volume->size();
-    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
+    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_scaling.x(),m_scaling.y(),m_scaling.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, volume->data());
     glGenerateMipmap(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, 0);
@@ -284,9 +294,18 @@ void RayCastVolume::update_space_prox_texture()
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
+void RayCastVolume::update_segment_opacity_texture()
+{
+    // this causes a blank screen somehow weird!;
+    // glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_1D, m_segment_opacity_texture);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RED, MAX_NUM_SEGMENTS, 0, GL_RED, GL_FLOAT, segment_opacity_tf);
+    glBindTexture(GL_TEXTURE_1D, 0);
+}
+
 void RayCastVolume::update_color_prox_texture()
 {
-    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
@@ -369,7 +388,30 @@ void RayCastVolume::set_color_proximity_tf(QRgb rgb)
 
 }
 
-float eucl_dist(int a, int b, int c, int x, int y, int z)
+void RayCastVolume::update_segment_opacity(int id, int opacity)
 {
-    return sqrt(pow(a-x, 2)+pow(b-y, 2)+pow(c-z, 2));
+    segment_opacity_tf[id] = opacity/100.0f;
+    update_segment_opacity_texture();
+}
+
+void RayCastVolume::initialize_texture_data()
+{
+    for(int i = 0; i < 256; i++)
+    {
+        for(int j = 0; j < 256; j++)
+        {
+            for(int k = 0; k < 256; k++)
+            {
+                color_proximity_tf[i][j][k] = 1.0f;
+                space_proximity_tf[i][j][k] = 1.0f;
+            }
+        }
+    }
+
+    for(int i = 0; i < MAX_NUM_SEGMENTS; i++)
+    {
+        segment_opacity_tf[i] = 1.0f;
+    }
+
+
 }

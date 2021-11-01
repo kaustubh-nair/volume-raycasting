@@ -85,6 +85,12 @@ private slots:
 
     void on_right_button_clicked();
 
+    void on_segment_1_opacity_valueChanged(int value);
+
+    void on_segment_2_opacity_valueChanged(int value);
+
+    void on_segment_3_opacity_valueChanged(int value);
+
 
 private:
     std::string curr_level_label, max_level_label;
