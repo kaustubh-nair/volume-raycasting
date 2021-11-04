@@ -176,7 +176,7 @@ public:
     }
 
     void set_color_proximity_tf(QRgb rgb);
-    void set_space_proximity_tf();
+    void set_space_proximity_tf(qreal x, qreal y);
     void update_segment_opacity(int id, int opacity);
 
 

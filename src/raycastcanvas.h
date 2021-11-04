@@ -169,9 +169,9 @@ public:
         update();
     }
 
-    void set_space_proximity_tf()
+    void set_space_proximity_tf(qreal x, qreal y)
     {
-        m_raycasting_volume->set_space_proximity_tf();
+        m_raycasting_volume->set_space_proximity_tf(x, y);
         update();
 
     }
@@ -186,6 +186,7 @@ public:
         m_raycasting_volume->update_segment_opacity(id, opacity);
         update();
     }
+
 
 signals:
     // NOPE

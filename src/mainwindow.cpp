@@ -309,7 +309,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     else if(space_checkbox->isChecked())
     {
         QImage image = ui->canvas->grabFramebuffer();
-        QRgb rgb = image.pixel(event->x(), event->y());
-        ui->canvas->set_space_proximity_tf();
+        QPointF pos = event->windowPos();
+        ui->canvas->set_space_proximity_tf(pos.x(), pos.y());
     }
 }

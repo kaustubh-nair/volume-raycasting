@@ -134,7 +134,7 @@ void RayCastVolume::load_volume(const QString& filename) {
         m_size = volume->size();
         m_scaling = m_size;
 
-        printf("%ld \n", data[0]);
+        printf("%d \n", data[0]);
 
         initialize_texture_data();
 
@@ -310,6 +310,7 @@ void RayCastVolume::update_color_prox_texture()
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
+/*
 void RayCastVolume::set_space_proximity_tf()
 {
     int x,y,z;
@@ -352,6 +353,7 @@ void RayCastVolume::set_space_proximity_tf()
     }
     update_space_prox_texture();
 }
+*/
 
 
 void RayCastVolume::set_color_proximity_tf(QRgb rgb)
@@ -413,5 +415,10 @@ void RayCastVolume::initialize_texture_data()
         segment_opacity_tf[i] = 1.0f;
     }
 
+
+}
+
+void RayCastVolume::set_space_proximity_tf(qreal x, qreal y)
+{
 
 }
