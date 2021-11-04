@@ -187,6 +187,12 @@ public:
         update();
     }
 
+    void enable_lighting(bool value)
+    {
+        m_raycasting_volume->enable_lighting(value);
+        update();
+    }
+
 
 signals:
     // NOPE

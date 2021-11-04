@@ -101,10 +101,6 @@ public:
         return b;
     }
 
-    float tf_threshold = 1.0;
-    float hsv_tf_h_threshold = 1.0;
-    float hsv_tf_s_threshold = 1.0;
-    float hsv_tf_v_threshold = 1.0;
 
     void updateScaling(QVector3D new_val)
     {
@@ -175,11 +171,20 @@ public:
         update_volume_texture();
     }
 
+    void enable_lighting(bool value)
+    {
+        lighting_enabled = value;
+    }
+
     void set_color_proximity_tf(QRgb rgb);
     void set_space_proximity_tf(qreal x, qreal y);
     void update_segment_opacity(int id, int opacity);
 
-
+    float tf_threshold = 1.0;
+    float hsv_tf_h_threshold = 1.0;
+    float hsv_tf_s_threshold = 1.0;
+    float hsv_tf_v_threshold = 1.0;
+    bool lighting_enabled = false;
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;
@@ -211,4 +216,5 @@ private:
     void update_volume_texture();
     void update_color_prox_texture();
     void update_space_prox_texture();
+
 };

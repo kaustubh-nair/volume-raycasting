@@ -211,6 +211,12 @@ void MainWindow::on_tf_slider_valueChanged(int value)
     ui->canvas->setTFThreshold(value);
 }
 
+
+void MainWindow::on_enable_lighting_checkbox_clicked(bool value)
+{
+    ui->canvas->enable_lighting(value);
+}
+
 void MainWindow::on_tf_checkbox_clicked(bool value)
 {
     if (value)

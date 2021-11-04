@@ -91,6 +91,8 @@ private slots:
 
     void on_segment_3_opacity_valueChanged(int value);
 
+    void on_enable_lighting_checkbox_clicked(bool value);
+
 
 private:
     std::string curr_level_label, max_level_label;

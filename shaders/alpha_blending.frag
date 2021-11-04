@@ -52,6 +52,7 @@ uniform sampler3D space_proximity_tf;
 uniform sampler1D segment_opacity_tf;
 
 uniform float gamma;
+uniform bool lighting_enabled;
 float MAX_NUM_SEGMENTS = 3.0;
 
 // Ray
@@ -303,6 +304,12 @@ void main()
 
         c.a = texture(segment_opacity_tf, seg_id).r;
      
+
+        if (lighting_enabled)
+        {
+            // change color here
+
+        }
 
         if((ray_length - step_length) >= 0)
         {
