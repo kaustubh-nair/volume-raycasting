@@ -285,6 +285,7 @@ void main()
         seg_id = (int(c.x*100)%3)/3.0;
         */
 
+        /*
         if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
             c = vec4(0.0);
 		else
@@ -293,6 +294,8 @@ void main()
             if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
                 c = vec4(0.0);
         }
+        */
+
         c.a = texture(color_proximity_tf, c.rgb).r;
         float a = texture(space_proximity_tf, position).r;
         if (a < c.a)
