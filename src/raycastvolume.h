@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "mesh.h"
+#include "polygon.h"
 #include "osvolume.h"
 
 /*!
@@ -177,7 +178,6 @@ public:
     }
 
     void set_color_proximity_tf(QRgb rgb);
-    void set_space_proximity_tf(qreal x, qreal y);
     void update_segment_opacity(int id, int opacity);
 
     float tf_threshold = 1.0;
@@ -186,12 +186,16 @@ public:
     float hsv_tf_v_threshold = 1.0;
     bool lighting_enabled = false;
 
+    void update_location_tf(std::vector<Polygon> polygons);
+
 private:
     const static int MAX_NUM_SEGMENTS = 3;
+    const static int LOCATION_TF_DIMENSION = 256;
+    const static int COLOR_TF_DIMENSION = 256;
     GLuint m_volume_texture;
     GLuint m_noise_texture;
     GLuint m_tf_texture;
-    GLuint m_space_prox_tf_texture;
+    GLuint m_location_tf_texture;
     GLuint m_segment_opacity_texture;
     Mesh m_cube_vao;
     std::pair<double, double> m_range;
@@ -202,8 +206,8 @@ private:
 
     OSVolume *volume;
 
-    float color_proximity_tf[256][256][256];
-    float space_proximity_tf[256][256][256];
+    float color_proximity_tf[COLOR_TF_DIMENSION][COLOR_TF_DIMENSION][COLOR_TF_DIMENSION];
+    float location_tf[LOCATION_TF_DIMENSION][LOCATION_TF_DIMENSION][LOCATION_TF_DIMENSION];
     float segment_opacity_tf[MAX_NUM_SEGMENTS];
     float COLOR_PROX_TF_DEFAULT_RADIUS = 30;
     float SPACE_PROX_TF_DEFAULT_RADIUS = 100;
@@ -215,6 +219,6 @@ private:
     void update_segment_opacity_texture();
     void update_volume_texture();
     void update_color_prox_texture();
-    void update_space_prox_texture();
+    void update_location_tf_texture();
 
 };

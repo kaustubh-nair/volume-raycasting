@@ -302,7 +302,7 @@ void main()
         if (a < c.a)
             c.a = a;
 
-        c.a = texture(segment_opacity_tf, seg_id).r;
+        //c.a = texture(segment_opacity_tf, seg_id).r;
      
 
         if (lighting_enabled)
@@ -326,26 +326,23 @@ void main()
 
             c.rgb = blinn_phong(position, ray);
             
+
+        }
             // Alpha-blending
             colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
             colour.a = c.a + (1 - c.a) * colour.a;
 
+            /*
             if(intersect == 1.0)
             {
                 colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
                 colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
                 intersect = 0.0;
             }
+            */
 
             ray_length -= step_length;
             position += step_vector;
-
-        }
-
-        // enable this for single channel datasets
-        //float intensity = texture(volume, position).r;
-        //vec4 c = colour_transfer(intensity);
-        
         
     }
 

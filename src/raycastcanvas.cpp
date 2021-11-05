@@ -262,3 +262,53 @@ void RayCastCanvas::add_shader(const QString& name, const QString& vertex, const
     m_shaders[name]->addShaderFromSourceFile(QOpenGLShader::Fragment, fragment);
     m_shaders[name]->link();
 }
+
+void RayCastCanvas::location_tf_add_side_to_polygon(qreal x, qreal y)
+{
+    static int i = 0;
+    int n = polygons.size();
+    // initialize new polygon
+    if (!polygon_creation_active)
+    {
+        polygon_creation_active = true;
+        polygons.push_back(Polygon());
+        n++;
+    }
+    float transformed_x = 1.0;
+    float transformed_y = 1.0;
+    float transformed_z = 1.0;
+    if (i==0)
+    {
+        transformed_x = 0.2;
+        transformed_y = 0.2;
+        transformed_z = 1.0;
+    }
+    else if (i==1)
+    {
+        transformed_x = 0.2;
+        transformed_y = 0.8;
+        transformed_z = 1.0;
+    }
+    else if (i==2)
+    {
+        transformed_x = 0.8;
+        transformed_y = 0.8;
+        transformed_z = 1.0;
+    }
+    else if (i==3)
+    {
+        transformed_x = 0.8;
+        transformed_y = 0.2;
+        transformed_z = 1.0;
+    }
+    i++;
+    polygons[n-1].add_point(transformed_x, transformed_y, transformed_z);
+}
+
+void RayCastCanvas::location_tf_close_current_polygon(qreal x, qreal y)
+{
+    polygon_creation_active = false;
+    location_tf_add_side_to_polygon(x, y);
+    // update transfer function
+    m_raycasting_volume->update_location_tf(polygons);
+}

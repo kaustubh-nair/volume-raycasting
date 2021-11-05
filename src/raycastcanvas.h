@@ -32,6 +32,7 @@
 #include <QOpenGLShaderProgram>
 
 #include "mesh.h"
+#include "polygon.h"
 #include "raycastvolume.h"
 #include "trackball.h"
 #include "vtkvolume.h"
@@ -169,9 +170,12 @@ public:
         update();
     }
 
-    void set_space_proximity_tf(qreal x, qreal y)
+    void set_space_proximity_tf(qreal x, qreal y, bool left_mouse_pressed, bool right_mouse_pressed)
     {
-        m_raycasting_volume->set_space_proximity_tf(x, y);
+        if (left_mouse_pressed)
+            location_tf_add_side_to_polygon(x, y);
+        else if(right_mouse_pressed)
+            location_tf_close_current_polygon(x, y);
         update();
 
     }
@@ -227,6 +231,7 @@ private:
     GLfloat m_threshold;                          /*!< Isosurface intensity threshold. */
     QColor m_background;                          /*!< Viewport background colour. */
 
+
     const GLfloat m_gamma = 2.2f; /*!< Gamma correction parameter. */
 
     RayCastVolume *m_raycasting_volume;
@@ -248,4 +253,12 @@ private:
     QPointF pixel_pos_to_view_pos(const QPointF& p);
     void create_noise(void);
     void add_shader(const QString& name, const QString& vector, const QString& fragment);
+
+    // location/polygon TF related data
+    bool polygon_creation_active = false;
+    void location_tf_close_current_polygon(qreal x, qreal y);
+    void location_tf_add_side_to_polygon(qreal x, qreal y);
+    std::vector<Polygon> polygons;
+
+
 };

@@ -316,6 +316,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     {
         QImage image = ui->canvas->grabFramebuffer();
         QPointF pos = event->windowPos();
-        ui->canvas->set_space_proximity_tf(pos.x(), pos.y());
+        ui->canvas->set_space_proximity_tf(pos.x(), pos.y(), event->buttons() & Qt::LeftButton, event->buttons() & Qt::RightButton);
     }
 }

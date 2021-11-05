@@ -31,7 +31,8 @@ SOURCES += \
     src/vtkvolume.cpp \
     src/mesh.cpp \
     src/osvolume.cpp \
-    src/raycastvolume.cpp
+    src/raycastvolume.cpp \
+    src/polygon.cpp
 
 HEADERS += \
     src/mainwindow.h \
@@ -40,7 +41,7 @@ HEADERS += \
     src/vtkvolume.h \
     src/mesh.h \
     src/osvolume.h \
-    src/raycastvolume.h
+    src/polygon.h \
 
 INCLUDEPATH += \
     src
