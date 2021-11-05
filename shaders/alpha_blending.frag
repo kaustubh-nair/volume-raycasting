@@ -342,43 +342,11 @@ void main()
 
         }
 
-        // if((ray_length - step_length) >= 0)
-        // {
-        //     vec3 position_next = position + step_vector;
-        //     vec4 intensity = texture(volume, position).gbar;
-        //     vec4 intensity_next = texture(volume, position_next).gbar;
-
-        //     if(intensity.a != intensity_next.a)
-        //     {
-        //         float p_iso = (intensity.a + intensity_next.a) / 2.0;
-        //         vec3 material_intersection = secant_method(position, position_next, p_iso);
-        //         colour_intersection.xyz = blinn_phong(material_intersection, ray);
-        //         colour_intersection.w = 1.0;
-        //         intersect = 1.0;
-
-        //     }
-        // }
-
-
         // enable this for single channel datasets
         //float intensity = texture(volume, position).r;
         //vec4 c = colour_transfer(intensity);
         
-        // c.rgb = blinn_phong(position, ray);
         
-        // // Alpha-blending
-        // colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
-        // colour.a = c.a + (1 - c.a) * colour.a;
-
-        // if(intersect == 1.0)
-        // {
-        //     colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
-        //     colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
-        //     intersect = 0.0;
-        // }
-
-        // ray_length -= step_length;
-        // position += step_vector;
     }
 
     // Blend background
