@@ -262,3 +262,25 @@ void RayCastCanvas::add_shader(const QString& name, const QString& vertex, const
     m_shaders[name]->addShaderFromSourceFile(QOpenGLShader::Fragment, fragment);
     m_shaders[name]->link();
 }
+
+void RayCastCanvas::location_tf_add_side_to_polygon(qreal x, qreal y)
+{
+    if (polygon_creation_active)
+    {
+
+    }
+    else
+    {
+        // create new polygon
+        polygon_creation_active = true;
+    }
+
+}
+
+void RayCastCanvas::location_tf_close_current_polygon(qreal x, qreal y)
+{
+    polygon_creation_active = false;
+    // update transfer function
+    m_raycasting_volume->update_location_tf(polygons);
+
+}

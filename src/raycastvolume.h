@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "mesh.h"
+#include "polygon.h"
 #include "osvolume.h"
 
 /*!
@@ -177,7 +178,6 @@ public:
     }
 
     void set_color_proximity_tf(QRgb rgb);
-    void set_space_proximity_tf(qreal x, qreal y);
     void update_segment_opacity(int id, int opacity);
 
     float tf_threshold = 1.0;
@@ -185,6 +185,8 @@ public:
     float hsv_tf_s_threshold = 1.0;
     float hsv_tf_v_threshold = 1.0;
     bool lighting_enabled = false;
+
+    void update_location_tf(std::vector<Polygon> polygons);
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;

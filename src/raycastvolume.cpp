@@ -418,7 +418,7 @@ void RayCastVolume::initialize_texture_data()
 
 }
 
-void RayCastVolume::set_space_proximity_tf(qreal x, qreal y)
+void RayCastVolume::update_location_tf(std::vector<Polygon>)
 {
 
 }
