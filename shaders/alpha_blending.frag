@@ -297,13 +297,16 @@ void main()
         }
         */
 
-        c.a = texture(color_proximity_tf, c.rgb).r;
-        float a = texture(space_proximity_tf, position).r;
-        if (a < c.a)
-            c.a = a;
-
-        //c.a = texture(segment_opacity_tf, seg_id).r;
+        // 0 checks for each to avoid unnecessary nexture lookups
+        float a1 = texture(color_proximity_tf, c.rgb).r;
+        if (a1 == 0.0) break;
+        float a2 = texture(space_proximity_tf, position).r;
+        if (a2 == 0.0) break;
+        float a3 = texture(segment_opacity_tf, seg_id).r;
+        if (a3 == 0.0) break;
+        c.a = a1*a2*a3;
      
+
 
         if (lighting_enabled)
         {
@@ -332,14 +335,12 @@ void main()
             colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
             colour.a = c.a + (1 - c.a) * colour.a;
 
-            /*
-            if(intersect == 1.0)
-            {
-                colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
-                colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
-                intersect = 0.0;
-            }
-            */
+        if(lighting_enabled && intersect == 1.0)
+        {
+            colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
+            colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
+            intersect = 0.0;
+        }
 
             ray_length -= step_length;
             position += step_vector;
