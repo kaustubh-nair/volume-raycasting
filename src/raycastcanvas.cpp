@@ -265,7 +265,6 @@ void RayCastCanvas::add_shader(const QString& name, const QString& vertex, const
 
 void RayCastCanvas::location_tf_add_side_to_polygon(qreal x, qreal y)
 {
-    static int i = 0;
     int n = polygons.size();
     // initialize new polygon
     if (!polygon_creation_active)
@@ -274,34 +273,23 @@ void RayCastCanvas::location_tf_add_side_to_polygon(qreal x, qreal y)
         polygons.push_back(Polygon());
         n++;
     }
-    float transformed_x = 1.0;
-    float transformed_y = 1.0;
-    float transformed_z = 1.0;
-    if (i==0)
-    {
-        transformed_x = 0.2;
-        transformed_y = 0.2;
-        transformed_z = 1.0;
-    }
-    else if (i==1)
-    {
-        transformed_x = 0.2;
-        transformed_y = 0.8;
-        transformed_z = 1.0;
-    }
-    else if (i==2)
-    {
-        transformed_x = 0.8;
-        transformed_y = 0.8;
-        transformed_z = 1.0;
-    }
-    else if (i==3)
-    {
-        transformed_x = 0.8;
-        transformed_y = 0.2;
-        transformed_z = 1.0;
-    }
-    i++;
+
+    QMatrix4x4 projection_mat;
+    projection_mat.setToIdentity();
+    projection_mat.perspective(m_fov, (float)scaled_width()/scaled_height(), 0.1f, 100.0f);
+    QMatrix4x4 modelview_mat = m_viewMatrix * m_raycasting_volume->modelMatrix();
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    const int width = viewport[2];
+    const int height = viewport[3];
+    QRect vp(0,0,width, height);
+
+    QVector3D dir = QVector3D(x, y, 0.0);
+    dir = dir.unproject(modelview_mat, projection_mat, vp);
+    float transformed_x = dir.x();
+    float transformed_y = dir.y();
+    float transformed_z = dir.z();
+    printf("%f %f %f\n", transformed_x, transformed_y, transformed_z);
     polygons[n-1].add_point(transformed_x, transformed_y, transformed_z);
 }
 
