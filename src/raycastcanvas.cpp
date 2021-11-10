@@ -289,7 +289,7 @@ void RayCastCanvas::location_tf_add_side_to_polygon(qreal x, qreal y)
             z,
             1.0
             );
-    printf("before %f %f %f\n", x, y, z);
+    printf("before %f %f %f\n", pos.x(), pos.y(), pos.z());
 
     pos = m_modelViewProjectionMatrix.inverted()*pos;
 
