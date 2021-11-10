@@ -392,6 +392,7 @@ void RayCastVolume::set_color_proximity_tf(QRgb rgb)
 
 void RayCastVolume::update_segment_opacity(int id, int opacity)
 {
+    printf("%d\n", opacity);
     segment_opacity_tf[id] = opacity/100.0f;
     update_segment_opacity_texture();
 }

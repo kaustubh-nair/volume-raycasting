@@ -32,7 +32,8 @@ SOURCES += \
     src/mesh.cpp \
     src/osvolume.cpp \
     src/raycastvolume.cpp \
-    src/polygon.cpp
+    src/polygon.cpp \
+
 
 HEADERS += \
     src/mainwindow.h \

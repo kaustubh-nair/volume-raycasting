@@ -12,7 +12,6 @@ class Polygon
 {
     public:
         void add_point(float x, float y, float z){
-            printf("%f %f %f\n", x, y, z);
             vertices.push_back(QVector3D(x,y,z));
         }
         void set_opacity(float o){opacity = o;};
