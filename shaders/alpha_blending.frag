@@ -331,9 +331,9 @@ void main()
             
 
         }
-            // Alpha-blending
-            colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
-            colour.a = c.a + (1 - c.a) * colour.a;
+        // Alpha-blending
+        colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
+        colour.a = c.a + (1 - c.a) * colour.a;
 
         if(lighting_enabled && intersect == 1.0)
         {
@@ -342,9 +342,9 @@ void main()
             intersect = 0.0;
         }
 
-            ray_length -= step_length;
-            position += step_vector;
-        
+        ray_length -= step_length;
+        position += step_vector;
+    
     }
 
     // Blend background
