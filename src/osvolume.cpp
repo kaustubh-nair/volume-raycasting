@@ -18,11 +18,6 @@ OSVolume::OSVolume(const std::string& filename)
     _low_res_data = _data;
     _low_res_size = QVector3D(level_info[_curr_level]["width"], level_info[_curr_level]["height"], level_info[_curr_level]["depth"]);
 
-    printf("Image loaded! levels: %d width: %ld height %ld depth %ld\n ", levels,
-            level_info[_curr_level]["width"],
-            level_info[_curr_level]["height"],
-            level_info[_curr_level]["depth"]
-    );
 }
 
 QVector3D OSVolume::size()
@@ -47,10 +42,16 @@ void OSVolume::load_volume(int l)
     _data = (uint32_t*)malloc(size);
 
 
-    // WARNING! TODO: level hardcoded to 0
-    openslide_read_region(image, _data, 0, 0, 0, width, height);
+    openslide_read_region(image, _data, 0, 0, _curr_level, width, height);
 
     duplicate_data(&_data);
+
+    printf("\nImage loaded! Levels: %d Width: %ld Height: %ld Depth: %ld Current Level: %d\n\n", levels,
+            level_info[_curr_level]["width"],
+            level_info[_curr_level]["height"],
+            level_info[_curr_level]["depth"],
+            _curr_level
+    );
 }
 
 // duplicate data "depth" times
@@ -74,6 +75,7 @@ void OSVolume::duplicate_data(uint32_t** d)
 void OSVolume::store_level_info(openslide_t* image, int levels)
 {
     int64_t w, h;
+    printf("\n\nLEVEL INFO: \n");
     for(int i = 0; i < levels; i++)
     {
         std::map<std::string, int64_t> m;
@@ -83,8 +85,10 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
         m["depth"] = 32;        //TODO hardcoded - loads and duplicates single volume
         m["num_voxels"] = w*h;
         m["size"] = m["num_voxels"]*4;
+        printf("Level: %d Width: %d Height: %d Depth: %d\n", i, m["width"], m["height"], m["depth"]);
         level_info.push_back(m);
     }
+    printf("\n\n");
 }
 
 int OSVolume::load_best_res()
@@ -106,6 +110,7 @@ int OSVolume::load_best_res()
 
             if (_data != _low_res_data)
                 free(_data);
+            printf("Loading best level: %d\n", i);
             load_volume(i);
             break;
         }

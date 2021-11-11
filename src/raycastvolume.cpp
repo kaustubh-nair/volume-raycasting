@@ -134,8 +134,6 @@ void RayCastVolume::load_volume(const QString& filename) {
         m_size = volume->size();
         m_scaling = m_size;
 
-        printf("%d \n", data[0]);
-
         initialize_texture_data();
 
         glDeleteTextures(1, &m_volume_texture);

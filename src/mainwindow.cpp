@@ -104,8 +104,8 @@ void MainWindow::load_volume(const QString& path)
         ui->depth_spinbox->setValue(size.z());
 
         std::vector<int> levels = ui->canvas->get_initial_levels();
-        curr_level_label = std::to_string(levels[0]);
-        max_level_label =  std::to_string(levels[1]);
+        curr_level_label = std::to_string(levels[0]+1);
+        max_level_label =  std::to_string(levels[1]+1);
 
         ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 
