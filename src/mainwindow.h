@@ -67,6 +67,8 @@ private slots:
 
     void on_height_spinbox_valueChanged();
 
+    void on_vram_spinbox_valueChanged();
+
     void on_width_spinbox_valueChanged();
 
     void on_depth_spinbox_valueChanged();

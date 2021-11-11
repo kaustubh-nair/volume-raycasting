@@ -197,6 +197,8 @@ public:
         update();
     }
 
+    void set_vram(int value) { m_raycasting_volume->set_vram(value); }
+
 
 signals:
     // NOPE

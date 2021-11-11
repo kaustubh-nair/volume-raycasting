@@ -97,8 +97,10 @@ int OSVolume::load_best_res()
     //int64_t curr_size = width*height;
    
     // assumes same size per slide, but should be ok?
+    // reconsider when switching to 3D
     // use 75% of total vram for a conservative estimate
     int64_t available_size = (int64_t)(vram*0.75)/depth;
+
 
 
     // iterate from highest resolution, and load it if it fits.
@@ -110,7 +112,6 @@ int OSVolume::load_best_res()
 
             if (_data != _low_res_data)
                 free(_data);
-            printf("Loading best level: %d\n", i);
             load_volume(i);
             break;
         }

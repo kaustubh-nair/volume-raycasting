@@ -173,6 +173,11 @@ void MainWindow::on_loadVolume_clicked()
     }
 }
 
+void MainWindow::on_vram_spinbox_valueChanged()
+{
+    ui->canvas->set_vram(ui->vram_spinbox->value());
+}
+
 void MainWindow::on_height_spinbox_valueChanged()
 {
     ui->canvas->updateScaling(QVector3D(ui->height_spinbox->value(), ui->width_spinbox->value(), ui->depth_spinbox->value()));

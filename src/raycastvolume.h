@@ -176,6 +176,7 @@ public:
     {
         lighting_enabled = value;
     }
+    void set_vram(int value){volume->set_vram(value);}
 
     void set_color_proximity_tf(QRgb rgb);
     void update_segment_opacity(int id, int opacity);
