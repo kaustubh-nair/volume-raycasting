@@ -156,7 +156,7 @@ void MainWindow::on_right_button_clicked()
  */
 void MainWindow::on_best_res_button_clicked()
 {
-    int l = ui->canvas->load_best_res();
+    int l = ui->canvas->load_best_res()+1;
     curr_level_label = std::to_string(l);
     ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 }
