@@ -180,6 +180,7 @@ public:
 
     void set_color_proximity_tf(QRgb rgb);
     void update_segment_opacity(int id, int opacity);
+    void update_volume_opacity(int opacity);
 
     float tf_threshold = 1.0;
     float hsv_tf_h_threshold = 1.0;
@@ -204,6 +205,8 @@ private:
     QVector3D m_spacing;
     QVector3D m_size;
     QVector3D m_scaling;
+    float volume_opacity = 1.0;
+
 
     OSVolume *volume;
 
@@ -221,5 +224,6 @@ private:
     void update_volume_texture();
     void update_color_prox_texture();
     void update_location_tf_texture();
+    void update_location_tf_data();
 
 };

@@ -95,6 +95,8 @@ private slots:
 
     void on_enable_lighting_checkbox_clicked(bool value);
 
+    void on_volume_opacity_slider_valueChanged(int value);
+
 
 private:
     std::string curr_level_label, max_level_label;
