@@ -275,8 +275,7 @@ void main()
     while (ray_length > 0 && colour.a < 1.0) {
 
         vec4 c = texture(volume, position).gbar;
-        float seg_id_f = c.a;
-        float seg_id = int(c.a * 100)/MAX_NUM_SEGMENTS;
+        float seg_id = (256 - c.a * 256)/MAX_NUM_SEGMENTS;
 
         // so that TF doesn't get affected by segment values
         c.a = 1.0f;
@@ -297,18 +296,14 @@ void main()
         }
         */
 
-        // 0 checks for each to avoid unnecessary nexture lookups
         float a1 = texture(color_proximity_tf, c.rgb).r;
-        if (a1 == 0.0) break;
         float a2 = texture(space_proximity_tf, position).r;
-        if (a2 == 0.0) break;
         float a3 = texture(segment_opacity_tf, seg_id).r;
-        if (a3 == 0.0) break;
         c.a = a1*a2*a3;
      
 
 
-        if (lighting_enabled)
+        if (lighting_enabled && c.a > 0.0)
         {
             if((ray_length - step_length) >= 0)
             {
@@ -335,7 +330,7 @@ void main()
         colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
         colour.a = c.a + (1 - c.a) * colour.a;
 
-        if(lighting_enabled && intersect == 1.0)
+        if(lighting_enabled && intersect == 1.0 && c.a > 0.0)
         {
             colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
             colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
