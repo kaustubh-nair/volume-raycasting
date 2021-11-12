@@ -279,7 +279,9 @@ uint32_t RayCastVolume::rgb(int x, int y, int z, int size)
 void RayCastVolume::update_volume_texture()
 {
     m_scaling = volume->size();
-    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
+    // this causes a blank screen somehow weird!;
+    //glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_scaling.x(),m_scaling.y(),m_scaling.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, volume->data());
     glGenerateMipmap(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, 0);
@@ -287,7 +289,9 @@ void RayCastVolume::update_volume_texture()
 
 void RayCastVolume::update_location_tf_texture()
 {
-    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_location_tf_texture);
+    // this causes a blank screen somehow weird!;
+    //glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_3D, m_location_tf_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, LOCATION_TF_DIMENSION, LOCATION_TF_DIMENSION, LOCATION_TF_DIMENSION, 0, GL_RED,  GL_FLOAT, location_tf);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
@@ -303,7 +307,9 @@ void RayCastVolume::update_segment_opacity_texture()
 
 void RayCastVolume::update_color_prox_texture()
 {
-    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+    // this causes a blank screen somehow weird!;
+    //glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_3D, m_tf_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, COLOR_TF_DIMENSION, COLOR_TF_DIMENSION, COLOR_TF_DIMENSION, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
@@ -388,13 +394,19 @@ void RayCastVolume::set_color_proximity_tf(QRgb rgb)
 
 }
 
+void RayCastVolume::update_volume_opacity(int opacity)
+{
+   volume_opacity = opacity/100.0; 
+   update_location_tf_data();
+}
+
 void RayCastVolume::update_segment_opacity(int id, int opacity)
 {
     segment_opacity_tf[id] = opacity/100.0f;
     update_segment_opacity_texture();
 }
 
-void RayCastVolume::initialize_texture_data()
+void RayCastVolume::update_location_tf_data()
 {
     for(int i = 0; i < LOCATION_TF_DIMENSION; i++)
     {
@@ -402,10 +414,16 @@ void RayCastVolume::initialize_texture_data()
         {
             for(int k = 0; k < LOCATION_TF_DIMENSION; k++)
             {
-                location_tf[i][j][k] = 1.0f;
+                location_tf[i][j][k] = volume_opacity;
             }
         }
     }
+
+}
+
+void RayCastVolume::initialize_texture_data()
+{
+    update_location_tf_data();
 
     for(int i = 0; i < COLOR_TF_DIMENSION; i++)
     {
@@ -428,6 +446,11 @@ void RayCastVolume::initialize_texture_data()
 
 void RayCastVolume::update_location_tf(std::vector<Polygon> polygons)
 {
+    if (polygons.size()==0) 
+    {
+        update_location_tf_texture(); return;
+    }
+
     for(int i = 0; i < LOCATION_TF_DIMENSION; i++)
     {
         for(int j =0; j < LOCATION_TF_DIMENSION; j++)
@@ -436,7 +459,11 @@ void RayCastVolume::update_location_tf(std::vector<Polygon> polygons)
             {
                 if (polygons[k].point_is_inside(i/(float)LOCATION_TF_DIMENSION, j/(float)LOCATION_TF_DIMENSION))
                 {
-                    location_tf[0][j][i] = location_tf[0][j][i]*polygons[k].get_opacity();
+                    // replace opacity of full volume, else compose
+                    if (location_tf[0][j][i] == volume_opacity)
+                        location_tf[0][j][i] = polygons[k].get_opacity();
+                    else
+                        location_tf[0][j][i] = location_tf[0][j][i]*polygons[k].get_opacity();
                 }
 
             }
@@ -454,5 +481,4 @@ void RayCastVolume::update_location_tf(std::vector<Polygon> polygons)
         }
     }
     update_location_tf_texture();
-
 }

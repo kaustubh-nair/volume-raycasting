@@ -273,6 +273,11 @@ void MainWindow::on_HSV_TF_s_slider_valueChanged(int value)
 
 }
 
+void MainWindow::on_volume_opacity_slider_valueChanged(int value)
+{
+    ui->canvas->update_volume_opacity(value);
+}
+
 void MainWindow::on_HSV_TF_v_slider_valueChanged(int value)
 {
     ui->canvas->setHSV_TF_VThreshold(value);

@@ -185,6 +185,13 @@ public:
         update();
     }
 
+    void update_volume_opacity(int opacity)
+    {
+        m_raycasting_volume->update_volume_opacity(opacity);
+        m_raycasting_volume->update_location_tf(polygons);
+        update();
+    }
+
     void update_segment_opacity(int id, int opacity)
     {
         m_raycasting_volume->update_segment_opacity(id, opacity);
