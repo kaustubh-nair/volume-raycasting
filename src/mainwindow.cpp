@@ -167,7 +167,11 @@ void MainWindow::on_best_res_button_clicked()
 void MainWindow::on_loadVolume_clicked()
 {
 
-    QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
+    // hardcode for quick testing
+    std::string str = "../cmu_preprocessed_pyramidal.tiff";
+    QString path = QString::fromStdString(str);
+
+    // QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
     if (!path.isNull()) {
         load_volume(path);
     }
