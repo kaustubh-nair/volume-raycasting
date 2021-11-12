@@ -217,6 +217,8 @@ void RayCastCanvas::mousePressEvent(QMouseEvent *event)
 {
 
     if (event->buttons() & Qt::LeftButton) {
+        m_old_step_length = m_stepLength;
+        setStepLength(0.1);
         m_trackBall.push(pixel_pos_to_view_pos(event->pos()), m_scene_trackBall.rotation().conjugated());
     }
     ((MainWindow*)parentWidget())->mousePressEvent(event);
@@ -231,6 +233,7 @@ void RayCastCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_trackBall.release(pixel_pos_to_view_pos(event->pos()), m_scene_trackBall.rotation().conjugated());
+        setStepLength(m_old_step_length);
     }
     update();
 }

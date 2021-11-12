@@ -237,6 +237,7 @@ private:
     QVector3D m_lightPosition {3.0, 0.0, 3.0};    /*!< In camera coordinates. */
     QVector3D m_diffuseMaterial {1.0, 1.0, 1.0};  /*!< Material colour. */
     GLfloat m_stepLength;                         /*!< Step length for ray march. */
+    GLfloat m_old_step_length;                         /*!< Increased step length during interaction*/
     GLfloat m_threshold;                          /*!< Isosurface intensity threshold. */
     QColor m_background;                          /*!< Viewport background colour. */
 
@@ -268,6 +269,7 @@ private:
     void location_tf_close_current_polygon(qreal x, qreal y);
     void location_tf_add_side_to_polygon(qreal x, qreal y);
     std::vector<Polygon> polygons;
+    
 
 
 };
