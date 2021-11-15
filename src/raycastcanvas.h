@@ -170,12 +170,12 @@ public:
         update();
     }
 
-    void set_space_proximity_tf(qreal x, qreal y, bool left_mouse_pressed, bool right_mouse_pressed)
+    void set_space_proximity_tf(int id, qreal x, qreal y, bool left_mouse_pressed, bool right_mouse_pressed)
     {
         if (left_mouse_pressed)
-            location_tf_add_side_to_polygon(x, y);
+            location_tf_add_side_to_polygon(id, x, y);
         else if(right_mouse_pressed)
-            location_tf_close_current_polygon(x, y);
+            location_tf_close_current_polygon(id, x, y);
         update();
 
     }
@@ -188,7 +188,7 @@ public:
     void update_volume_opacity(int opacity)
     {
         m_raycasting_volume->update_volume_opacity(opacity);
-        m_raycasting_volume->update_location_tf(polygons);
+        m_raycasting_volume->update_location_tf();
         update();
     }
 
@@ -217,6 +217,7 @@ public slots:
     virtual void wheelEvent(QWheelEvent * event);
     void update_color_tf_opacity(int value, QString name);
     void update_color_tf_size(int value, QString name);
+    void update_location_tf_opacity(int value, QString name);
 
 protected:
     void initializeGL();
@@ -268,9 +269,8 @@ private:
 
     // location/polygon TF related data
     bool polygon_creation_active = false;
-    void location_tf_close_current_polygon(qreal x, qreal y);
-    void location_tf_add_side_to_polygon(qreal x, qreal y);
-    std::vector<Polygon> polygons;
+    void location_tf_close_current_polygon(int id, qreal x, qreal y);
+    void location_tf_add_side_to_polygon(int id, qreal x, qreal y);
     
 
 

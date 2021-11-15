@@ -485,7 +485,7 @@ void RayCastVolume::initialize_texture_data()
 
 }
 
-void RayCastVolume::update_location_tf(std::vector<Polygon> polygons)
+void RayCastVolume::update_location_tf()
 {
     if (polygons.size()==0) 
     {
@@ -496,6 +496,8 @@ void RayCastVolume::update_location_tf(std::vector<Polygon> polygons)
     {
         for(int j =0; j < LOCATION_TF_DIMENSION; j++)
         {
+            // re initialize
+            location_tf[0][j][i] = 1.0f;
             for(int k = 0; k < polygons.size(); k++)
             {
                 if (polygons[k].point_is_inside(i/(float)LOCATION_TF_DIMENSION, j/(float)LOCATION_TF_DIMENSION))
@@ -522,4 +524,18 @@ void RayCastVolume::update_location_tf(std::vector<Polygon> polygons)
         }
     }
     update_location_tf_texture();
+}
+
+
+void RayCastVolume::update_location_proximity_tf_opacity(int id, int opacity)
+{
+    for(int i = 0; i < polygons.size(); i++)
+    {
+        if (polygons[i].id == id)
+        {
+            polygons[i].set_opacity(opacity/100.0);
+            update_location_tf();
+            break;
+        }
+    }
 }

@@ -200,7 +200,9 @@ public:
     float hsv_tf_v_threshold = 1.0;
     bool lighting_enabled = false;
 
-    void update_location_tf(std::vector<Polygon> polygons);
+    void update_location_tf();
+    void update_location_proximity_tf_opacity(int id, int opacity);
+    std::vector<Polygon> polygons;
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;
