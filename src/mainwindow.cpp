@@ -311,6 +311,9 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         QPointF pos = event->windowPos();
         QRgb rgb = image.pixel(pos.x(), pos.y());
         ui->canvas->set_color_proximity_tf(rgb, color_tf_id);
+
+
+        // Add sliders and color indicator to the UI
         QScrollArea *scroll = ui->scrollArea;
 
         QLabel *color_label = new QLabel;
@@ -341,8 +344,28 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
     else if(space_checkbox->isChecked())
     {
+        int location_tf_id = location_tf_slider_count;
         QImage image = ui->canvas->grabFramebuffer();
         QPointF pos = event->windowPos();
-        ui->canvas->set_space_proximity_tf(pos.x(), pos.y(), event->buttons() & Qt::LeftButton, event->buttons() & Qt::RightButton);
+        ui->canvas->set_space_proximity_tf(location_tf_id, pos.x(), pos.y(), event->buttons() & Qt::LeftButton, event->buttons() & Qt::RightButton);
+
+        if (Qt::RightButton & event->buttons())
+        {
+            int rows = prox_scroll_layout->rowCount();
+            QWidget *c = new QWidget;
+            QGridLayout *l = new QGridLayout(c);
+            QScrollArea *scroll = ui->scrollArea;
+            MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+            const QString name = QString::fromStdString("opacity_bar_" + std::to_string(location_tf_id));
+            opacity_bar->setObjectName(name);
+            connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+            connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_location_tf_opacity);
+            l->addWidget(opacity_bar,0,0);
+
+            QLabel *label = new QLabel("Poly");
+            prox_scroll_layout->addWidget(label,rows,0);
+            prox_scroll_layout->addWidget(c,rows,1);
+            location_tf_id++;
+        }
     }
 }

@@ -267,14 +267,14 @@ void RayCastCanvas::add_shader(const QString& name, const QString& vertex, const
     m_shaders[name]->link();
 }
 
-void RayCastCanvas::location_tf_add_side_to_polygon(qreal x, qreal y)
+void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
 {
-    int n = polygons.size();
+    int n = m_raycasting_volume->polygons.size();
     // initialize new polygon
     if (!polygon_creation_active)
     {
         polygon_creation_active = true;
-        polygons.push_back(Polygon());
+        m_raycasting_volume->polygons.push_back(Polygon());
         n++;
     }
 
@@ -294,22 +294,22 @@ void RayCastCanvas::location_tf_add_side_to_polygon(qreal x, qreal y)
             );
     printf("before %f %f %f\n", pos.x(), pos.y(), pos.z());
 
-    pos = m_modelViewProjectionMatrix.inverted()*pos;
+    pos = pos*m_modelViewProjectionMatrix.inverted();
 
 
     float transformed_x = pos.x()/pos.w();
     float transformed_y = pos.y()/pos.w();
     float transformed_z = pos.z()/pos.w();
     printf("after %f %f %f\n", transformed_x, transformed_y, transformed_z);
-    polygons[n-1].add_point(transformed_x, transformed_y, transformed_z);
+    m_raycasting_volume->polygons[n-1].add_point(id, transformed_x, transformed_y, transformed_z);
 }
 
-void RayCastCanvas::location_tf_close_current_polygon(qreal x, qreal y)
+void RayCastCanvas::location_tf_close_current_polygon(int id, qreal x, qreal y)
 {
     polygon_creation_active = false;
-    location_tf_add_side_to_polygon(x, y);
+    location_tf_add_side_to_polygon(id, x, y);
     // update transfer function
-    m_raycasting_volume->update_location_tf(polygons);
+    m_raycasting_volume->update_location_tf();
 }
 
 void RayCastCanvas::update_color_tf_opacity(int value, QString name)
@@ -325,5 +325,13 @@ void RayCastCanvas::update_color_tf_size(int value, QString name)
     std::string n = name.toStdString();
     int id = std::stoi(n.substr(10));          //color_bar_id
     m_raycasting_volume->update_color_proximity_tf_size(id, value);
+    update();
+}
+
+void RayCastCanvas::update_location_tf_opacity(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_location_proximity_tf_opacity(id, value);
     update();
 }

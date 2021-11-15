@@ -105,4 +105,5 @@ private:
     QGridLayout *prox_scroll_layout = nullptr;
     QWidget *prox_scroll_layout_main = nullptr;
     int color_tf_slider_count = 0;    // number of color tfs - used to assign slider ids
+    int location_tf_slider_count = 0;    // number of location tfs - used to assign slider ids
 };
