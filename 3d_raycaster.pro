@@ -33,6 +33,7 @@ SOURCES += \
     src/osvolume.cpp \
     src/raycastvolume.cpp \
     src/polygon.cpp \
+    src/my_q_slider.cpp \
 
 
 HEADERS += \
@@ -43,6 +44,7 @@ HEADERS += \
     src/mesh.h \
     src/osvolume.h \
     src/polygon.h \
+    src/my_q_slider.h \
 
 INCLUDEPATH += \
     src

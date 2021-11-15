@@ -215,6 +215,7 @@ public slots:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent * event);
+    void update_color_tf_opacity(int value, QString name){printf("%s CALLED!WOO\n", name.toStdString().c_str());};
 
 protected:
     void initializeGL();

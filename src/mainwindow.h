@@ -24,6 +24,7 @@
 
 #include <QMainWindow>
 #include<QGridLayout>
+#include "my_q_slider.h"
 
 namespace Ui {
 class MainWindow;
