@@ -330,6 +330,9 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
         connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_opacity);
 
+        connect(size_bar, &MyQSlider::valueChanged, size_bar, &MyQSlider::myValueChanged);
+        connect(size_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_size);
+
         l->addWidget(opacity_bar,0,0);
         l->addWidget(size_bar,1,0);
         prox_scroll_layout->addWidget(color_label,rows,0);

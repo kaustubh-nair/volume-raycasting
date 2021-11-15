@@ -316,11 +316,14 @@ void RayCastCanvas::update_color_tf_opacity(int value, QString name)
 {
     std::string n = name.toStdString();
     int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_color_proximity_tf_opacity(id, value);
+    update();
 }
 
 void RayCastCanvas::update_color_tf_size(int value, QString name)
 {
     std::string n = name.toStdString();
     int id = std::stoi(n.substr(10));          //color_bar_id
-    printf("id %d\n", id);
+    m_raycasting_volume->update_color_proximity_tf_size(id, value);
+    update();
 }

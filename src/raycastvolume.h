@@ -36,7 +36,7 @@ struct ColorTF {
     int id;
     QRgb rgb;
     int proximity_radius;
-    float opacity = 0.5;
+    float opacity;
 };
 
 /*!
@@ -185,8 +185,12 @@ public:
     }
     void set_vram(int value){volume->set_vram(value);}
 
+    void initialize_color_proximity_tf();
     void set_color_proximity_tf_data(QRgb rgb, int id);
     void update_color_proximity_tf_data();
+    void update_color_proximity_tf_opacity(int id, int opacity);
+    void update_color_proximity_tf_size(int id, int size);
+
     void update_segment_opacity(int id, int opacity);
     void update_volume_opacity(int opacity);
 
@@ -197,7 +201,6 @@ public:
     bool lighting_enabled = false;
 
     void update_location_tf(std::vector<Polygon> polygons);
-    void initialize_color_proximity_tf();
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;
@@ -231,9 +234,9 @@ private:
     void initialize_texture_data();
     void update_segment_opacity_texture();
     void update_volume_texture();
-    void update_color_prox_texture();
     void update_location_tf_texture();
     void update_location_tf_data();
+    void update_color_prox_texture();
     std::vector<ColorTF> color_tf_data;
 
 };
