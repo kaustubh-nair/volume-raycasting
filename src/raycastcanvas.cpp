@@ -277,30 +277,23 @@ void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
         m_raycasting_volume->polygons.push_back(Polygon());
         n++;
     }
-
+    QMatrix4x4 projection_mat;
+    projection_mat.setToIdentity();
+    projection_mat.perspective(m_fov, (float)scaled_width()/scaled_height(), 0.1f, 100.0f);
+    QMatrix4x4 modelview_mat = m_viewMatrix * m_raycasting_volume->modelMatrix();
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
+    const int width = viewport[2];
+    const int height = viewport[3];
+    QRect vp(0,0,width, height);
 
-    GLdouble depthScale;
-    glGetDoublev( GL_DEPTH_SCALE, &depthScale );
-    GLfloat z;
-    glReadPixels( x, viewport[3] - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+    QVector3D dir = QVector3D(x, y, 0.0);
+    dir = dir.unproject(modelview_mat, projection_mat, vp);
+    float transformed_x = 1+(2*dir.x());
+    float transformed_y = 1+(2*dir.y());
+    float transformed_z = 1+(2*dir.z());
+    printf("%f %f %f\n", transformed_x, transformed_y, transformed_z);
 
-    QVector4D pos(
-            ((2.0*x)/viewport[2]) - 1.0,
-            1.0 - ((2.0*y)/viewport[3]),
-            z,
-            1.0
-            );
-    printf("before %f %f %f\n", pos.x(), pos.y(), pos.z());
-
-    pos = pos*m_modelViewProjectionMatrix.inverted();
-
-
-    float transformed_x = pos.x()/pos.w();
-    float transformed_y = pos.y()/pos.w();
-    float transformed_z = pos.z()/pos.w();
-    printf("after %f %f %f\n", transformed_x, transformed_y, transformed_z);
     m_raycasting_volume->polygons[n-1].add_point(id, transformed_x, transformed_y, transformed_z);
 }
 
