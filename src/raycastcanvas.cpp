@@ -311,3 +311,16 @@ void RayCastCanvas::location_tf_close_current_polygon(qreal x, qreal y)
     // update transfer function
     m_raycasting_volume->update_location_tf(polygons);
 }
+
+void RayCastCanvas::update_color_tf_opacity(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+}
+
+void RayCastCanvas::update_color_tf_size(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(10));          //color_bar_id
+    printf("id %d\n", id);
+}

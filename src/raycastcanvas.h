@@ -179,9 +179,9 @@ public:
         update();
 
     }
-    void set_color_proximity_tf(QRgb rgb)
+    void set_color_proximity_tf(QRgb rgb, int id)
     {
-        m_raycasting_volume->set_color_proximity_tf(rgb);
+        m_raycasting_volume->set_color_proximity_tf_data(rgb, id);
         update();
     }
 
@@ -215,7 +215,8 @@ public slots:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent * event);
-    void update_color_tf_opacity(int value, QString name){printf("%s CALLED!WOO\n", name.toStdString().c_str());};
+    void update_color_tf_opacity(int value, QString name);
+    void update_color_tf_size(int value, QString name);
 
 protected:
     void initializeGL();
