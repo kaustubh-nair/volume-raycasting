@@ -306,10 +306,11 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     QCheckBox *space_checkbox = ui->proximity_space_tf;
     if (color_checkbox->isChecked())
     {
+        int color_tf_id = color_tf_slider_count++;
         QImage image = ui->canvas->grabFramebuffer();
         QPointF pos = event->windowPos();
         QRgb rgb = image.pixel(pos.x(), pos.y());
-        ui->canvas->set_color_proximity_tf(rgb);
+        ui->canvas->set_color_proximity_tf(rgb, color_tf_id);
         QScrollArea *scroll = ui->scrollArea;
 
         QLabel *color_label = new QLabel;
@@ -318,14 +319,17 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         int rows = prox_scroll_layout->rowCount();
         QWidget *c = new QWidget;
         QGridLayout *l = new QGridLayout(c);
+
         MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
-        const QString name = QString::fromStdString("helloworld");
-        opacity_bar->setObjectName(name);
         MyQSlider *size_bar = new MyQSlider(Qt::Horizontal);
+        const QString name = QString::fromStdString("opacity_bar_" + std::to_string(color_tf_id));
+        const QString c_name = QString::fromStdString("color_bar_" + std::to_string(color_tf_id));
+        opacity_bar->setObjectName(name);
+        size_bar->setObjectName(c_name);
 
         connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
-
         connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_opacity);
+
         l->addWidget(opacity_bar,0,0);
         l->addWidget(size_bar,1,0);
         prox_scroll_layout->addWidget(color_label,rows,0);

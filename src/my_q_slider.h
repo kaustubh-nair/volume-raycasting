@@ -15,7 +15,6 @@ signals:
 public slots:
     void myValueChanged(int value)
     {
-        printf("%s\n", this->objectName().toStdString().c_str());
         emit myValueChangedWithId(value, this->objectName());
     }
 

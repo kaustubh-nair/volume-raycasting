@@ -360,38 +360,44 @@ void RayCastVolume::set_location_tf()
 */
 
 
-void RayCastVolume::set_color_proximity_tf(QRgb rgb)
+void RayCastVolume::update_color_proximity_tf_data()
 {
-    int red = qRed(rgb);
-    int green = qGreen(rgb);
-    int blue = qBlue(rgb);
-    printf("%d %d %d\n", red, green, blue);
     
-    int min_red = std::max((int)(red-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
-    int max_red = std::min((int)(red+COLOR_PROX_TF_DEFAULT_RADIUS), COLOR_TF_DIMENSION);
+    int red,green,blue;
 
-    int min_blue = std::max((int)(blue-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
-    int max_blue = std::min((int)(blue+COLOR_PROX_TF_DEFAULT_RADIUS), COLOR_TF_DIMENSION);
-
-    int min_green = std::max((int)(green-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
-    int max_green = std::min((int)(green+COLOR_PROX_TF_DEFAULT_RADIUS), COLOR_TF_DIMENSION);
     
-    for(int i = min_red; i < max_red; i++)
+    for(int i = 0; i < 256; i++)
     {
-        for(int j = min_green; j < max_green; j++)
+        for(int j = 0; j < 256; j++)
         {
-            for(int k = min_blue; k < max_blue; k++)
+            for(int k = 0; k < 256; k++)
             {
-                // TODO recheck this
-                if (eucl_dist(i,j,k,red,green,blue)<=COLOR_PROX_TF_DEFAULT_RADIUS)
-                    color_proximity_tf[k][j][i] = 0.0f;
+                // re-initialize the whole array to deal with deletes
+                color_proximity_tf[i][j][k] = 1.0f;
+
+                for(int i = 0; i < color_tf_data.size(); i++)
+                {
+                    red = qRed(color_tf_data[i].rgb);
+                    green = qGreen(color_tf_data[i].rgb);
+                    blue = qBlue(color_tf_data[i].rgb);
+
+                    if (eucl_dist(i,j,k,red,green,blue)<=color_tf_data[i].proximity_radius)
+                        color_proximity_tf[k][j][i] *= color_tf_data[i].opacity;
+
+                }
 
             }
         }
     }
     update_color_prox_texture();
 
+}
 
+void RayCastVolume::set_color_proximity_tf_data(QRgb rgb, int id)
+{
+    ColorTF new_tf = { id, rgb, COLOR_PROX_TF_DEFAULT_RADIUS, 0.5};
+    color_tf_data.push_back(new_tf);
+    update_color_proximity_tf_data();
 }
 
 void RayCastVolume::update_volume_opacity(int opacity)
@@ -421,10 +427,8 @@ void RayCastVolume::update_location_tf_data()
 
 }
 
-void RayCastVolume::initialize_texture_data()
+void RayCastVolume::initialize_color_proximity_tf()
 {
-    update_location_tf_data();
-
     for(int i = 0; i < COLOR_TF_DIMENSION; i++)
     {
         for(int j = 0; j < COLOR_TF_DIMENSION; j++)
@@ -435,6 +439,13 @@ void RayCastVolume::initialize_texture_data()
             }
         }
     }
+}
+
+void RayCastVolume::initialize_texture_data()
+{
+    update_location_tf_data();
+
+    initialize_color_proximity_tf();
 
     for(int i = 0; i < MAX_NUM_SEGMENTS; i++)
     {

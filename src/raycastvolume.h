@@ -32,6 +32,13 @@
 #include "polygon.h"
 #include "osvolume.h"
 
+struct ColorTF {
+    int id;
+    QRgb rgb;
+    int proximity_radius;
+    float opacity = 0.5;
+};
+
 /*!
  * \brief Class for a raycasting volume.
  */
@@ -178,7 +185,8 @@ public:
     }
     void set_vram(int value){volume->set_vram(value);}
 
-    void set_color_proximity_tf(QRgb rgb);
+    void set_color_proximity_tf_data(QRgb rgb, int id);
+    void update_color_proximity_tf_data();
     void update_segment_opacity(int id, int opacity);
     void update_volume_opacity(int opacity);
 
@@ -189,6 +197,7 @@ public:
     bool lighting_enabled = false;
 
     void update_location_tf(std::vector<Polygon> polygons);
+    void initialize_color_proximity_tf();
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;
@@ -225,5 +234,6 @@ private:
     void update_color_prox_texture();
     void update_location_tf_texture();
     void update_location_tf_data();
+    std::vector<ColorTF> color_tf_data;
 
 };
