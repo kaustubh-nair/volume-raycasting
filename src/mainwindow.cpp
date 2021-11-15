@@ -318,8 +318,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         int rows = prox_scroll_layout->rowCount();
         QWidget *c = new QWidget;
         QGridLayout *l = new QGridLayout(c);
-        QSlider *opacity_bar = new QSlider(Qt::Horizontal);
-        QSlider *size_bar = new QSlider(Qt::Horizontal);
+        MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+        const QString name = QString::fromStdString("helloworld");
+        opacity_bar->setObjectName(name);
+        MyQSlider *size_bar = new MyQSlider(Qt::Horizontal);
+
+        connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+
+        connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_opacity);
         l->addWidget(opacity_bar,0,0);
         l->addWidget(size_bar,1,0);
         prox_scroll_layout->addWidget(color_label,rows,0);
