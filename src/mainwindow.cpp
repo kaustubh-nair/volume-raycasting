@@ -345,7 +345,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     else if(space_checkbox->isChecked())
     {
         int location_tf_id = location_tf_slider_count;
-        QImage image = ui->canvas->grabFramebuffer();
         QPointF pos = event->windowPos();
         ui->canvas->set_space_proximity_tf(location_tf_id, pos.x(), pos.y(), event->buttons() & Qt::LeftButton, event->buttons() & Qt::RightButton);
 
