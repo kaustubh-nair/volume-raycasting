@@ -433,7 +433,7 @@ void RayCastVolume::set_color_proximity_tf_data(QRgb rgb, int id)
 void RayCastVolume::update_volume_opacity(int opacity)
 {
    volume_opacity = opacity/100.0; 
-   update_location_tf_data();
+   update_location_tf();
 }
 
 void RayCastVolume::update_segment_opacity(int id, int opacity)
@@ -497,7 +497,7 @@ void RayCastVolume::update_location_tf()
         for(int j =0; j < LOCATION_TF_DIMENSION; j++)
         {
             // re initialize
-            location_tf[0][j][i] = 1.0f;
+            location_tf[0][j][i] = volume_opacity;
             for(int k = 0; k < polygons.size(); k++)
             {
                 if (polygons[k].point_is_inside(i/(float)LOCATION_TF_DIMENSION, j/(float)LOCATION_TF_DIMENSION))
