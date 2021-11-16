@@ -300,7 +300,6 @@ void main()
         float a2 = texture(space_proximity_tf, position).r;
         float a3 = texture(segment_opacity_tf, seg_id).r;
         c.a = a1*a2*a3;
-     
 
 
         if (lighting_enabled && c.a > 0.0)
