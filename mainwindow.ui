@@ -73,29 +73,9 @@
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>Tab 1</string>
+       <string>Volume</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="26" column="1">
-        <widget class="QLabel" name="num_levels_label">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignBottom|Qt::AlignHCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="1">
-        <widget class="QSpinBox" name="depth_spinbox">
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>100000</number>
-         </property>
-        </widget>
-       </item>
        <item row="13" column="1">
         <widget class="QSpinBox" name="width_spinbox">
          <property name="minimum">
@@ -109,44 +89,23 @@
          </property>
         </widget>
        </item>
-       <item row="21" column="0">
-        <widget class="QPushButton" name="zoom_in_button">
+       <item row="27" column="0">
+        <widget class="QLabel" name="label_8">
          <property name="text">
-          <string>Zoom in</string>
+          <string>VRAM (MB):</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
-        <widget class="QSpinBox" name="height_spinbox">
-         <property name="minimum">
-          <number>1</number>
-         </property>
+       <item row="27" column="1">
+        <widget class="QSpinBox" name="vram_spinbox">
          <property name="maximum">
-          <number>100000</number>
+          <number>9999999</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
          </property>
          <property name="value">
-          <number>1</number>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Depth</string>
-         </property>
-        </widget>
-       </item>
-       <item row="23" column="0">
-        <widget class="QPushButton" name="right_button">
-         <property name="text">
-          <string>Right</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="loadVolume">
-         <property name="text">
-          <string>Load volume</string>
+          <number>1024</number>
          </property>
         </widget>
        </item>
@@ -169,10 +128,47 @@
          </property>
         </widget>
        </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="label_2">
+       <item row="12" column="1">
+        <widget class="QSpinBox" name="height_spinbox">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>100000</number>
+         </property>
+         <property name="value">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="25" column="1">
+        <widget class="QLabel" name="num_levels_label">
          <property name="text">
-          <string>Height</string>
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="0">
+        <widget class="QPushButton" name="zoom_in_button">
+         <property name="text">
+          <string>Zoom in</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Depth</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="loadVolume">
+         <property name="text">
+          <string>Load volume</string>
          </property>
         </widget>
        </item>
@@ -190,10 +186,41 @@
          </property>
         </widget>
        </item>
-       <item row="23" column="1">
-        <widget class="QPushButton" name="left_button">
+       <item row="24" column="0">
+        <widget class="QPushButton" name="down_button">
          <property name="text">
-          <string>Left</string>
+          <string>Down</string>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Width</string>
+         </property>
+        </widget>
+       </item>
+       <item row="21" column="1">
+        <widget class="QPushButton" name="zoom_out_button">
+         <property name="text">
+          <string>Zoom out</string>
+         </property>
+        </widget>
+       </item>
+       <item row="23" column="0">
+        <widget class="QPushButton" name="right_button">
+         <property name="text">
+          <string>Right</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1">
+        <widget class="QSpinBox" name="depth_spinbox">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>100000</number>
          </property>
         </widget>
        </item>
@@ -213,42 +240,7 @@
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Width</string>
-         </property>
-        </widget>
-       </item>
-       <item row="21" column="1">
-        <widget class="QPushButton" name="zoom_out_button">
-         <property name="text">
-          <string>Zoom out</string>
-         </property>
-        </widget>
-       </item>
-       <item row="25" column="1">
-        <widget class="QCheckBox" name="enable_lighting_checkbox">
-         <property name="text">
-          <string>Enable Lighting</string>
-         </property>
-        </widget>
-       </item>
-       <item row="24" column="0">
-        <widget class="QPushButton" name="down_button">
-         <property name="text">
-          <string>Down</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QPushButton" name="best_res_button">
-         <property name="text">
-          <string>Load best resolution</string>
-         </property>
-        </widget>
-       </item>
-       <item row="27" column="0">
+       <item row="26" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
           <string>Level</string>
@@ -258,23 +250,24 @@
          </property>
         </widget>
        </item>
-       <item row="28" column="0">
-        <widget class="QLabel" name="label_8">
+       <item row="23" column="1">
+        <widget class="QPushButton" name="left_button">
          <property name="text">
-          <string>VRAM (MB):</string>
+          <string>Left</string>
          </property>
         </widget>
        </item>
-       <item row="28" column="1">
-        <widget class="QSpinBox" name="vram_spinbox">
-         <property name="maximum">
-          <number>9999999</number>
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Height</string>
          </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>1024</number>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="best_res_button">
+         <property name="text">
+          <string>Load best resolution</string>
          </property>
         </widget>
        </item>
@@ -407,8 +400,21 @@
      </widget>
      <widget class="QWidget" name="tab_5">
       <attribute name="title">
-       <string>Page</string>
+       <string>Lighting</string>
       </attribute>
+      <widget class="QCheckBox" name="enable_lighting_checkbox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>130</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable Lighting</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </widget>
