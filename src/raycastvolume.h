@@ -227,7 +227,7 @@ private:
     float color_proximity_tf[COLOR_TF_DIMENSION][COLOR_TF_DIMENSION][COLOR_TF_DIMENSION];
     float location_tf[LOCATION_TF_DIMENSION][LOCATION_TF_DIMENSION][LOCATION_TF_DIMENSION];
     float segment_opacity_tf[MAX_NUM_SEGMENTS];
-    float COLOR_PROX_TF_DEFAULT_RADIUS = 30;
+    float COLOR_PROX_TF_DEFAULT_RADIUS = 1;
     float SPACE_PROX_TF_DEFAULT_RADIUS = 100;
     int j = 0;
 
