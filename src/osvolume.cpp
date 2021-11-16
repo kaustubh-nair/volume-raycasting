@@ -38,11 +38,14 @@ void OSVolume::load_volume(int l)
     int64_t width = level_info[_curr_level]["width"]*_scaling_factor.x();
     int64_t height = level_info[_curr_level]["height"]*_scaling_factor.y();
 
+    int w_offset = level_info[_curr_level]["width"]*_scaling_offset.x();
+    int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
+
 	long long int size = width*height*sizeof(uint32_t);
     _data = (uint32_t*)malloc(size);
 
 
-    openslide_read_region(image, _data, 0, 0, _curr_level, width, height);
+    openslide_read_region(image, _data, w_offset, h_offset, _curr_level, width, height);
 
     duplicate_data(&_data);
 
@@ -137,7 +140,6 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
     int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
     int d_offset = level_info[_curr_level]["depth"]*_scaling_offset.z();
 
-    // TODO: memory leak here! DANGER!
     uint32_t* zoomed_in = (uint32_t*)malloc(w_small*h_small*d_small*sizeof(uint32_t));
 
     int ptr = 0;
