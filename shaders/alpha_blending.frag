@@ -116,7 +116,7 @@ vec3 rgb2hsv(vec3 rgb)
 // Estimate normal from a finite difference approximation of the gradient
 vec3 normal(vec3 position, float position_material)
 {
-    float d = step_length;
+    float d  = step_length / 10.0;
     float dx = texture(volume, position + vec3(d,0,0)).gbar.a - position_material;
     float dy = texture(volume, position + vec3(0,d,0)).gbar.a - position_material;
     float dz = texture(volume, position + vec3(0,0,d)).gbar.a - position_material;
@@ -165,40 +165,40 @@ vec3 blinn_phong(vec3 position, vec3 ray)
     if((position_material * 255) == 253)
     {
         Ia = 0.1;
-        Id = 0.4 * max(0, dot(N, L));
-        Is = 4.0 * pow(max(0, dot(N, H)), 600);
+        Id = 0.1 * max(0, dot(N, L));
+        Is = 1.0 * pow(max(0, dot(N, H)), 5);
     }
 
     // Material2 : Cytoplasm, ID : 254
     else if((position_material * 255) == 254)
     {
-        Ia = 0.3;
-        Id = 1.0 * max(0, dot(N, L));
-        Is = 8.0 * pow(max(0, dot(N, H)), 800);
+        Ia = 0.1;
+        Id = 0.6 * max(0, dot(N, L));
+        Is = 0.7 * pow(max(0, dot(N, H)), 5);
     }
 
     // Material3 : RestOfIt, ID : 255
     else if((position_material * 255) == 255)
     {
-        Ia = 0.2;
-        Id = 0.6 * max(0, dot(N, L));
-        Is = 6.0 * pow(max(0, dot(N, H)), 700);
+        Ia = 0.1;
+        Id = 0.7 * max(0, dot(N, L));
+        Is = 0.0 * pow(max(0, dot(N, H)), 1);
     }
 
     // Material4 : Nucleus-Cytoplasm Boundary, ID : 253 ~ 254
     else if((position_material * 255) > 253 && (position_material * 255) < 254)
     {
-        Ia = 0.4;
-        Id = 0.5 * max(0, dot(N, L));
-        Is = 5.0 * pow(max(0, dot(N, H)), 650);
+        Ia = 0.1;
+        Id = 0.35 * max(0, dot(N, L));
+        Is = 0.85 * pow(max(0, dot(N, H)), 5);
     }
 
     // Material5 : Cytoplasm-Other Boundary, ID : 254 ~ 255
     else
     {
-        Ia = 0.7;
-        Id = 0.6 * max(0, dot(N, L));
-        Is = 3.0 * pow(max(0, dot(N, H)), 750);
+        Ia = 0.1;
+        Id = 0.65 * max(0, dot(N, L));
+        Is = 0.35 * pow(max(0, dot(N, H)), 3);
     }
     
     
@@ -314,15 +314,42 @@ void main()
                 {
                     float p_iso = (intensity.a + intensity_next.a) / 2.0;
                     vec3 material_intersection = secant_method(position, position_next, p_iso);
+
+                    // Check to see if blinn-phong lighting at boundaries produces any changes
+                    // colour_intersection.xyz = intensity.rgb;
+                    
                     colour_intersection.xyz = blinn_phong(material_intersection, ray);
                     colour_intersection.w = 1.0;
                     intersect = 1.0;
 
                 }
+
+                if((intensity.a * 255) == 255)
+                {
+                    c.a = 0.0;
+                }
+
+                else if ((intensity.a * 255) == 254)
+                {
+                    c.a = 0.45;
+                }
+
+                else
+                {
+                    c.a = 1.0;
+                }
+
             }
 
+            // Check to see if blinn-phong produces any changes
+            // c.rgb = texture(volume, position).gbar.rgb;
+            
             c.rgb = blinn_phong(position, ray);
             
+            
+            // Alpha-blending
+            colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
+            colour.a = c.a + (1 - c.a) * colour.a;
 
         }
         // Alpha-blending
