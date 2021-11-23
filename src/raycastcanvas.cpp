@@ -279,7 +279,6 @@ void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
         m_raycasting_volume->polygons.push_back(Polygon());
         n++;
     }
-    /*
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
@@ -302,36 +301,6 @@ void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
     float transformed_x = 1+(pos.x()/pos.w());
     float transformed_y = 1+(pos.y()/pos.w());
     float transformed_z = 1+(pos.z()/pos.w());
-    */
-    static int i = 0;
-     float transformed_x = 1.0;
-    float transformed_y = 1.0;
-    float transformed_z = 1.0;
-    if (i==0)
-    {
-        transformed_x = 0.4;
-        transformed_y = 0.3;
-        transformed_z = 1.0;
-    }
-    else if (i==1)
-    {
-        transformed_x = 0.3;
-        transformed_y = 0.6;
-        transformed_z = 1.0;
-    }
-    else if (i==2)
-    {
-        transformed_x = 0.8;
-        transformed_y = 0.8;
-        transformed_z = 1.0;
-    }
-    else if (i==3)
-    {
-        transformed_x = 0.8;
-        transformed_y = 0.4;
-        transformed_z = 1.0;
-    }
-    i++;
     printf("after %f %f %f\n", transformed_x, transformed_y, transformed_z);
 
     m_raycasting_volume->polygons[n-1].add_point(id, transformed_x, transformed_y, transformed_z);
