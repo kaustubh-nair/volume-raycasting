@@ -275,8 +275,7 @@ void main()
     while (ray_length > 0 && colour.a < 1.0) {
 
         vec4 c = texture(volume, position).gbar;
-        float seg_id_f = c.a;
-        float seg_id = int(c.a * 100)/MAX_NUM_SEGMENTS;
+        float seg_id = (256 - c.a * 256)/MAX_NUM_SEGMENTS;
 
         // so that TF doesn't get affected by segment values
         c.a = 1.0f;
@@ -297,15 +296,13 @@ void main()
         }
         */
 
-        c.a = texture(color_proximity_tf, c.rgb).r;
-        float a = texture(space_proximity_tf, position).r;
-        if (a < c.a)
-            c.a = a;
+        // float a1 = texture(color_proximity_tf, c.rgb).r;
+        // float a2 = texture(space_proximity_tf, position).r;
+        // float a3 = texture(segment_opacity_tf, seg_id).r;
+        // c.a = a1*a2*a3;
 
-        c.a = texture(segment_opacity_tf, seg_id).r;
-     
 
-        if (lighting_enabled)
+        if (lighting_enabled && c.a > 0.0)
         {
             if((ray_length - step_length) >= 0)
             {
@@ -351,26 +348,24 @@ void main()
             
             
             // Alpha-blending
-            colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
-            colour.a = c.a + (1 - c.a) * colour.a;
-
-            if(intersect == 1.0)
-            {
-                colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
-                colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
-                intersect = 0.0;
-            }
-
-            ray_length -= step_length;
-            position += step_vector;
+            // colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
+            // colour.a = c.a + (1 - c.a) * colour.a;
 
         }
+        // Alpha-blending
+        colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
+        colour.a = c.a + (1 - c.a) * colour.a;
 
-        // enable this for single channel datasets
-        //float intensity = texture(volume, position).r;
-        //vec4 c = colour_transfer(intensity);
-        
-        
+        if(lighting_enabled && intersect == 1.0 && c.a > 0.0)
+        {
+            colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
+            colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
+            intersect = 0.0;
+        }
+
+        ray_length -= step_length;
+        position += step_vector;
+    
     }
 
     // Blend background

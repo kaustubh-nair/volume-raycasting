@@ -32,6 +32,7 @@
 #include <QOpenGLShaderProgram>
 
 #include "mesh.h"
+#include "polygon.h"
 #include "raycastvolume.h"
 #include "trackball.h"
 #include "vtkvolume.h"
@@ -169,15 +170,25 @@ public:
         update();
     }
 
-    void set_space_proximity_tf(qreal x, qreal y)
+    void set_space_proximity_tf(int id, qreal x, qreal y, bool left_mouse_pressed, bool right_mouse_pressed)
     {
-        m_raycasting_volume->set_space_proximity_tf(x, y);
+        if (left_mouse_pressed)
+            location_tf_add_side_to_polygon(id, x, y);
+        else if(right_mouse_pressed)
+            location_tf_close_current_polygon(id, x, y);
         update();
 
     }
-    void set_color_proximity_tf(QRgb rgb)
+    void set_color_proximity_tf(QRgb rgb, int id)
     {
-        m_raycasting_volume->set_color_proximity_tf(rgb);
+        m_raycasting_volume->set_color_proximity_tf_data(rgb, id);
+        update();
+    }
+
+    void update_volume_opacity(int opacity)
+    {
+        m_raycasting_volume->update_volume_opacity(opacity);
+        m_raycasting_volume->update_location_tf();
         update();
     }
 
@@ -193,6 +204,8 @@ public:
         update();
     }
 
+    void set_vram(int value) { m_raycasting_volume->set_vram(value); }
+
 
 signals:
     // NOPE
@@ -202,6 +215,9 @@ public slots:
     virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
     virtual void wheelEvent(QWheelEvent * event);
+    void update_color_tf_opacity(int value, QString name);
+    void update_color_tf_size(int value, QString name);
+    void update_location_tf_opacity(int value, QString name);
 
 protected:
     void initializeGL();
@@ -224,8 +240,10 @@ private:
     QVector3D m_lightPosition {3.0, 0.0, 3.0};    /*!< In camera coordinates. */
     QVector3D m_diffuseMaterial {1.0, 1.0, 1.0};  /*!< Material colour. */
     GLfloat m_stepLength;                         /*!< Step length for ray march. */
+    GLfloat m_old_step_length;                         /*!< Increased step length during interaction*/
     GLfloat m_threshold;                          /*!< Isosurface intensity threshold. */
     QColor m_background;                          /*!< Viewport background colour. */
+
 
     const GLfloat m_gamma = 2.2f; /*!< Gamma correction parameter. */
 
@@ -248,4 +266,12 @@ private:
     QPointF pixel_pos_to_view_pos(const QPointF& p);
     void create_noise(void);
     void add_shader(const QString& name, const QString& vector, const QString& fragment);
+
+    // location/polygon TF related data
+    bool polygon_creation_active = false;
+    void location_tf_close_current_polygon(int id, qreal x, qreal y);
+    void location_tf_add_side_to_polygon(int id, qreal x, qreal y);
+    
+
+
 };

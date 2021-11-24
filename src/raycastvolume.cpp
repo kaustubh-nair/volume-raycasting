@@ -134,8 +134,6 @@ void RayCastVolume::load_volume(const QString& filename) {
         m_size = volume->size();
         m_scaling = m_size;
 
-        printf("%d \n", data[0]);
-
         initialize_texture_data();
 
         glDeleteTextures(1, &m_volume_texture);
@@ -160,18 +158,18 @@ void RayCastVolume::load_volume(const QString& filename) {
         // TODO: recheck if interpolation is needed
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, COLOR_TF_DIMENSION, COLOR_TF_DIMENSION, COLOR_TF_DIMENSION, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
         glBindTexture(GL_TEXTURE_3D, 0);
 
-        glDeleteTextures(1, &m_space_prox_tf_texture);
-        glGenTextures(1, &m_space_prox_tf_texture);
-        glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
+        glDeleteTextures(1, &m_location_tf_texture);
+        glGenTextures(1, &m_location_tf_texture);
+        glBindTexture(GL_TEXTURE_3D, m_location_tf_texture);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         // TODO: recheck if interpolation is needed
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, space_proximity_tf);
+        glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, LOCATION_TF_DIMENSION, LOCATION_TF_DIMENSION, LOCATION_TF_DIMENSION, 0, GL_RED,  GL_FLOAT, location_tf);
         glBindTexture(GL_TEXTURE_3D, 0);
 
         for(int i = 0; i < 3; i++)
@@ -244,7 +242,7 @@ void RayCastVolume::paint(void)
     glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, m_noise_texture);
     glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
-    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
+    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_location_tf_texture);
     glActiveTexture(GL_TEXTURE4); glBindTexture(GL_TEXTURE_1D, m_segment_opacity_texture);
 
     m_cube_vao.paint();
@@ -281,16 +279,20 @@ uint32_t RayCastVolume::rgb(int x, int y, int z, int size)
 void RayCastVolume::update_volume_texture()
 {
     m_scaling = volume->size();
-    glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_3D, m_volume_texture);
+    // this causes a blank screen somehow weird!;
+    //glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_3D, m_volume_texture);
     glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, m_scaling.x(),m_scaling.y(),m_scaling.z(),0,GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, volume->data());
     glGenerateMipmap(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
-void RayCastVolume::update_space_prox_texture()
+void RayCastVolume::update_location_tf_texture()
 {
-    glActiveTexture(GL_TEXTURE3); glBindTexture(GL_TEXTURE_3D, m_space_prox_tf_texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, space_proximity_tf);
+    // this causes a blank screen somehow weird!;
+    //glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_3D, m_location_tf_texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, LOCATION_TF_DIMENSION, LOCATION_TF_DIMENSION, LOCATION_TF_DIMENSION, 0, GL_RED,  GL_FLOAT, location_tf);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
@@ -305,13 +307,15 @@ void RayCastVolume::update_segment_opacity_texture()
 
 void RayCastVolume::update_color_prox_texture()
 {
-    glActiveTexture(GL_TEXTURE2); glBindTexture(GL_TEXTURE_3D, m_tf_texture);
-    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, 256, 256, 256, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
+    // this causes a blank screen somehow weird!;
+    //glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_3D, m_tf_texture);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, COLOR_TF_DIMENSION, COLOR_TF_DIMENSION, COLOR_TF_DIMENSION, 0, GL_RED,  GL_FLOAT, color_proximity_tf);
     glBindTexture(GL_TEXTURE_3D, 0);
 }
 
 /*
-void RayCastVolume::set_space_proximity_tf()
+void RayCastVolume::set_location_tf()
 {
     int x,y,z;
     if (j==0)
@@ -346,48 +350,90 @@ void RayCastVolume::set_space_proximity_tf()
             for(int k = min_blue; k < max_blue; k++)
             {
                 if (eucl_dist(i,j,k,x,y,z)<=SPACE_PROX_TF_DEFAULT_RADIUS)
-                    space_proximity_tf[k][j][i] = 0.0f;
+                    location_tf[k][j][i] = 0.0f;
 
             }
         }
     }
-    update_space_prox_texture();
+    update_location_tf_texture();
 }
 */
 
 
-void RayCastVolume::set_color_proximity_tf(QRgb rgb)
+void RayCastVolume::update_color_proximity_tf_data()
 {
-    int red = qRed(rgb);
-    int green = qGreen(rgb);
-    int blue = qBlue(rgb);
-    printf("%d %d %d\n", red, green, blue);
     
-    int min_red = std::max((int)(red-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
-    int max_red = std::min((int)(red+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
-
-    int min_blue = std::max((int)(blue-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
-    int max_blue = std::min((int)(blue+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
-
-    int min_green = std::max((int)(green-COLOR_PROX_TF_DEFAULT_RADIUS), 0);
-    int max_green = std::min((int)(green+COLOR_PROX_TF_DEFAULT_RADIUS), 256);
+    int red,green,blue;
     
-    for(int i = min_red; i < max_red; i++)
+    for(int i = 0; i < 256; i++)
     {
-        for(int j = min_green; j < max_green; j++)
+        for(int j = 0; j < 256; j++)
         {
-            for(int k = min_blue; k < max_blue; k++)
+            for(int k = 0; k < 256; k++)
             {
-                // TODO recheck this
-                if (eucl_dist(i,j,k,red,green,blue)<=COLOR_PROX_TF_DEFAULT_RADIUS)
-                    color_proximity_tf[k][j][i] = 0.0f;
+                // re-initialize the whole array to deal with deletes
+                color_proximity_tf[k][j][i] = 1.0f;
+
+                for(int l = 0; l < color_tf_data.size(); l++)
+                {
+                    red = qRed(color_tf_data[l].rgb);
+                    green = qGreen(color_tf_data[l].rgb);
+                    blue = qBlue(color_tf_data[l].rgb);
+
+                    if (eucl_dist(i,j,k,red,green,blue)<= color_tf_data[l].proximity_radius)
+                    {
+                        color_proximity_tf[k][j][i] *= color_tf_data[l].opacity;
+                    }
+
+                }
 
             }
         }
     }
+
     update_color_prox_texture();
+}
 
+void RayCastVolume::update_color_proximity_tf_opacity(int id, int opacity)
+{
+    for(int i = 0; i < color_tf_data.size(); i++)
+    {
+        if (color_tf_data[i].id == id)
+        {
+            color_tf_data[i].opacity = opacity/100.0;
+            update_color_proximity_tf_data();
+            break;
+        }
+    }
+}
 
+void RayCastVolume::update_color_proximity_tf_size(int id, int size)
+{
+    // size passed is between 0-100, needs to be scaled to 0-256
+    size = (int)((size/100.0)*256);
+
+    for(int i = 0; i < color_tf_data.size(); i++)
+    {
+        if (color_tf_data[i].id == id)
+        {
+            color_tf_data[i].proximity_radius = size;
+            update_color_proximity_tf_data();
+            break;
+        }
+    }
+}
+
+void RayCastVolume::set_color_proximity_tf_data(QRgb rgb, int id)
+{
+    ColorTF new_tf = { id, rgb, COLOR_PROX_TF_DEFAULT_RADIUS, 0.0};
+    color_tf_data.push_back(new_tf);
+    update_color_proximity_tf_data();
+}
+
+void RayCastVolume::update_volume_opacity(int opacity)
+{
+   volume_opacity = opacity/100.0; 
+   update_location_tf();
 }
 
 void RayCastVolume::update_segment_opacity(int id, int opacity)
@@ -396,19 +442,40 @@ void RayCastVolume::update_segment_opacity(int id, int opacity)
     update_segment_opacity_texture();
 }
 
-void RayCastVolume::initialize_texture_data()
+void RayCastVolume::update_location_tf_data()
 {
-    for(int i = 0; i < 256; i++)
+    for(int i = 0; i < LOCATION_TF_DIMENSION; i++)
     {
-        for(int j = 0; j < 256; j++)
+        for(int j = 0; j < LOCATION_TF_DIMENSION; j++)
         {
-            for(int k = 0; k < 256; k++)
+            for(int k = 0; k < LOCATION_TF_DIMENSION; k++)
             {
-                color_proximity_tf[i][j][k] = 1.0f;
-                space_proximity_tf[i][j][k] = 1.0f;
+                location_tf[i][j][k] = volume_opacity;
             }
         }
     }
+
+}
+
+void RayCastVolume::initialize_color_proximity_tf()
+{
+    for(int i = 0; i < COLOR_TF_DIMENSION; i++)
+    {
+        for(int j = 0; j < COLOR_TF_DIMENSION; j++)
+        {
+            for(int k = 0; k < COLOR_TF_DIMENSION; k++)
+            {
+                color_proximity_tf[i][j][k] = 1.0f;
+            }
+        }
+    }
+}
+
+void RayCastVolume::initialize_texture_data()
+{
+    update_location_tf_data();
+
+    initialize_color_proximity_tf();
 
     for(int i = 0; i < MAX_NUM_SEGMENTS; i++)
     {
@@ -418,7 +485,57 @@ void RayCastVolume::initialize_texture_data()
 
 }
 
-void RayCastVolume::set_space_proximity_tf(qreal x, qreal y)
+void RayCastVolume::update_location_tf()
 {
+    if (polygons.size()==0) 
+    {
+        update_location_tf_texture(); return;
+    }
 
+    for(int i = 0; i < LOCATION_TF_DIMENSION; i++)
+    {
+        for(int j =0; j < LOCATION_TF_DIMENSION; j++)
+        {
+            // re initialize
+            location_tf[0][j][i] = volume_opacity;
+            for(int k = 0; k < polygons.size(); k++)
+            {
+                if (polygons[k].point_is_inside(i/(float)LOCATION_TF_DIMENSION, j/(float)LOCATION_TF_DIMENSION))
+                {
+                    // replace opacity of full volume, else compose
+                    if (location_tf[0][j][i] == volume_opacity)
+                        location_tf[0][j][i] = polygons[k].get_opacity();
+                    else
+                        location_tf[0][j][i] = location_tf[0][j][i]*polygons[k].get_opacity();
+                }
+
+            }
+        }
+    }
+    // duplicate z layer for now since TF can only be oriented parallel to volume
+    for(int i = 0; i < LOCATION_TF_DIMENSION; i++)
+    {
+        for(int j =0; j < LOCATION_TF_DIMENSION; j++)
+        {
+            for(int k = 1; k < LOCATION_TF_DIMENSION; k++)
+            {
+                location_tf[k][j][i] = location_tf[0][j][i];
+            }
+        }
+    }
+    update_location_tf_texture();
+}
+
+
+void RayCastVolume::update_location_proximity_tf_opacity(int id, int opacity)
+{
+    for(int i = 0; i < polygons.size(); i++)
+    {
+        if (polygons[i].id == id)
+        {
+            polygons[i].set_opacity(opacity/100.0);
+            update_location_tf();
+            break;
+        }
+    }
 }

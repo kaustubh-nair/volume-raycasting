@@ -37,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Set inital values
     ui->stepLength->valueChanged(ui->stepLength->value());
     ui->canvas->setBackground(Qt::black);
-    ui->tf_slider->setDisabled(true);
 
     // Enable file drop
     setAcceptDrops(true);
@@ -104,8 +103,8 @@ void MainWindow::load_volume(const QString& path)
         ui->depth_spinbox->setValue(size.z());
 
         std::vector<int> levels = ui->canvas->get_initial_levels();
-        curr_level_label = std::to_string(levels[0]);
-        max_level_label =  std::to_string(levels[1]);
+        curr_level_label = std::to_string(levels[0]+1);
+        max_level_label =  std::to_string(levels[1]+1);
 
         ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 
@@ -156,7 +155,7 @@ void MainWindow::on_right_button_clicked()
  */
 void MainWindow::on_best_res_button_clicked()
 {
-    int l = ui->canvas->load_best_res();
+    int l = ui->canvas->load_best_res()+1;
     curr_level_label = std::to_string(l);
     ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 }
@@ -167,10 +166,19 @@ void MainWindow::on_best_res_button_clicked()
 void MainWindow::on_loadVolume_clicked()
 {
 
-    QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
+    // hardcode for quick testing
+    std::string str = "../cmu_preprocessed_pyramidal.tiff";
+    QString path = QString::fromStdString(str);
+
+    // QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
     if (!path.isNull()) {
         load_volume(path);
     }
+}
+
+void MainWindow::on_vram_spinbox_valueChanged()
+{
+    ui->canvas->set_vram(ui->vram_spinbox->value());
 }
 
 void MainWindow::on_height_spinbox_valueChanged()
@@ -206,73 +214,10 @@ void MainWindow::on_segment_3_opacity_valueChanged(int value)
 
 }
 
-void MainWindow::on_tf_slider_valueChanged(int value)
-{
-    ui->canvas->setTFThreshold(value);
-}
-
-
 void MainWindow::on_enable_lighting_checkbox_clicked(bool value)
 {
     ui->canvas->enable_lighting(value);
 }
-
-void MainWindow::on_tf_checkbox_clicked(bool value)
-{
-    if (value)
-    {
-        ui->tf_slider->setEnabled(true);
-        ui->canvas->setTFThreshold(ui->tf_slider->value());
-    }
-    else
-    {
-        ui->tf_slider->setDisabled(true);
-        ui->canvas->setTFThreshold(100);
-
-    }
-}
-
-void MainWindow::on_hsv_tf_checkbox_clicked(bool value)
-{
-    if (value)
-    {
-        ui->HSV_TF_h_slider->setEnabled(true);
-        ui->HSV_TF_s_slider->setEnabled(true);
-        ui->HSV_TF_v_slider->setEnabled(true);
-        ui->canvas->setHSV_TF_HThreshold(ui->HSV_TF_h_slider->value());
-        ui->canvas->setHSV_TF_SThreshold(ui->HSV_TF_s_slider->value());
-        ui->canvas->setHSV_TF_VThreshold(ui->HSV_TF_v_slider->value());
-    }
-    else
-    {
-        ui->HSV_TF_h_slider->setDisabled(true);
-        ui->HSV_TF_s_slider->setDisabled(true);
-        ui->HSV_TF_v_slider->setDisabled(true);
-        ui->canvas->setHSV_TF_HThreshold(100);
-        ui->canvas->setHSV_TF_SThreshold(100);
-        ui->canvas->setHSV_TF_VThreshold(100);
-
-    }
-}
-
-
-void MainWindow::on_HSV_TF_h_slider_valueChanged(int value)
-{
-    ui->canvas->setHSV_TF_HThreshold(value);
-
-}
-
-void MainWindow::on_HSV_TF_s_slider_valueChanged(int value)
-{
-    ui->canvas->setHSV_TF_SThreshold(value);
-
-}
-
-void MainWindow::on_HSV_TF_v_slider_valueChanged(int value)
-{
-    ui->canvas->setHSV_TF_VThreshold(value);
-}
-
 
 /*!
  * \brief Open a dialog to choose the background colour.
@@ -292,10 +237,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     QCheckBox *space_checkbox = ui->proximity_space_tf;
     if (color_checkbox->isChecked())
     {
+        int color_tf_id = color_tf_slider_count++;
         QImage image = ui->canvas->grabFramebuffer();
         QPointF pos = event->windowPos();
         QRgb rgb = image.pixel(pos.x(), pos.y());
-        ui->canvas->set_color_proximity_tf(rgb);
+        ui->canvas->set_color_proximity_tf(rgb, color_tf_id);
+
+
+        // Add sliders and color indicator to the UI
         QScrollArea *scroll = ui->scrollArea;
 
         QLabel *color_label = new QLabel;
@@ -304,8 +253,20 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         int rows = prox_scroll_layout->rowCount();
         QWidget *c = new QWidget;
         QGridLayout *l = new QGridLayout(c);
-        QSlider *opacity_bar = new QSlider(Qt::Horizontal);
-        QSlider *size_bar = new QSlider(Qt::Horizontal);
+
+        MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+        MyQSlider *size_bar = new MyQSlider(Qt::Horizontal);
+        const QString name = QString::fromStdString("opacity_bar_" + std::to_string(color_tf_id));
+        const QString c_name = QString::fromStdString("color_bar_" + std::to_string(color_tf_id));
+        opacity_bar->setObjectName(name);
+        size_bar->setObjectName(c_name);
+
+        connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+        connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_opacity);
+
+        connect(size_bar, &MyQSlider::valueChanged, size_bar, &MyQSlider::myValueChanged);
+        connect(size_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_size);
+
         l->addWidget(opacity_bar,0,0);
         l->addWidget(size_bar,1,0);
         prox_scroll_layout->addWidget(color_label,rows,0);
@@ -314,8 +275,33 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
     else if(space_checkbox->isChecked())
     {
-        QImage image = ui->canvas->grabFramebuffer();
+        int location_tf_id = location_tf_slider_count;
         QPointF pos = event->windowPos();
-        ui->canvas->set_space_proximity_tf(pos.x(), pos.y());
+        ui->canvas->set_space_proximity_tf(location_tf_id, pos.x(), pos.y(), event->buttons() & Qt::LeftButton, event->buttons() & Qt::RightButton);
+
+        if (Qt::RightButton & event->buttons())
+        {
+            int rows = prox_scroll_layout->rowCount();
+            QWidget *c = new QWidget;
+            QGridLayout *l = new QGridLayout(c);
+            QScrollArea *scroll = ui->scrollArea;
+            MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+            const QString name = QString::fromStdString("opacity_bar_" + std::to_string(location_tf_id));
+            opacity_bar->setObjectName(name);
+            connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+            connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_location_tf_opacity);
+            l->addWidget(opacity_bar,0,0);
+
+            QLabel *label = new QLabel("Poly");
+            prox_scroll_layout->addWidget(label,rows,0);
+            prox_scroll_layout->addWidget(c,rows,1);
+            location_tf_id++;
+        }
     }
 }
+
+void MainWindow::on_volume_opacity_slider_valueChanged(int value)
+{
+    ui->canvas->update_volume_opacity(value);
+}
+

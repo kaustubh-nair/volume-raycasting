@@ -25,6 +25,7 @@
 #include <iostream>
 #include <vector>
 
+
 #include <QtWidgets>
 
 #include "raycastcanvas.h"
@@ -82,6 +83,8 @@ void RayCastCanvas::initializeGL()
     add_shader("Isosurface", ":/shaders/isosurface.vert", ":/shaders/isosurface.frag");
     add_shader("Alpha blending", ":/shaders/alpha_blending.vert", ":/shaders/alpha_blending.frag");
     add_shader("MIP", ":/shaders/maximum_intensity_projection.vert", ":/shaders/maximum_intensity_projection.frag");
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
 }
 
 
@@ -216,6 +219,8 @@ void RayCastCanvas::mousePressEvent(QMouseEvent *event)
 {
 
     if (event->buttons() & Qt::LeftButton) {
+        m_old_step_length = m_stepLength;
+        setStepLength(0.1);
         m_trackBall.push(pixel_pos_to_view_pos(event->pos()), m_scene_trackBall.rotation().conjugated());
     }
     ((MainWindow*)parentWidget())->mousePressEvent(event);
@@ -230,6 +235,7 @@ void RayCastCanvas::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         m_trackBall.release(pixel_pos_to_view_pos(event->pos()), m_scene_trackBall.rotation().conjugated());
+        setStepLength(m_old_step_length);
     }
     update();
 }
@@ -261,4 +267,104 @@ void RayCastCanvas::add_shader(const QString& name, const QString& vertex, const
     m_shaders[name]->addShaderFromSourceFile(QOpenGLShader::Vertex, vertex);
     m_shaders[name]->addShaderFromSourceFile(QOpenGLShader::Fragment, fragment);
     m_shaders[name]->link();
+}
+
+void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
+{
+    int n = m_raycasting_volume->polygons.size();
+    // initialize new polygon
+    if (!polygon_creation_active)
+    {
+        polygon_creation_active = true;
+        m_raycasting_volume->polygons.push_back(Polygon());
+        n++;
+    }
+    /*
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    GLdouble depthScale;
+    glGetDoublev( GL_DEPTH_SCALE, &depthScale );
+    GLfloat z;
+    glReadPixels( x, viewport[3] - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+
+    QVector4D pos(
+            ((2.0*x)/viewport[2]) - 1.0,
+            1.0 - ((2.0*y)/viewport[3]),
+            1.0,
+            1.0
+            );
+    printf("before %f %f %f\n", x, y, z);
+
+    pos = pos*m_modelViewProjectionMatrix.inverted();
+
+
+    float transformed_x = 1+(pos.x()/pos.w());
+    float transformed_y = 1+(pos.y()/pos.w());
+    float transformed_z = 1+(pos.z()/pos.w());
+    */
+    static int i = 0;
+     float transformed_x = 1.0;
+    float transformed_y = 1.0;
+    float transformed_z = 1.0;
+    if (i==0)
+    {
+        transformed_x = 0.4;
+        transformed_y = 0.3;
+        transformed_z = 1.0;
+    }
+    else if (i==1)
+    {
+        transformed_x = 0.3;
+        transformed_y = 0.6;
+        transformed_z = 1.0;
+    }
+    else if (i==2)
+    {
+        transformed_x = 0.8;
+        transformed_y = 0.8;
+        transformed_z = 1.0;
+    }
+    else if (i==3)
+    {
+        transformed_x = 0.8;
+        transformed_y = 0.4;
+        transformed_z = 1.0;
+    }
+    i++;
+    printf("after %f %f %f\n", transformed_x, transformed_y, transformed_z);
+
+    m_raycasting_volume->polygons[n-1].add_point(id, transformed_x, transformed_y, transformed_z);
+}
+
+void RayCastCanvas::location_tf_close_current_polygon(int id, qreal x, qreal y)
+{
+    polygon_creation_active = false;
+    location_tf_add_side_to_polygon(id, x, y);
+    // update transfer function
+    m_raycasting_volume->update_location_tf();
+}
+
+void RayCastCanvas::update_color_tf_opacity(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_color_proximity_tf_opacity(id, value);
+    update();
+}
+
+void RayCastCanvas::update_color_tf_size(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(10));          //color_bar_id
+    m_raycasting_volume->update_color_proximity_tf_size(id, value);
+    update();
+}
+
+void RayCastCanvas::update_location_tf_opacity(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_location_proximity_tf_opacity(id, value);
+    update();
 }

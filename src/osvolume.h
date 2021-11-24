@@ -32,6 +32,11 @@ class OSVolume {
 
     void move_left();
 
+    void set_vram(int value)
+    {
+         vram = value*1024*1024;         
+    }
+
 
     private:
     uint32_t* _data;
@@ -56,9 +61,8 @@ class OSVolume {
     std::vector<std::map<std::string, int64_t>> level_info;
 
     // for resolution determination; size in bytes
-    // use 75% of total vram for a conservative estimate
-    // TODO: hardcoded
-    uint64_t vram = 1024*1024*1024;         
+    // TODO: WARNING: change default value here if changing in UI (passing it in Mainwindow() causes wierd segfault)
+    uint64_t vram = 1024*1024*1024;
 
     void determine_best_level();
     void store_level_info(openslide_t* image, int levels);
