@@ -163,7 +163,6 @@ void RayCastCanvas::raycasting(const QString& shader)
         m_shaders[shader]->setUniformValue("top", m_raycasting_volume->top());
         m_shaders[shader]->setUniformValue("bottom", m_raycasting_volume->bottom());
         m_shaders[shader]->setUniformValue("background_colour", to_vector3d(m_background));
-        m_shaders[shader]->setUniformValue("light_position", m_lightPosition);
         m_shaders[shader]->setUniformValue("material_colour", m_diffuseMaterial);
         m_shaders[shader]->setUniformValue("step_length", m_stepLength);
         m_shaders[shader]->setUniformValue("threshold", m_threshold);

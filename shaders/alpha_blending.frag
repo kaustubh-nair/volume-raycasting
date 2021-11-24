@@ -36,7 +36,6 @@ uniform vec3 bottom;
 
 uniform vec3 background_colour;
 uniform vec3 material_colour;
-uniform vec3 light_position;
 
 uniform float step_length;
 uniform float threshold;
@@ -160,6 +159,7 @@ vec3 blinn_phong(vec3 position, vec3 ray)
     vec3 position_color = position_intensity.rgb;
     float position_material = position_intensity.a;
     
+    vec3 light_position = vec3(light_position_x, light_position_y, light_position_z);
     vec3 L = normalize(light_position - position);
     vec3 V = -normalize(ray);
     vec3 N = normal(position, position_material);
