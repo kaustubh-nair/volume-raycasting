@@ -65,7 +65,7 @@
        <x>10</x>
        <y>0</y>
        <width>243</width>
-       <height>561</height>
+       <height>379</height>
       </rect>
      </property>
      <property name="currentIndex">
@@ -330,7 +330,7 @@
             <x>0</x>
             <y>0</y>
             <width>219</width>
-            <height>359</height>
+            <height>177</height>
            </rect>
           </property>
          </widget>
@@ -402,19 +402,66 @@
       <attribute name="title">
        <string>Lighting</string>
       </attribute>
-      <widget class="QCheckBox" name="enable_lighting_checkbox">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>130</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable Lighting</string>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0" colspan="2">
+        <widget class="QCheckBox" name="enable_lighting_checkbox">
+         <property name="text">
+          <string>Enable Lighting</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>X:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="light_x_position">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Y:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSlider" name="light_y_position">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Z:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSlider" name="light_z_position">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>

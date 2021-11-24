@@ -51,6 +51,11 @@ uniform sampler3D color_proximity_tf;
 uniform sampler3D space_proximity_tf;
 uniform sampler1D segment_opacity_tf;
 
+uniform float light_position_x;
+uniform float light_position_y;
+uniform float light_position_z;
+
+
 uniform float gamma;
 uniform bool lighting_enabled;
 float MAX_NUM_SEGMENTS = 3.0;
@@ -280,22 +285,6 @@ void main()
         // so that TF doesn't get affected by segment values
         c.a = 1.0f;
         
-         /*
-        // randomize for now
-        seg_id = (int(c.x*100)%3)/3.0;
-        */
-
-        /*
-        if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
-            c = vec4(0.0);
-		else
-        {
-            vec3 hsv_value = rgb2hsv(c.xyz);
-            if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
-                c = vec4(0.0);
-        }
-        */
-
         float a1 = texture(color_proximity_tf, c.rgb).r;
         float a2 = texture(space_proximity_tf, position).r;
         float a3 = texture(segment_opacity_tf, seg_id).r;
@@ -322,21 +311,6 @@ void main()
                     colour_intersection.w = 1.0;
                     intersect = 1.0;
 
-                }
-
-                if((intensity.a * 255) == 255)
-                {
-                    c.a = 0.0;
-                }
-
-                else if ((intensity.a * 255) == 254)
-                {
-                    c.a = 0.45;
-                }
-
-                else
-                {
-                    c.a = 1.0;
                 }
 
             }
@@ -369,7 +343,7 @@ void main()
     }
 
     // Blend background
-    colour.rgb = colour.a * colour.rgb + (1 - colour.a) * pow(background_colour, vec3(gamma)).rgb;
+    //colour.rgb = colour.a * colour.rgb + (1 - colour.a) * pow(background_colour, vec3(gamma)).rgb;
     colour.a = 1.0;
 
     // Gamma correction

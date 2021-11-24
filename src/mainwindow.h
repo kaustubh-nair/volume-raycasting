@@ -86,6 +86,12 @@ private slots:
 
     void on_volume_opacity_slider_valueChanged(int value);
 
+    void on_light_x_position_valueChanged(int value);
+    void on_light_y_position_valueChanged(int value);
+    void on_light_z_position_valueChanged(int value);
+
+
+
 
 private:
     std::string curr_level_label, max_level_label;

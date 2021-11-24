@@ -205,7 +205,9 @@ public:
     }
 
     void set_vram(int value) { m_raycasting_volume->set_vram(value); }
-
+    void update_light_position_x(int value){ light_position_x = value/100.0; update(); }
+    void update_light_position_y(int value){ light_position_y = value/100.0; update(); }
+    void update_light_position_z(int value){ light_position_z = value/100.0; update(); }
 
 signals:
     // NOPE
@@ -229,6 +231,7 @@ private:
     QMatrix4x4 m_viewMatrix;
     QMatrix4x4 m_modelViewProjectionMatrix;
     QMatrix3x3 m_normalMatrix;
+    float light_position_x=0.0, light_position_y=0.0, light_position_z=0.0; 
 
     const GLfloat m_fov = 60.0f;                                          /*!< Vertical field of view. */
     const GLfloat m_focalLength = 1.0 / qTan(M_PI / 180.0 * m_fov / 2.0); /*!< Focal length. */

@@ -83,6 +83,8 @@ void RayCastCanvas::initializeGL()
     add_shader("Isosurface", ":/shaders/isosurface.vert", ":/shaders/isosurface.frag");
     add_shader("Alpha blending", ":/shaders/alpha_blending.vert", ":/shaders/alpha_blending.frag");
     add_shader("MIP", ":/shaders/maximum_intensity_projection.vert", ":/shaders/maximum_intensity_projection.frag");
+
+ 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 }
@@ -176,6 +178,9 @@ void RayCastCanvas::raycasting(const QString& shader)
         m_shaders[shader]->setUniformValue("color_proximity_tf", 2);
         m_shaders[shader]->setUniformValue("space_proximity_tf", 3);
         m_shaders[shader]->setUniformValue("segment_opacity_tf", 4);
+        m_shaders[shader]->setUniformValue("light_position_x", light_position_x);
+        m_shaders[shader]->setUniformValue("light_position_y", light_position_y);
+        m_shaders[shader]->setUniformValue("light_position_z", light_position_z);
 
         glClearColor(m_background.redF(), m_background.greenF(), m_background.blueF(), m_background.alphaF());
         glClear(GL_COLOR_BUFFER_BIT);
@@ -290,7 +295,7 @@ void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
     QVector4D pos(
             ((2.0*x)/viewport[2]) - 1.0,
             1.0 - ((2.0*y)/viewport[3]),
-            1.0,
+            z,
             1.0
             );
     printf("before %f %f %f\n", x, y, z);
