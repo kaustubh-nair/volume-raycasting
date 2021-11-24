@@ -305,3 +305,17 @@ void MainWindow::on_volume_opacity_slider_valueChanged(int value)
     ui->canvas->update_volume_opacity(value);
 }
 
+void MainWindow::on_light_x_position_valueChanged(int value)
+{
+    ui->canvas->update_light_position_x(value);
+}
+
+void MainWindow::on_light_y_position_valueChanged(int value)
+{
+    ui->canvas->update_light_position_y(value);
+}
+
+void MainWindow::on_light_z_position_valueChanged(int value)
+{
+    ui->canvas->update_light_position_z(value);
+}
