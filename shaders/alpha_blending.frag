@@ -280,10 +280,12 @@ void main()
     while (ray_length > 0 && colour.a < 1.0) {
 
         vec4 c = texture(volume, position).gbar;
+        float position_material = c.a;
+
         float seg_id = (256 - c.a * 256)/MAX_NUM_SEGMENTS;
 
         // so that TF doesn't get affected by segment values
-        c.a = 1.0f;
+        c.a = 1.0;
         
         float a1 = texture(color_proximity_tf, c.rgb).r;
         float a2 = texture(space_proximity_tf, position).r;
@@ -318,9 +320,9 @@ void main()
             // Check to see if blinn-phong produces any changes
             // c.rgb = texture(volume, position).gbar.rgb;
             
-            c.rgb = blinn_phong(position, ray);
+            c.rgb = blinn_phong(position, ray);            
             
-            
+
             // Alpha-blending
             // colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
             // colour.a = c.a + (1 - c.a) * colour.a;
@@ -343,8 +345,8 @@ void main()
     }
 
     // Blend background
-    //colour.rgb = colour.a * colour.rgb + (1 - colour.a) * pow(background_colour, vec3(gamma)).rgb;
-    colour.a = 1.0;
+    // colour.rgb = colour.a * colour.rgb + (1 - colour.a) * pow(background_colour, vec3(gamma)).rgb;
+    // colour.a = 1.0;
 
     // Gamma correction
     a_colour.rgb = pow(colour.rgb, vec3(1.0 / gamma));

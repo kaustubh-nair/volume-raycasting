@@ -224,7 +224,7 @@ void RayCastCanvas::mousePressEvent(QMouseEvent *event)
 
     if (event->buttons() & Qt::LeftButton) {
         m_old_step_length = m_stepLength;
-        setStepLength(0.1);
+       // setStepLength(0.1);
         m_trackBall.push(pixel_pos_to_view_pos(event->pos()), m_scene_trackBall.rotation().conjugated());
     }
     ((MainWindow*)parentWidget())->mousePressEvent(event);
@@ -251,10 +251,10 @@ void RayCastCanvas::mouseReleaseEvent(QMouseEvent *event)
 void RayCastCanvas::wheelEvent(QWheelEvent * event)
 {
     m_distExp += event->delta();
-    if (m_distExp < -1800)
-        m_distExp = -1800;
-    if (m_distExp > 600)
-        m_distExp = 600;
+    if (m_distExp < -4800)
+        m_distExp = -4800;
+    if (m_distExp > 1600)
+        m_distExp = 1600;
     update();
 }
 
