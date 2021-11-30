@@ -59,6 +59,6 @@ DISTFILES +=
 
 gcc:QMAKE_CXXFLAGS += -std=c++17
 gcc:QMAKE_CXXFLAGS_RELEASE += -fopenmp -Ofast
-gcc:LIBS += -fopenmp -L/usr/local/lib -lopenslide
+gcc:LIBS += -fopenmp -L/usr/local/lib -lopenslide -lGL -lGLU
 
 msvc:QMAKE_CXXFLAGS_RELEASE += /openmp /O2
