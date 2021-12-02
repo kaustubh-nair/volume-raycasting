@@ -287,6 +287,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             QScrollArea *scroll = ui->scrollArea;
             MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
             const QString name = QString::fromStdString("opacity_bar_" + std::to_string(location_tf_id));
+            printf("location tf id %d\n", location_tf_id);
             opacity_bar->setObjectName(name);
             connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
             connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_location_tf_opacity);
@@ -295,7 +296,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             QLabel *label = new QLabel("Poly");
             prox_scroll_layout->addWidget(label,rows,0);
             prox_scroll_layout->addWidget(c,rows,1);
-            location_tf_id++;
+            location_tf_slider_count++;
         }
     }
 }
