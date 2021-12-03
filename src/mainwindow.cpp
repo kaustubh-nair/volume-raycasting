@@ -267,8 +267,15 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         connect(size_bar, &MyQSlider::valueChanged, size_bar, &MyQSlider::myValueChanged);
         connect(size_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_size);
 
-        l->addWidget(opacity_bar,0,0);
-        l->addWidget(size_bar,1,0);
+        QLabel *o1 = new QLabel("Opacity:");
+        QLabel *o2 = new QLabel("Distance:");
+
+        l->addWidget(o1,0,0);
+        l->addWidget(o2,1,0);
+
+        l->addWidget(opacity_bar,0,1);
+        l->addWidget(size_bar,1,1);
+
         prox_scroll_layout->addWidget(color_label,rows,0);
         prox_scroll_layout->addWidget(c,rows,1);
         scroll->setWidget(prox_scroll_layout_main);
@@ -291,7 +298,9 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             opacity_bar->setObjectName(name);
             connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
             connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_location_tf_opacity);
-            l->addWidget(opacity_bar,0,0);
+            QLabel *o = new QLabel("Opacity:");
+            l->addWidget(opacity_bar,0,1);
+            l->addWidget(o,0,0);
 
             QLabel *label = new QLabel("Poly");
             prox_scroll_layout->addWidget(label,rows,0);
@@ -358,9 +367,16 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
     connect(dropdown, &MyQComboBox::myCurrentIndexChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_orientation);
 
-    l->addWidget(opacity_bar,0,0);
-    l->addWidget(distance_bar,1,0);
-    l->addWidget(dropdown,2,0);
+    QLabel *o1 = new QLabel("Opacity:");
+    QLabel *o2 = new QLabel("Distance:");
+    QLabel *o3 = new QLabel("Orientation:");
+    l->addWidget(o1,0,0);
+    l->addWidget(o2,1,0);
+    l->addWidget(o3,2,0);
+
+    l->addWidget(opacity_bar,0,1);
+    l->addWidget(distance_bar,1,1);
+    l->addWidget(dropdown,2,1);
 
     QLabel *label = new QLabel("Plane");
     prox_scroll_layout->addWidget(label,rows,0);
