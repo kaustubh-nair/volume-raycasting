@@ -204,6 +204,7 @@ public:
 
     void update_location_tf();
     void update_location_proximity_tf_opacity(int id, int opacity);
+    void update_slicing_plane_opacity(int id, int opacity);
 
     void add_new_slicing_plane(int id) { slicing_planes.push_back(Plane(id)); update_location_tf();}
 

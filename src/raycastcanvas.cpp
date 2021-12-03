@@ -357,3 +357,11 @@ void RayCastCanvas::update_location_tf_opacity(int value, QString name)
     m_raycasting_volume->update_location_proximity_tf_opacity(id, value);
     update();
 }
+
+void RayCastCanvas::update_slicing_plane_opacity(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_slicing_plane_opacity(id, value);
+    update();
+}

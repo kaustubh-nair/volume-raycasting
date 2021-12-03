@@ -221,6 +221,7 @@ public slots:
     void update_color_tf_opacity(int value, QString name);
     void update_color_tf_size(int value, QString name);
     void update_location_tf_opacity(int value, QString name);
+    void update_slicing_plane_opacity(int value, QString name);
 
 protected:
     void initializeGL();

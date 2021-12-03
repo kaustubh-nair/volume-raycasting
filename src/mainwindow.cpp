@@ -323,5 +323,21 @@ void MainWindow::on_light_z_position_valueChanged(int value)
 
 void MainWindow::on_add_slicing_plane_button_clicked()
 {
-    ui->canvas->add_new_slicing_plane(slicing_planes_count++);
+    int slicing_plane_id = slicing_planes_count++;
+    ui->canvas->add_new_slicing_plane(slicing_plane_id);
+
+    int rows = prox_scroll_layout->rowCount();
+    QWidget *c = new QWidget;
+    QGridLayout *l = new QGridLayout(c);
+    QScrollArea *scroll = ui->scrollArea;
+    MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+    const QString name = QString::fromStdString("opacity_bar_" + std::to_string(slicing_plane_id));
+    opacity_bar->setObjectName(name);
+    connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+    connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_opacity);
+    l->addWidget(opacity_bar,0,0);
+
+    QLabel *label = new QLabel("Plane");
+    prox_scroll_layout->addWidget(label,rows,0);
+    prox_scroll_layout->addWidget(c,rows,1);
 }
