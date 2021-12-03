@@ -343,6 +343,7 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
     MyQSlider *distance_bar = new MyQSlider(Qt::Horizontal);
     MyQComboBox *dropdown = new MyQComboBox();
+    MyQPushButton *invert_button = new MyQPushButton("Invert");
 
     QStringList list = {"X", "Y", "Z"};
     dropdown->addItems(list);
@@ -357,6 +358,9 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     const QString dname = QString::fromStdString("dropdown_bar" + std::to_string(slicing_plane_id));
     dropdown->setObjectName(dname);
 
+    const QString bname = QString::fromStdString("invertbutton" + std::to_string(slicing_plane_id));
+    invert_button->setObjectName(bname);
+
 
     connect(distance_bar, &MyQSlider::valueChanged, distance_bar, &MyQSlider::myValueChanged);
     connect(distance_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_distance);
@@ -365,14 +369,16 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_opacity);
 
     connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
-    connect(dropdown, &MyQComboBox::myCurrentIndexChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_orientation);
+    connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
+
+    connect(invert_button, &MyQPushButton::clicked, invert_button, &MyQPushButton::myClicked);
+    connect(invert_button, &MyQPushButton::myClickedWithName, ui->canvas, &RayCastCanvas::update_slicing_plane_invert);
 
     QLabel *o1 = new QLabel("Opacity:");
     QLabel *o2 = new QLabel("Distance:");
-    QLabel *o3 = new QLabel("Orientation:");
     l->addWidget(o1,0,0);
     l->addWidget(o2,1,0);
-    l->addWidget(o3,2,0);
+    l->addWidget(invert_button,2,0);
 
     l->addWidget(opacity_bar,0,1);
     l->addWidget(distance_bar,1,1);

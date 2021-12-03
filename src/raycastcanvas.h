@@ -224,6 +224,7 @@ public slots:
     void update_slicing_plane_opacity(int value, QString name);
     void update_slicing_plane_orientation(int value, QString name);
     void update_slicing_plane_distance(int value, QString name);
+    void update_slicing_plane_invert(QString name);
 
 protected:
     void initializeGL();

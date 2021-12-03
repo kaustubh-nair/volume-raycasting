@@ -47,6 +47,7 @@ HEADERS += \
     src/polygon.h \
     src/my_q_slider.h \
     src/my_combo_box.h \
+    src/my_button.h \
     src/plane.h \
 
 INCLUDEPATH += \

@@ -26,6 +26,7 @@
 #include<QGridLayout>
 #include "my_q_slider.h"
 #include "my_combo_box.h"
+#include "my_button.h"
 
 namespace Ui {
 class MainWindow;

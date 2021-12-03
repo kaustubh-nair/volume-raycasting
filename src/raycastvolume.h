@@ -207,6 +207,7 @@ public:
     void update_slicing_plane_opacity(int id, int opacity);
     void update_slicing_plane_orientation(int id, int value);
     void update_slicing_plane_distance(int id, int value);
+    void update_slicing_plane_invert(int id);
 
     void add_new_slicing_plane(int id) { slicing_planes.push_back(Plane(id)); update_location_tf();}
 

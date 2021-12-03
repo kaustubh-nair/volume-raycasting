@@ -14,7 +14,7 @@ class Plane {
         id = Id;
         orientation = 0;
         opacity = 0.0;
-        distance = 0.5;
+        distance = 0.1;
         hide_left = true;
     }
     void invert(){hide_left = !hide_left;}

@@ -381,3 +381,11 @@ void RayCastCanvas::update_slicing_plane_distance(int value, QString name)
     m_raycasting_volume->update_slicing_plane_distance(id, value);
     update();
 }
+
+void RayCastCanvas::update_slicing_plane_invert(QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_slicing_plane_invert(id);
+    update();
+}
