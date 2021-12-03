@@ -365,3 +365,12 @@ void RayCastCanvas::update_slicing_plane_opacity(int value, QString name)
     m_raycasting_volume->update_slicing_plane_opacity(id, value);
     update();
 }
+
+void RayCastCanvas::update_slicing_plane_orientation(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    printf("%d %d\n", id, value);
+    m_raycasting_volume->update_slicing_plane_orientation(id, value);
+    update();
+}

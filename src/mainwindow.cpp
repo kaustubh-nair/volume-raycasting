@@ -330,12 +330,25 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     QWidget *c = new QWidget;
     QGridLayout *l = new QGridLayout(c);
     QScrollArea *scroll = ui->scrollArea;
+
     MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+    MyQComboBox *dropdown = new MyQComboBox();
+    QStringList list = {"X", "Y", "Z"};
+    dropdown->addItems(list);
+
+
     const QString name = QString::fromStdString("opacity_bar_" + std::to_string(slicing_plane_id));
     opacity_bar->setObjectName(name);
+
+    const QString dname = QString::fromStdString("dropdown_bar" + std::to_string(slicing_plane_id));
+    dropdown->setObjectName(dname);
+
     connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
     connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_opacity);
+    connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
+    connect(dropdown, &MyQComboBox::myCurrentIndexChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_orientation);
     l->addWidget(opacity_bar,0,0);
+    l->addWidget(dropdown,1,0);
 
     QLabel *label = new QLabel("Plane");
     prox_scroll_layout->addWidget(label,rows,0);

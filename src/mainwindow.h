@@ -25,6 +25,7 @@
 #include <QMainWindow>
 #include<QGridLayout>
 #include "my_q_slider.h"
+#include "my_combo_box.h"
 
 namespace Ui {
 class MainWindow;

@@ -568,7 +568,19 @@ void RayCastVolume::update_slicing_plane_opacity(int id, int opacity)
         if (slicing_planes[i].id == id)
         {
             slicing_planes[i].opacity = opacity/100.0;
-            printf("%d\n", id);
+            update_location_tf();
+            break;
+        }
+    }
+}
+
+void RayCastVolume::update_slicing_plane_orientation(int id, int value)
+{
+    for(int i = 0; i < slicing_planes.size(); i++)
+    {
+        if (slicing_planes[i].id == id)
+        {
+            slicing_planes[i].update_orientation(value);
             update_location_tf();
             break;
         }
