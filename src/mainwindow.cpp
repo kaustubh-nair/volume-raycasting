@@ -332,10 +332,15 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     QScrollArea *scroll = ui->scrollArea;
 
     MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+    MyQSlider *distance_bar = new MyQSlider(Qt::Horizontal);
     MyQComboBox *dropdown = new MyQComboBox();
+
     QStringList list = {"X", "Y", "Z"};
     dropdown->addItems(list);
 
+
+    const QString distname = QString::fromStdString("distance_bar" + std::to_string(slicing_plane_id));
+    distance_bar->setObjectName(distname);
 
     const QString name = QString::fromStdString("opacity_bar_" + std::to_string(slicing_plane_id));
     opacity_bar->setObjectName(name);
@@ -343,12 +348,19 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     const QString dname = QString::fromStdString("dropdown_bar" + std::to_string(slicing_plane_id));
     dropdown->setObjectName(dname);
 
+
+    connect(distance_bar, &MyQSlider::valueChanged, distance_bar, &MyQSlider::myValueChanged);
+    connect(distance_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_distance);
+
     connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
     connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_opacity);
+
     connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
     connect(dropdown, &MyQComboBox::myCurrentIndexChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_orientation);
+
     l->addWidget(opacity_bar,0,0);
-    l->addWidget(dropdown,1,0);
+    l->addWidget(distance_bar,1,0);
+    l->addWidget(dropdown,2,0);
 
     QLabel *label = new QLabel("Plane");
     prox_scroll_layout->addWidget(label,rows,0);

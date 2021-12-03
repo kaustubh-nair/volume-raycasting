@@ -586,3 +586,16 @@ void RayCastVolume::update_slicing_plane_orientation(int id, int value)
         }
     }
 }
+
+void RayCastVolume::update_slicing_plane_distance(int id, int value)
+{
+    for(int i = 0; i < slicing_planes.size(); i++)
+    {
+        if (slicing_planes[i].id == id)
+        {
+            slicing_planes[i].update_distance(value/100.0);
+            update_location_tf();
+            break;
+        }
+    }
+}
