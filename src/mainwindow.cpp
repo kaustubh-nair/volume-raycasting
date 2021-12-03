@@ -320,3 +320,8 @@ void MainWindow::on_light_z_position_valueChanged(int value)
 {
     ui->canvas->update_light_position_z(value);
 }
+
+void MainWindow::on_add_slicing_plane_button_clicked()
+{
+    ui->canvas->add_new_slicing_plane(slicing_planes_count++);
+}

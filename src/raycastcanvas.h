@@ -208,6 +208,7 @@ public:
     void update_light_position_x(int value){ light_position_x = value/100.0; update(); }
     void update_light_position_y(int value){ light_position_y = value/100.0; update(); }
     void update_light_position_z(int value){ light_position_z = value/100.0; update(); }
+    void add_new_slicing_plane(int id) {m_raycasting_volume->add_new_slicing_plane(id); update(); }
 
 signals:
     // NOPE

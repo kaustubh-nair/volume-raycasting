@@ -65,7 +65,7 @@
        <x>10</x>
        <y>0</y>
        <width>243</width>
-       <height>379</height>
+       <height>411</height>
       </rect>
      </property>
      <property name="currentIndex">
@@ -278,10 +278,17 @@
        <string>TF</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="proximity_color_tf_checkbox">
+       <item row="4" column="0" colspan="3">
+        <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Color TF</string>
+          <string>Set opacity of segments:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="proximity_space_tf">
+         <property name="text">
+          <string>Location TF</string>
          </property>
         </widget>
        </item>
@@ -292,22 +299,32 @@
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Cytoplasm</string>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="0" colspan="2">
+       <item row="14" column="0" colspan="3">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>Set opacity of whole volume:</string>
          </property>
         </widget>
        </item>
-       <item row="12" column="1">
-        <widget class="QSlider" name="segment_3_opacity">
+       <item row="16" column="0" colspan="3">
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>219</width>
+            <height>180</height>
+           </rect>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QSlider" name="segment_1_opacity">
          <property name="maximum">
           <number>100</number>
          </property>
@@ -319,24 +336,21 @@
          </property>
         </widget>
        </item>
-       <item row="16" column="0" colspan="2">
-        <widget class="QScrollArea" name="scrollArea">
-         <property name="widgetResizable">
-          <bool>true</bool>
+       <item row="11" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Cytoplasm</string>
          </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>219</width>
-            <height>177</height>
-           </rect>
-          </property>
-         </widget>
         </widget>
        </item>
-       <item row="11" column="1">
+       <item row="1" column="2">
+        <widget class="QCheckBox" name="proximity_color_tf_checkbox">
+         <property name="text">
+          <string>Color TF</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="2">
         <widget class="QSlider" name="segment_2_opacity">
          <property name="maximum">
           <number>100</number>
@@ -349,14 +363,27 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="0" colspan="2">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Set opacity of segments:</string>
+       <item row="12" column="2">
+        <widget class="QSlider" name="segment_3_opacity">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="value">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
-       <item row="15" column="0" colspan="2">
+       <item row="12" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Nucleus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="0" colspan="3">
         <widget class="QSlider" name="volume_opacity_slider">
          <property name="maximum">
           <number>100</number>
@@ -369,30 +396,10 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="proximity_space_tf">
+       <item row="2" column="0" colspan="2">
+        <widget class="QPushButton" name="add_slicing_plane_button">
          <property name="text">
-          <string>Location TF</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>Nucleus</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QSlider" name="segment_1_opacity">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <string>Add slicing plane</string>
          </property>
         </widget>
        </item>

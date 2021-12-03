@@ -1,4 +1,5 @@
 /*
+
  * Copyright © 2018 Martino Pilia <martino.pilia@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -29,6 +30,7 @@
 #include <vector>
 
 #include "mesh.h"
+#include "plane.h"
 #include "polygon.h"
 #include "osvolume.h"
 
@@ -202,7 +204,11 @@ public:
 
     void update_location_tf();
     void update_location_proximity_tf_opacity(int id, int opacity);
+
+    void add_new_slicing_plane(int id) { slicing_planes.push_back(Plane(id)); update_location_tf();}
+
     std::vector<Polygon> polygons;
+    std::vector<Plane> slicing_planes;
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;

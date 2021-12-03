@@ -487,7 +487,7 @@ void RayCastVolume::initialize_texture_data()
 
 void RayCastVolume::update_location_tf()
 {
-    if (polygons.size()==0) 
+    if (polygons.size()==0 && slicing_planes.size()==0) 
     {
         update_location_tf_texture(); return;
     }
@@ -520,6 +520,27 @@ void RayCastVolume::update_location_tf()
             for(int k = 1; k < LOCATION_TF_DIMENSION; k++)
             {
                 location_tf[k][j][i] = location_tf[0][j][i];
+            }
+        }
+    }
+
+    // crop slicing planes
+    for(int i = 0; i < LOCATION_TF_DIMENSION; i++)
+    {
+        for(int j = 0; j < LOCATION_TF_DIMENSION; j++)
+        {
+            for(int k = 0; k < LOCATION_TF_DIMENSION; k++)
+            {
+                for(int l = 0; l < slicing_planes.size(); l++)
+                {
+                    if (slicing_planes[l].point_is_inside(i/(float)LOCATION_TF_DIMENSION, j/(float)LOCATION_TF_DIMENSION, k/(float)LOCATION_TF_DIMENSION))
+                    {
+                        if (location_tf[k][j][i] == volume_opacity)
+                            location_tf[k][j][i] = slicing_planes[l].opacity;
+                        else
+                            location_tf[k][j][i] *= slicing_planes[l].opacity;
+                    }
+                }
             }
         }
     }
