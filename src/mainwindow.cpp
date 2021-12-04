@@ -369,7 +369,7 @@ void MainWindow::on_add_slicing_plane_button_clicked()
     connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_opacity);
 
     connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
-    connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
+    connect(dropdown, &MyQComboBox::myCurrentIndexChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_orientation);
 
     connect(invert_button, &MyQPushButton::clicked, invert_button, &MyQPushButton::myClicked);
     connect(invert_button, &MyQPushButton::myClickedWithName, ui->canvas, &RayCastCanvas::update_slicing_plane_invert);

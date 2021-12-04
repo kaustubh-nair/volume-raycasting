@@ -312,7 +312,6 @@ void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
     GLfloat Z;
     glReadPixels( X, Y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &Z );
     GLenum error = glGetError();
-    printf("Before transformation %d %d %f\n", X, Y, Z);
     if(GL_NO_ERROR != error) throw;
     std::cout << std::endl << std::endl;
     GLdouble posX, posY, posZ;
@@ -321,7 +320,6 @@ void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
     posX = 0.5 + (posX/2.0);
     posY = 0.5 + (posY/2.0);
     posZ = 0.5 + (posZ/2.0);
-    printf("After transformation %f %f %f\n", posX, posY, posZ);
 
     m_raycasting_volume->polygons[n-1].add_point(id, posX, posY, posZ);
 }
