@@ -196,10 +196,6 @@ public:
     void update_segment_opacity(int id, int opacity);
     void update_volume_opacity(int opacity);
 
-    float tf_threshold = 1.0;
-    float hsv_tf_h_threshold = 1.0;
-    float hsv_tf_s_threshold = 1.0;
-    float hsv_tf_v_threshold = 1.0;
     bool lighting_enabled = false;
 
     void update_location_tf();

@@ -39,13 +39,8 @@ uniform vec3 material_colour;
 
 uniform float step_length;
 uniform float threshold;
-uniform float transfer_function_threshold;
-uniform float hsv_tf_h_threshold;
-uniform float hsv_tf_s_threshold;
-uniform float hsv_tf_v_threshold;
 
 uniform sampler3D volume;
-uniform sampler2D jitter;
 uniform sampler3D color_proximity_tf;
 uniform sampler3D space_proximity_tf;
 uniform sampler1D segment_opacity_tf;
@@ -71,52 +66,6 @@ struct AABB {
     vec3 bottom;
 };
 
-vec3 rgb2hsv(vec3 rgb)
-{
-    vec3 hsv;
-    float min_val, max_val, delta;
-
-    min_val = (rgb.r < rgb.g) ? rgb.r : rgb.g;
-    min_val = (min_val  < rgb.b) ? min_val  : rgb.b;
-
-    max_val = (rgb.r > rgb.g) ? rgb.r : rgb.g;
-    max_val = (max_val  > rgb.b) ? max_val  : rgb.b;
-
-    hsv.z = max_val;                                // v
-    delta = max_val - min_val;
-    if (delta < 0.00001)
-    {
-        hsv.y = 0;
-        hsv.x = 0; // undefrgbed, maybe nan?
-        return hsv;
-    }
-    if( max_val > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
-        hsv.y = (delta / max_val);                  // s
-    } else {
-        // if max_val is 0, then r = g = b = 0              
-        // s = 0, h is undefrgbed
-        hsv.y = 0.0;
-        hsv.x = 0.0;
-        return hsv;
-    }
-    if( rgb.r >= max_val )                           // > is bogus, just keeps compilor happy
-        hsv.x = ( rgb.g - rgb.b ) / delta;        // between yellow & magenta
-    else
-    if( rgb.g >= max_val )
-        hsv.x = 2.0 + ( rgb.b - rgb.r ) / delta;  // between cyan & yellow
-    else
-        hsv.x = 4.0 + ( rgb.r - rgb.g ) / delta;  // between magenta & cyan
-
-    hsv.x *= 60.0;                              // degrees
-
-    if( hsv.x < 0.0 )
-        hsv.x += 360.0;
-
-	hsv.x = hsv.x/360.0;  // convert 0 ,1
-
-    return hsv;
-}
-
 // Estimate normal from a finite difference approximation of the gradient
 vec3 normal(vec3 position, float position_material)
 {
@@ -139,15 +88,6 @@ void ray_box_intersection(Ray ray, AABB box, out float t_0, out float t_1)
     vec3 t_max = max(t_top, t_bottom);
     t = min(t_max.xx, t_max.yz);
     t_1 = min(t.x, t.y);
-}
-
-// A very simple colour transfer function
-vec4 colour_transfer(float intensity)
-{
-    vec3 high = vec3(1.0, 1.0, 1.0);
-    vec3 low = vec3(0.0, 0.0, 0.0);
-    float alpha = (exp(intensity) - 1.0) / (exp(1.0) - 1.0);
-    return vec4(intensity * high + (1.0 - intensity) * low, alpha);
 }
 
 // Blinn-Phong shading model to compute colors
@@ -265,7 +205,6 @@ void main()
     float ray_length = length(ray);
     vec3 step_vector = step_length * ray / ray_length;
 
-    // Random jitter
     ray_start += step_vector;
 
     vec3 position = ray_start;

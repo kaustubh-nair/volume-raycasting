@@ -73,30 +73,6 @@ public:
         update();
     }
 
-    void setTFThreshold(const float t)
-    {
-        m_raycasting_volume->tf_threshold = t/100.0;
-        update();
-    }
-
-    void setHSV_TF_HThreshold(const float t)
-    {
-        m_raycasting_volume->hsv_tf_h_threshold = t/100.0;
-        update();
-    }
-
-    void setHSV_TF_SThreshold(const float t)
-    {
-        m_raycasting_volume->hsv_tf_s_threshold = t/100.0;
-        update();
-    }
-
-    void setHSV_TF_VThreshold(const float t)
-    {
-        m_raycasting_volume->hsv_tf_v_threshold = t/100.0;
-        update();
-    }
-
     void updateScaling(QVector3D inc)
     {
         m_raycasting_volume->updateScaling(inc);

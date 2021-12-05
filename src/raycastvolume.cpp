@@ -246,12 +246,14 @@ float RayCastVolume::scale_factor(void)
     return std::max({e.x(), e.y(), e.z()});
 }
 
+/*
 uint32_t RayCastVolume::rgb(int x, int y, int z, int size)
 {
     if (x < size*tf_threshold && y < size*tf_threshold && z < size*tf_threshold)
        return ((uint32_t)x << 16 | (uint32_t)y << 8 | (uint32_t)z);
     return (uint32_t)0;
 }
+*/
 
 void RayCastVolume::update_volume_texture()
 {
