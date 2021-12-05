@@ -28,7 +28,6 @@ SOURCES += \
     src/mainwindow.cpp \
     src/trackball.cpp \
     src/raycastcanvas.cpp \
-    src/vtkvolume.cpp \
     src/mesh.cpp \
     src/osvolume.cpp \
     src/raycastvolume.cpp \
@@ -41,7 +40,6 @@ HEADERS += \
     src/mainwindow.h \
     src/trackball.h \
     src/raycastcanvas.h \
-    src/vtkvolume.h \
     src/mesh.h \
     src/osvolume.h \
     src/polygon.h \

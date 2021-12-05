@@ -84,9 +84,7 @@ void RayCastCanvas::initializeGL()
     m_raycasting_volume = new RayCastVolume();
     m_raycasting_volume->create_noise();
 
-    add_shader("Isosurface", ":/shaders/isosurface.vert", ":/shaders/isosurface.frag");
     add_shader("Alpha blending", ":/shaders/alpha_blending.vert", ":/shaders/alpha_blending.frag");
-    add_shader("MIP", ":/shaders/maximum_intensity_projection.vert", ":/shaders/maximum_intensity_projection.frag");
 
  
 }

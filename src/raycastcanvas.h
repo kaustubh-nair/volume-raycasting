@@ -35,7 +35,6 @@
 #include "polygon.h"
 #include "raycastvolume.h"
 #include "trackball.h"
-#include "vtkvolume.h"
 
 /*!
  * \brief Class for a raycasting canvas widget.

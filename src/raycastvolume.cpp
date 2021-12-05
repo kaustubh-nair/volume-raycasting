@@ -22,7 +22,6 @@
 
 
 #include "raycastvolume.h"
-#include "vtkvolume.h"
 
 #include <QRegularExpression>
 
@@ -102,29 +101,7 @@ void RayCastVolume::load_volume(const QString& filename) {
     }
 
     const std::string extension {match.captured(1).toLower().toStdString()};
-    if ("vtk" == extension) {
-        std::vector<unsigned char> data;
-        VTKVolume volume {filename.toStdString()};
-        volume.uint8_normalised();
-        m_size = QVector3D(std::get<0>(volume.size()), std::get<1>(volume.size()), std::get<2>(volume.size()));
-        m_origin = QVector3D(std::get<0>(volume.origin()), std::get<1>(volume.origin()), std::get<2>(volume.origin()));
-        m_spacing = QVector3D(std::get<0>(volume.spacing()), std::get<1>(volume.spacing()), std::get<2>(volume.spacing()));
-        m_range = volume.range();
-        data = volume.data();
-
-        glDeleteTextures(1, &m_volume_texture);
-        glGenTextures(1, &m_volume_texture);
-        glBindTexture(GL_TEXTURE_3D, m_volume_texture);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);  // The array on the host has 1 byte alignment
-        glTexImage3D(GL_TEXTURE_3D, 0, GL_R8, m_size.x(), m_size.y(), m_size.z(), 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
-        glBindTexture(GL_TEXTURE_3D, 0);
-    }
-    else if ("tiff" == extension || "svs" == extension || "tif" == extension) {
+    if ("tiff" == extension || "svs" == extension || "tif" == extension) {
         uint32_t* data;
         volume  = new OSVolume({filename.toStdString()});
 
