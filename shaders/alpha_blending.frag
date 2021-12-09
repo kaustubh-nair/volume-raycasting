@@ -262,10 +262,6 @@ void main()
             c.rgb = blinn_phong(position, ray);            
             
 
-            // Alpha-blending
-            colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
-            colour.a = c.a + (1 - c.a) * colour.a;
-
         }
         // Alpha-blending
         colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
