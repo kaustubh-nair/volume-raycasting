@@ -37,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Set inital values
     ui->stepLength->valueChanged(ui->stepLength->value());
     ui->canvas->setBackground(Qt::black);
+    ui->canvas->update_light_position_x(ui->light_x_position->value());
+    ui->canvas->update_light_position_y(ui->light_y_position->value());
+    ui->canvas->update_light_position_z(ui->light_z_position->value());
 
     // Enable file drop
     setAcceptDrops(true);
