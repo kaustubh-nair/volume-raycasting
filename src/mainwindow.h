@@ -25,6 +25,8 @@
 #include <QMainWindow>
 #include<QGridLayout>
 #include "my_q_slider.h"
+#include "my_combo_box.h"
+#include "my_button.h"
 
 namespace Ui {
 class MainWindow;
@@ -76,6 +78,8 @@ private slots:
 
     void on_right_button_clicked();
 
+    void on_add_slicing_plane_button_clicked();
+
     void on_segment_1_opacity_valueChanged(int value);
 
     void on_segment_2_opacity_valueChanged(int value);
@@ -100,4 +104,5 @@ private:
     QWidget *prox_scroll_layout_main = nullptr;
     int color_tf_slider_count = 0;    // number of color tfs - used to assign slider ids
     int location_tf_slider_count = 0;    // number of location tfs - used to assign slider ids
+    int slicing_planes_count = 0;    // number of slicing planes - used to assigne ids
 };

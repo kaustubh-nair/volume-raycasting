@@ -31,6 +31,8 @@
 #include "raycastcanvas.h"
 #include "mainwindow.h"
 
+#include "GL/glu.h"
+
 
 /*!
  * \brief Convert a QColor to a QVector3D.
@@ -76,17 +78,15 @@ RayCastCanvas::~RayCastCanvas()
 void RayCastCanvas::initializeGL()
 {
     initializeOpenGLFunctions();
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
     m_raycasting_volume = new RayCastVolume();
     m_raycasting_volume->create_noise();
 
-    add_shader("Isosurface", ":/shaders/isosurface.vert", ":/shaders/isosurface.frag");
     add_shader("Alpha blending", ":/shaders/alpha_blending.vert", ":/shaders/alpha_blending.frag");
-    add_shader("MIP", ":/shaders/maximum_intensity_projection.vert", ":/shaders/maximum_intensity_projection.frag");
 
  
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
 }
 
 
@@ -167,10 +167,6 @@ void RayCastCanvas::raycasting(const QString& shader)
         m_shaders[shader]->setUniformValue("step_length", m_stepLength);
         m_shaders[shader]->setUniformValue("threshold", m_threshold);
         m_shaders[shader]->setUniformValue("gamma", m_gamma);
-        m_shaders[shader]->setUniformValue("transfer_function_threshold", m_raycasting_volume->tf_threshold);
-        m_shaders[shader]->setUniformValue("hsv_tf_h_threshold", m_raycasting_volume->hsv_tf_h_threshold);
-        m_shaders[shader]->setUniformValue("hsv_tf_s_threshold", m_raycasting_volume->hsv_tf_s_threshold);
-        m_shaders[shader]->setUniformValue("hsv_tf_v_threshold", m_raycasting_volume->hsv_tf_v_threshold);
         m_shaders[shader]->setUniformValue("lighting_enabled", m_raycasting_volume->lighting_enabled);
         m_shaders[shader]->setUniformValue("volume", 0);
         m_shaders[shader]->setUniformValue("jitter", 1);
@@ -182,7 +178,7 @@ void RayCastCanvas::raycasting(const QString& shader)
         m_shaders[shader]->setUniformValue("light_position_z", light_position_z);
 
         glClearColor(m_background.redF(), m_background.greenF(), m_background.blueF(), m_background.alphaF());
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_raycasting_volume->paint();
     }
@@ -283,31 +279,43 @@ void RayCastCanvas::location_tf_add_side_to_polygon(int id, qreal x, qreal y)
         m_raycasting_volume->polygons.push_back(Polygon());
         n++;
     }
+    makeCurrent();
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
+    QMatrix4x4 qprojection;
+    qprojection.setToIdentity();
+    qprojection.perspective(m_fov, (float)scaled_width()/scaled_height(), 0.1f, 100.0f);
+    QMatrix4x4 qmodelview = m_viewMatrix * m_raycasting_volume->modelMatrix();
+    
+    float* fmodelview = qmodelview.data();
+    float* fprojection = qprojection.data();
+    double modelview[16];
+    double projection[16];
+
+    for(int i = 0; i < 16; i++)
+    {
+        modelview[i] = (double)*(fmodelview+i);
+        projection[i] = (double)*(fprojection+i);
+    }
+    const int X = x;
+    const int Y = viewport[3] - y;
+
     GLdouble depthScale;
     glGetDoublev( GL_DEPTH_SCALE, &depthScale );
-    GLfloat z;
-    glReadPixels( x, viewport[3] - y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z );
+    GLfloat Z;
+    glReadPixels( X, Y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &Z );
+    GLenum error = glGetError();
+    if(GL_NO_ERROR != error) throw;
+    std::cout << std::endl << std::endl;
+    GLdouble posX, posY, posZ;
+    gluUnProject( X, Y, Z, modelview, projection, viewport, &posX, &posY, &posZ);
+    error = glGetError();
+    posX = 0.5 + (posX/2.0);
+    posY = 0.5 + (posY/2.0);
+    posZ = 0.5 + (posZ/2.0);
 
-    QVector4D pos(
-            ((2.0*x)/viewport[2]) - 1.0,
-            1.0 - ((2.0*y)/viewport[3]),
-            z,
-            1.0
-            );
-    printf("before %f %f %f\n", x, y, z);
-
-    pos = pos*m_modelViewProjectionMatrix.inverted();
-
-
-    float transformed_x = 1+(pos.x()/pos.w());
-    float transformed_y = 1+(pos.y()/pos.w());
-    float transformed_z = 1+(pos.z()/pos.w());
-    printf("after %f %f %f\n", transformed_x, transformed_y, transformed_z);
-
-    m_raycasting_volume->polygons[n-1].add_point(id, transformed_x, transformed_y, transformed_z);
+    m_raycasting_volume->polygons[n-1].add_point(id, posX, posY, posZ);
 }
 
 void RayCastCanvas::location_tf_close_current_polygon(int id, qreal x, qreal y)
@@ -339,5 +347,37 @@ void RayCastCanvas::update_location_tf_opacity(int value, QString name)
     std::string n = name.toStdString();
     int id = std::stoi(n.substr(12));          //opacity_bar_id
     m_raycasting_volume->update_location_proximity_tf_opacity(id, value);
+    update();
+}
+
+void RayCastCanvas::update_slicing_plane_opacity(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_slicing_plane_opacity(id, value);
+    update();
+}
+
+void RayCastCanvas::update_slicing_plane_orientation(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_slicing_plane_orientation(id, value);
+    update();
+}
+
+void RayCastCanvas::update_slicing_plane_distance(int value, QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_slicing_plane_distance(id, value);
+    update();
+}
+
+void RayCastCanvas::update_slicing_plane_invert(QString name)
+{
+    std::string n = name.toStdString();
+    int id = std::stoi(n.substr(12));          //opacity_bar_id
+    m_raycasting_volume->update_slicing_plane_invert(id);
     update();
 }

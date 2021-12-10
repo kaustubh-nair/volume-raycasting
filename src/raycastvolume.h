@@ -1,4 +1,5 @@
 /*
+
  * Copyright © 2018 Martino Pilia <martino.pilia@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -29,6 +30,7 @@
 #include <vector>
 
 #include "mesh.h"
+#include "plane.h"
 #include "polygon.h"
 #include "osvolume.h"
 
@@ -194,15 +196,19 @@ public:
     void update_segment_opacity(int id, int opacity);
     void update_volume_opacity(int opacity);
 
-    float tf_threshold = 1.0;
-    float hsv_tf_h_threshold = 1.0;
-    float hsv_tf_s_threshold = 1.0;
-    float hsv_tf_v_threshold = 1.0;
     bool lighting_enabled = false;
 
     void update_location_tf();
     void update_location_proximity_tf_opacity(int id, int opacity);
+    void update_slicing_plane_opacity(int id, int opacity);
+    void update_slicing_plane_orientation(int id, int value);
+    void update_slicing_plane_distance(int id, int value);
+    void update_slicing_plane_invert(int id);
+
+    void add_new_slicing_plane(int id) { slicing_planes.push_back(Plane(id)); update_location_tf();}
+
     std::vector<Polygon> polygons;
+    std::vector<Plane> slicing_planes;
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;

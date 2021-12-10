@@ -35,7 +35,6 @@
 #include "polygon.h"
 #include "raycastvolume.h"
 #include "trackball.h"
-#include "vtkvolume.h"
 
 /*!
  * \brief Class for a raycasting canvas widget.
@@ -71,30 +70,6 @@ public:
 
     void setBackground(const QColor& colour) {
         m_background = colour;
-        update();
-    }
-
-    void setTFThreshold(const float t)
-    {
-        m_raycasting_volume->tf_threshold = t/100.0;
-        update();
-    }
-
-    void setHSV_TF_HThreshold(const float t)
-    {
-        m_raycasting_volume->hsv_tf_h_threshold = t/100.0;
-        update();
-    }
-
-    void setHSV_TF_SThreshold(const float t)
-    {
-        m_raycasting_volume->hsv_tf_s_threshold = t/100.0;
-        update();
-    }
-
-    void setHSV_TF_VThreshold(const float t)
-    {
-        m_raycasting_volume->hsv_tf_v_threshold = t/100.0;
         update();
     }
 
@@ -205,9 +180,10 @@ public:
     }
 
     void set_vram(int value) { m_raycasting_volume->set_vram(value); }
-    void update_light_position_x(int value){ light_position_x = value/100.0; update(); }
-    void update_light_position_y(int value){ light_position_y = value/100.0; update(); }
-    void update_light_position_z(int value){ light_position_z = value/100.0; update(); }
+    void update_light_position_x(int value){ light_position_x = value; update(); }
+    void update_light_position_y(int value){ light_position_y = value; update(); }
+    void update_light_position_z(int value){ light_position_z = value; update(); }
+    void add_new_slicing_plane(int id) {m_raycasting_volume->add_new_slicing_plane(id); update(); }
 
 signals:
     // NOPE
@@ -220,6 +196,10 @@ public slots:
     void update_color_tf_opacity(int value, QString name);
     void update_color_tf_size(int value, QString name);
     void update_location_tf_opacity(int value, QString name);
+    void update_slicing_plane_opacity(int value, QString name);
+    void update_slicing_plane_orientation(int value, QString name);
+    void update_slicing_plane_distance(int value, QString name);
+    void update_slicing_plane_invert(QString name);
 
 protected:
     void initializeGL();

@@ -140,7 +140,6 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
     int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
     int d_offset = level_info[_curr_level]["depth"]*_scaling_offset.z();
 
-    // TODO: memory leak here! DANGER!
     uint32_t* zoomed_in = (uint32_t*)malloc(w_small*h_small*d_small*sizeof(uint32_t));
 
     int ptr = 0;
