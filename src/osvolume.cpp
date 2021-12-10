@@ -87,7 +87,7 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
         m["height"] = h;
         m["depth"] = 32;        //TODO hardcoded - loads and duplicates single volume
         m["num_voxels"] = w*h;
-        m["size"] = m["num_voxels"]*4;
+        m["size"] = m["num_voxels"]*4/1024; // KB
         printf("Level: %d Width: %d Height: %d Depth: %d\n", i, m["width"], m["height"], m["depth"]);
         level_info.push_back(m);
     }
