@@ -62,7 +62,7 @@ class OSVolume {
 
     // for resolution determination; size in KB
     // TODO: WARNING: change default value here if changing in UI (passing it in Mainwindow() causes wierd segfault)
-    uint64_t vram = 1024*1024;
+    uint64_t vram = 4096*1024;
 
     void determine_best_level();
     void store_level_info(openslide_t* image, int levels);
