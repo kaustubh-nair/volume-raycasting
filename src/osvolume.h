@@ -34,13 +34,13 @@ class OSVolume {
 
     void set_vram(int value)
     {
-         vram = value*1024*1024;         
+         vram = value*1024;
     }
 
 
     private:
-    uint32_t* _data;
-    uint32_t* _low_res_data;
+    uint32_t* _data;    // contains the rendered sub-volume based on scaling factors and offsets
+    uint32_t* _low_res_data;    // Always contains the entire low-res volume. Never cropped.
     QVector3D _low_res_size;
 
     // scaling and offset as a fraction of the original full volume;
@@ -60,9 +60,9 @@ class OSVolume {
     // vector ordered in decreasing order of resolution
     std::vector<std::map<std::string, int64_t>> level_info;
 
-    // for resolution determination; size in bytes
+    // for resolution determination; size in KB
     // TODO: WARNING: change default value here if changing in UI (passing it in Mainwindow() causes wierd segfault)
-    uint64_t vram = 1024*1024*1024;
+    uint64_t vram = 1024*1024;
 
     void determine_best_level();
     void store_level_info(openslide_t* image, int levels);
