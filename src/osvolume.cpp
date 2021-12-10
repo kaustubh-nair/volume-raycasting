@@ -109,6 +109,7 @@ int OSVolume::load_best_res()
     // iterate from highest resolution, and load it if it fits.
     for(int i = 0; i < (int)level_info.size(); i++)
     {
+        printf("attempting to load %d %d %d", i, level_info[i]["size"], available_size);
         if (level_info[i]["size"] < available_size)
         {
             if (_curr_level == i) break;
