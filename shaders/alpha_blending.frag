@@ -36,20 +36,19 @@ uniform vec3 bottom;
 
 uniform vec3 background_colour;
 uniform vec3 material_colour;
-uniform vec3 light_position;
 
 uniform float step_length;
 uniform float threshold;
-uniform float transfer_function_threshold;
-uniform float hsv_tf_h_threshold;
-uniform float hsv_tf_s_threshold;
-uniform float hsv_tf_v_threshold;
 
 uniform sampler3D volume;
-uniform sampler2D jitter;
 uniform sampler3D color_proximity_tf;
 uniform sampler3D space_proximity_tf;
 uniform sampler1D segment_opacity_tf;
+
+uniform float light_position_x;
+uniform float light_position_y;
+uniform float light_position_z;
+
 
 uniform float gamma;
 uniform bool lighting_enabled;
@@ -66,52 +65,6 @@ struct AABB {
     vec3 top;
     vec3 bottom;
 };
-
-vec3 rgb2hsv(vec3 rgb)
-{
-    vec3 hsv;
-    float min_val, max_val, delta;
-
-    min_val = (rgb.r < rgb.g) ? rgb.r : rgb.g;
-    min_val = (min_val  < rgb.b) ? min_val  : rgb.b;
-
-    max_val = (rgb.r > rgb.g) ? rgb.r : rgb.g;
-    max_val = (max_val  > rgb.b) ? max_val  : rgb.b;
-
-    hsv.z = max_val;                                // v
-    delta = max_val - min_val;
-    if (delta < 0.00001)
-    {
-        hsv.y = 0;
-        hsv.x = 0; // undefrgbed, maybe nan?
-        return hsv;
-    }
-    if( max_val > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
-        hsv.y = (delta / max_val);                  // s
-    } else {
-        // if max_val is 0, then r = g = b = 0              
-        // s = 0, h is undefrgbed
-        hsv.y = 0.0;
-        hsv.x = 0.0;
-        return hsv;
-    }
-    if( rgb.r >= max_val )                           // > is bogus, just keeps compilor happy
-        hsv.x = ( rgb.g - rgb.b ) / delta;        // between yellow & magenta
-    else
-    if( rgb.g >= max_val )
-        hsv.x = 2.0 + ( rgb.b - rgb.r ) / delta;  // between cyan & yellow
-    else
-        hsv.x = 4.0 + ( rgb.r - rgb.g ) / delta;  // between magenta & cyan
-
-    hsv.x *= 60.0;                              // degrees
-
-    if( hsv.x < 0.0 )
-        hsv.x += 360.0;
-
-	hsv.x = hsv.x/360.0;  // convert 0 ,1
-
-    return hsv;
-}
 
 // Estimate normal from a finite difference approximation of the gradient
 vec3 normal(vec3 position, float position_material)
@@ -137,15 +90,6 @@ void ray_box_intersection(Ray ray, AABB box, out float t_0, out float t_1)
     t_1 = min(t.x, t.y);
 }
 
-// A very simple colour transfer function
-vec4 colour_transfer(float intensity)
-{
-    vec3 high = vec3(1.0, 1.0, 1.0);
-    vec3 low = vec3(0.0, 0.0, 0.0);
-    float alpha = (exp(intensity) - 1.0) / (exp(1.0) - 1.0);
-    return vec4(intensity * high + (1.0 - intensity) * low, alpha);
-}
-
 // Blinn-Phong shading model to compute colors
 vec3 blinn_phong(vec3 position, vec3 ray)
 {
@@ -155,6 +99,7 @@ vec3 blinn_phong(vec3 position, vec3 ray)
     vec3 position_color = position_intensity.rgb;
     float position_material = position_intensity.a;
     
+    vec3 light_position = vec3(light_position_x, light_position_y, light_position_z);
     vec3 L = normalize(light_position - position);
     vec3 V = -normalize(ray);
     vec3 N = normal(position, position_material);
@@ -260,7 +205,6 @@ void main()
     float ray_length = length(ray);
     vec3 step_vector = step_length * ray / ray_length;
 
-    // Random jitter
     ray_start += step_vector;
 
     vec3 position = ray_start;
@@ -275,37 +219,20 @@ void main()
     while (ray_length > 0 && colour.a < 1.0) {
 
         vec4 c = texture(volume, position).gbar;
-        float seg_id_f = c.a;
-        float seg_id = int(c.a * 100)/MAX_NUM_SEGMENTS;
+        float position_material = c.a;
+
+        float seg_id = (256 - c.a * 256)/MAX_NUM_SEGMENTS;
 
         // so that TF doesn't get affected by segment values
-        c.a = 1.0f;
+        c.a = 1.0;
         
-         /*
-        // randomize for now
-        seg_id = (int(c.x*100)%3)/3.0;
-        */
+        float a1 = texture(color_proximity_tf, c.rgb).r;
+        float a2 = texture(space_proximity_tf, position).r;
+        float a3 = texture(segment_opacity_tf, seg_id).r;
+        c.a = a1*a2*a3;
 
-        /*
-        if (c.x > transfer_function_threshold && c.y > transfer_function_threshold && c.z > transfer_function_threshold)
-            c = vec4(0.0);
-		else
-        {
-            vec3 hsv_value = rgb2hsv(c.xyz);
-            if (hsv_value.x > hsv_tf_h_threshold && hsv_value.y > hsv_tf_s_threshold && hsv_value.z > hsv_tf_v_threshold)
-                c = vec4(0.0);
-        }
-        */
 
-        c.a = texture(color_proximity_tf, c.rgb).r;
-        float a = texture(space_proximity_tf, position).r;
-        if (a < c.a)
-            c.a = a;
-
-        c.a = texture(segment_opacity_tf, seg_id).r;
-     
-
-        if (lighting_enabled)
+        if (lighting_enabled && c.a > 0.0)
         {
             if((ray_length - step_length) >= 0)
             {
@@ -327,55 +254,40 @@ void main()
 
                 }
 
-                if((intensity.a * 255) == 255)
-                {
-                    c.a = 0.0;
-                }
-
-                else if ((intensity.a * 255) == 254)
-                {
-                    c.a = 0.45;
-                }
-
-                else
-                {
-                    c.a = 1.0;
-                }
-
             }
 
             // Check to see if blinn-phong produces any changes
             // c.rgb = texture(volume, position).gbar.rgb;
             
-            c.rgb = blinn_phong(position, ray);
+            // c.rgb = blinn_phong(position, ray);            
             
+            c.rgb = blinn_phong(position, ray);            
             
+
             // Alpha-blending
-            colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
-            colour.a = c.a + (1 - c.a) * colour.a;
-
-            if(intersect == 1.0)
-            {
-                colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
-                colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
-                intersect = 0.0;
-            }
-
-            ray_length -= step_length;
-            position += step_vector;
+            // colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
+            // colour.a = c.a + (1 - c.a) * colour.a;
 
         }
+        // Alpha-blending
+        colour.rgb = c.a * c.rgb + (1 - c.a) * colour.a * colour.rgb;
+        colour.a = c.a + (1 - c.a) * colour.a;
 
-        // enable this for single channel datasets
-        //float intensity = texture(volume, position).r;
-        //vec4 c = colour_transfer(intensity);
-        
-        
+        if(lighting_enabled && intersect == 1.0 && c.a > 0.0)
+        {
+            colour.rgb = colour_intersection.w * colour_intersection.xyz + (1 - colour_intersection.w) * colour.a * colour.rgb;
+            colour.a = colour_intersection.w + (1 - colour_intersection.w) * colour.a;
+            intersect = 0.0;
+        }
+
+        ray_length -= step_length;
+        position += step_vector;
+    
     }
 
     // Blend background
-    colour.rgb = colour.a * colour.rgb + (1 - colour.a) * pow(background_colour, vec3(gamma)).rgb;
-    colour.a = 1.0;
+    // colour.rgb = colour.a * colour.rgb + (1 - colour.a) * pow(background_colour, vec3(gamma)).rgb;
+    // colour.a = 1.0;
 
     // Gamma correction
     a_colour.rgb = pow(colour.rgb, vec3(1.0 / gamma));

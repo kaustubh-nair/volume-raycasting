@@ -1,4 +1,5 @@
 /*
+
  * Copyright © 2018 Martino Pilia <martino.pilia@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -29,7 +30,16 @@
 #include <vector>
 
 #include "mesh.h"
+#include "plane.h"
+#include "polygon.h"
 #include "osvolume.h"
+
+struct ColorTF {
+    int id;
+    QRgb rgb;
+    int proximity_radius;
+    float opacity;
+};
 
 /*!
  * \brief Class for a raycasting volume.
@@ -175,23 +185,39 @@ public:
     {
         lighting_enabled = value;
     }
+    void set_vram(int value){volume->set_vram(value);}
 
-    void set_color_proximity_tf(QRgb rgb);
-    void set_space_proximity_tf(qreal x, qreal y);
+    void initialize_color_proximity_tf();
+    void set_color_proximity_tf_data(QRgb rgb, int id);
+    void update_color_proximity_tf_data();
+    void update_color_proximity_tf_opacity(int id, int opacity);
+    void update_color_proximity_tf_size(int id, int size);
+
     void update_segment_opacity(int id, int opacity);
+    void update_volume_opacity(int opacity);
 
-    float tf_threshold = 1.0;
-    float hsv_tf_h_threshold = 1.0;
-    float hsv_tf_s_threshold = 1.0;
-    float hsv_tf_v_threshold = 1.0;
     bool lighting_enabled = false;
+
+    void update_location_tf();
+    void update_location_proximity_tf_opacity(int id, int opacity);
+    void update_slicing_plane_opacity(int id, int opacity);
+    void update_slicing_plane_orientation(int id, int value);
+    void update_slicing_plane_distance(int id, int value);
+    void update_slicing_plane_invert(int id);
+
+    void add_new_slicing_plane(int id) { slicing_planes.push_back(Plane(id)); update_location_tf();}
+
+    std::vector<Polygon> polygons;
+    std::vector<Plane> slicing_planes;
 
 private:
     const static int MAX_NUM_SEGMENTS = 3;
+    const static int LOCATION_TF_DIMENSION = 256;
+    const static int COLOR_TF_DIMENSION = 256;
     GLuint m_volume_texture;
     GLuint m_noise_texture;
     GLuint m_tf_texture;
-    GLuint m_space_prox_tf_texture;
+    GLuint m_location_tf_texture;
     GLuint m_segment_opacity_texture;
     Mesh m_cube_vao;
     std::pair<double, double> m_range;
@@ -199,13 +225,15 @@ private:
     QVector3D m_spacing;
     QVector3D m_size;
     QVector3D m_scaling;
+    float volume_opacity = 1.0;
+
 
     OSVolume *volume;
 
-    float color_proximity_tf[256][256][256];
-    float space_proximity_tf[256][256][256];
+    float color_proximity_tf[COLOR_TF_DIMENSION][COLOR_TF_DIMENSION][COLOR_TF_DIMENSION];
+    float location_tf[LOCATION_TF_DIMENSION][LOCATION_TF_DIMENSION][LOCATION_TF_DIMENSION];
     float segment_opacity_tf[MAX_NUM_SEGMENTS];
-    float COLOR_PROX_TF_DEFAULT_RADIUS = 30;
+    float COLOR_PROX_TF_DEFAULT_RADIUS = 1;
     float SPACE_PROX_TF_DEFAULT_RADIUS = 100;
     int j = 0;
 
@@ -214,7 +242,9 @@ private:
     void initialize_texture_data();
     void update_segment_opacity_texture();
     void update_volume_texture();
+    void update_location_tf_texture();
+    void update_location_tf_data();
     void update_color_prox_texture();
-    void update_space_prox_texture();
+    std::vector<ColorTF> color_tf_data;
 
 };

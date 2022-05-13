@@ -18,11 +18,6 @@ OSVolume::OSVolume(const std::string& filename)
     _low_res_data = _data;
     _low_res_size = QVector3D(level_info[_curr_level]["width"], level_info[_curr_level]["height"], level_info[_curr_level]["depth"]);
 
-    printf("Image loaded! levels: %d width: %ld height %ld depth %ld\n ", levels,
-            level_info[_curr_level]["width"],
-            level_info[_curr_level]["height"],
-            level_info[_curr_level]["depth"]
-    );
 }
 
 QVector3D OSVolume::size()
@@ -43,14 +38,23 @@ void OSVolume::load_volume(int l)
     int64_t width = level_info[_curr_level]["width"]*_scaling_factor.x();
     int64_t height = level_info[_curr_level]["height"]*_scaling_factor.y();
 
+    int w_offset = level_info[_curr_level]["width"]*_scaling_offset.x();
+    int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
+
 	long long int size = width*height*sizeof(uint32_t);
     _data = (uint32_t*)malloc(size);
 
 
-    // WARNING! TODO: level hardcoded to 0
-    openslide_read_region(image, _data, 0, 0, 0, width, height);
+    openslide_read_region(image, _data, w_offset, h_offset, _curr_level, width, height);
 
     duplicate_data(&_data);
+
+    printf("\nImage loaded! Levels: %d Width: %ld Height: %ld Depth: %ld Current Level: %d\n\n", levels,
+            level_info[_curr_level]["width"],
+            level_info[_curr_level]["height"],
+            level_info[_curr_level]["depth"],
+            _curr_level
+    );
 }
 
 // duplicate data "depth" times
@@ -74,6 +78,7 @@ void OSVolume::duplicate_data(uint32_t** d)
 void OSVolume::store_level_info(openslide_t* image, int levels)
 {
     int64_t w, h;
+    printf("\n\nLEVEL INFO: \n");
     for(int i = 0; i < levels; i++)
     {
         std::map<std::string, int64_t> m;
@@ -82,9 +87,11 @@ void OSVolume::store_level_info(openslide_t* image, int levels)
         m["height"] = h;
         m["depth"] = 32;        //TODO hardcoded - loads and duplicates single volume
         m["num_voxels"] = w*h;
-        m["size"] = m["num_voxels"]*4;
+        m["size"] = m["num_voxels"]*4/1024; // KB
+        printf("Level: %d Width: %d Height: %d Depth: %d\n", i, m["width"], m["height"], m["depth"]);
         level_info.push_back(m);
     }
+    printf("\n\n");
 }
 
 int OSVolume::load_best_res()
@@ -93,13 +100,16 @@ int OSVolume::load_best_res()
     //int64_t curr_size = width*height;
    
     // assumes same size per slide, but should be ok?
+    // reconsider when switching to 3D
     // use 75% of total vram for a conservative estimate
     int64_t available_size = (int64_t)(vram*0.75)/depth;
+
 
 
     // iterate from highest resolution, and load it if it fits.
     for(int i = 0; i < (int)level_info.size(); i++)
     {
+        printf("attempting to load %d %d %d", i, level_info[i]["size"], available_size);
         if (level_info[i]["size"] < available_size)
         {
             if (_curr_level == i) break;
@@ -131,7 +141,6 @@ uint32_t *OSVolume::zoomed_in(uint32_t *data)
     int h_offset = level_info[_curr_level]["height"]*_scaling_offset.y();
     int d_offset = level_info[_curr_level]["depth"]*_scaling_offset.z();
 
-    // TODO: memory leak here! DANGER!
     uint32_t* zoomed_in = (uint32_t*)malloc(w_small*h_small*d_small*sizeof(uint32_t));
 
     int ptr = 0;

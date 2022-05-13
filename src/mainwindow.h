@@ -24,6 +24,9 @@
 
 #include <QMainWindow>
 #include<QGridLayout>
+#include "my_q_slider.h"
+#include "my_combo_box.h"
+#include "my_button.h"
 
 namespace Ui {
 class MainWindow;
@@ -51,21 +54,11 @@ private slots:
 
     void on_loadVolume_clicked();
 
-    void on_tf_slider_valueChanged(int value);
-
     void on_background_clicked();
 
-    void on_tf_checkbox_clicked(bool value);
-
-    void on_HSV_TF_h_slider_valueChanged(int value);
-
-    void on_HSV_TF_s_slider_valueChanged(int value);
-
-    void on_HSV_TF_v_slider_valueChanged(int value);
-
-    void on_hsv_tf_checkbox_clicked(bool value);
-
     void on_height_spinbox_valueChanged();
+
+    void on_vram_spinbox_valueChanged();
 
     void on_width_spinbox_valueChanged();
 
@@ -85,6 +78,8 @@ private slots:
 
     void on_right_button_clicked();
 
+    void on_add_slicing_plane_button_clicked();
+
     void on_segment_1_opacity_valueChanged(int value);
 
     void on_segment_2_opacity_valueChanged(int value);
@@ -93,10 +88,21 @@ private slots:
 
     void on_enable_lighting_checkbox_clicked(bool value);
 
+    void on_volume_opacity_slider_valueChanged(int value);
+
+    void on_light_x_position_valueChanged(int value);
+    void on_light_y_position_valueChanged(int value);
+    void on_light_z_position_valueChanged(int value);
+
+
+
 
 private:
     std::string curr_level_label, max_level_label;
     int i = 0;
     QGridLayout *prox_scroll_layout = nullptr;
     QWidget *prox_scroll_layout_main = nullptr;
+    int color_tf_slider_count = 0;    // number of color tfs - used to assign slider ids
+    int location_tf_slider_count = 0;    // number of location tfs - used to assign slider ids
+    int slicing_planes_count = 0;    // number of slicing planes - used to assigne ids
 };

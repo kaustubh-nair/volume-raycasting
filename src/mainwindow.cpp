@@ -37,7 +37,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Set inital values
     ui->stepLength->valueChanged(ui->stepLength->value());
     ui->canvas->setBackground(Qt::black);
-    ui->tf_slider->setDisabled(true);
+    ui->canvas->update_light_position_x(ui->light_x_position->value());
+    ui->canvas->update_light_position_y(ui->light_y_position->value());
+    ui->canvas->update_light_position_z(ui->light_z_position->value());
 
     // Enable file drop
     setAcceptDrops(true);
@@ -104,8 +106,8 @@ void MainWindow::load_volume(const QString& path)
         ui->depth_spinbox->setValue(size.z());
 
         std::vector<int> levels = ui->canvas->get_initial_levels();
-        curr_level_label = std::to_string(levels[0]);
-        max_level_label =  std::to_string(levels[1]);
+        curr_level_label = std::to_string(levels[0]+1);
+        max_level_label =  std::to_string(levels[1]+1);
 
         ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 
@@ -156,7 +158,7 @@ void MainWindow::on_right_button_clicked()
  */
 void MainWindow::on_best_res_button_clicked()
 {
-    int l = ui->canvas->load_best_res();
+    int l = ui->canvas->load_best_res()+1;
     curr_level_label = std::to_string(l);
     ui->num_levels_label->setText((curr_level_label + "/" + max_level_label).c_str());
 }
@@ -167,10 +169,19 @@ void MainWindow::on_best_res_button_clicked()
 void MainWindow::on_loadVolume_clicked()
 {
 
-    QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.vtk *.tiff *.svs *.tif)"));
+    // hardcode for quick testing
+    std::string str = "../cmu_preprocessed_pyramidal.tiff";
+    QString path = QString::fromStdString(str);
+
+    // QString path = QFileDialog::getOpenFileName(this, tr("Open volume"), ".", tr("Images (*.tiff *.svs *.tif)"));
     if (!path.isNull()) {
         load_volume(path);
     }
+}
+
+void MainWindow::on_vram_spinbox_valueChanged()
+{
+    ui->canvas->set_vram(ui->vram_spinbox->value());
 }
 
 void MainWindow::on_height_spinbox_valueChanged()
@@ -206,73 +217,10 @@ void MainWindow::on_segment_3_opacity_valueChanged(int value)
 
 }
 
-void MainWindow::on_tf_slider_valueChanged(int value)
-{
-    ui->canvas->setTFThreshold(value);
-}
-
-
 void MainWindow::on_enable_lighting_checkbox_clicked(bool value)
 {
     ui->canvas->enable_lighting(value);
 }
-
-void MainWindow::on_tf_checkbox_clicked(bool value)
-{
-    if (value)
-    {
-        ui->tf_slider->setEnabled(true);
-        ui->canvas->setTFThreshold(ui->tf_slider->value());
-    }
-    else
-    {
-        ui->tf_slider->setDisabled(true);
-        ui->canvas->setTFThreshold(100);
-
-    }
-}
-
-void MainWindow::on_hsv_tf_checkbox_clicked(bool value)
-{
-    if (value)
-    {
-        ui->HSV_TF_h_slider->setEnabled(true);
-        ui->HSV_TF_s_slider->setEnabled(true);
-        ui->HSV_TF_v_slider->setEnabled(true);
-        ui->canvas->setHSV_TF_HThreshold(ui->HSV_TF_h_slider->value());
-        ui->canvas->setHSV_TF_SThreshold(ui->HSV_TF_s_slider->value());
-        ui->canvas->setHSV_TF_VThreshold(ui->HSV_TF_v_slider->value());
-    }
-    else
-    {
-        ui->HSV_TF_h_slider->setDisabled(true);
-        ui->HSV_TF_s_slider->setDisabled(true);
-        ui->HSV_TF_v_slider->setDisabled(true);
-        ui->canvas->setHSV_TF_HThreshold(100);
-        ui->canvas->setHSV_TF_SThreshold(100);
-        ui->canvas->setHSV_TF_VThreshold(100);
-
-    }
-}
-
-
-void MainWindow::on_HSV_TF_h_slider_valueChanged(int value)
-{
-    ui->canvas->setHSV_TF_HThreshold(value);
-
-}
-
-void MainWindow::on_HSV_TF_s_slider_valueChanged(int value)
-{
-    ui->canvas->setHSV_TF_SThreshold(value);
-
-}
-
-void MainWindow::on_HSV_TF_v_slider_valueChanged(int value)
-{
-    ui->canvas->setHSV_TF_VThreshold(value);
-}
-
 
 /*!
  * \brief Open a dialog to choose the background colour.
@@ -292,10 +240,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     QCheckBox *space_checkbox = ui->proximity_space_tf;
     if (color_checkbox->isChecked())
     {
+        int color_tf_id = color_tf_slider_count++;
         QImage image = ui->canvas->grabFramebuffer();
         QPointF pos = event->windowPos();
         QRgb rgb = image.pixel(pos.x(), pos.y());
-        ui->canvas->set_color_proximity_tf(rgb);
+        ui->canvas->set_color_proximity_tf(rgb, color_tf_id);
+
+
+        // Add sliders and color indicator to the UI
         QScrollArea *scroll = ui->scrollArea;
 
         QLabel *color_label = new QLabel;
@@ -304,18 +256,138 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         int rows = prox_scroll_layout->rowCount();
         QWidget *c = new QWidget;
         QGridLayout *l = new QGridLayout(c);
-        QSlider *opacity_bar = new QSlider(Qt::Horizontal);
-        QSlider *size_bar = new QSlider(Qt::Horizontal);
-        l->addWidget(opacity_bar,0,0);
-        l->addWidget(size_bar,1,0);
+
+        MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+        MyQSlider *size_bar = new MyQSlider(Qt::Horizontal);
+        const QString name = QString::fromStdString("opacity_bar_" + std::to_string(color_tf_id));
+        const QString c_name = QString::fromStdString("color_bar_" + std::to_string(color_tf_id));
+        opacity_bar->setObjectName(name);
+        size_bar->setObjectName(c_name);
+
+        connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+        connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_opacity);
+
+        connect(size_bar, &MyQSlider::valueChanged, size_bar, &MyQSlider::myValueChanged);
+        connect(size_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_color_tf_size);
+
+        QLabel *o1 = new QLabel("Opacity:");
+        QLabel *o2 = new QLabel("Distance:");
+
+        l->addWidget(o1,0,0);
+        l->addWidget(o2,1,0);
+
+        l->addWidget(opacity_bar,0,1);
+        l->addWidget(size_bar,1,1);
+
         prox_scroll_layout->addWidget(color_label,rows,0);
         prox_scroll_layout->addWidget(c,rows,1);
         scroll->setWidget(prox_scroll_layout_main);
     }
     else if(space_checkbox->isChecked())
     {
-        QImage image = ui->canvas->grabFramebuffer();
+        int location_tf_id = location_tf_slider_count;
         QPointF pos = event->windowPos();
-        ui->canvas->set_space_proximity_tf(pos.x(), pos.y());
+        ui->canvas->set_space_proximity_tf(location_tf_id, pos.x(), pos.y(), event->buttons() & Qt::LeftButton, event->buttons() & Qt::RightButton);
+
+        if (Qt::RightButton & event->buttons())
+        {
+            int rows = prox_scroll_layout->rowCount();
+            QWidget *c = new QWidget;
+            QGridLayout *l = new QGridLayout(c);
+            QScrollArea *scroll = ui->scrollArea;
+            MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+            const QString name = QString::fromStdString("opacity_bar_" + std::to_string(location_tf_id));
+            printf("location tf id %d\n", location_tf_id);
+            opacity_bar->setObjectName(name);
+            connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+            connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_location_tf_opacity);
+            QLabel *o = new QLabel("Opacity:");
+            l->addWidget(opacity_bar,0,1);
+            l->addWidget(o,0,0);
+
+            QLabel *label = new QLabel("Poly");
+            prox_scroll_layout->addWidget(label,rows,0);
+            prox_scroll_layout->addWidget(c,rows,1);
+            location_tf_slider_count++;
+        }
     }
+}
+
+void MainWindow::on_volume_opacity_slider_valueChanged(int value)
+{
+    ui->canvas->update_volume_opacity(value);
+}
+
+void MainWindow::on_light_x_position_valueChanged(int value)
+{
+    ui->canvas->update_light_position_x(value);
+}
+
+void MainWindow::on_light_y_position_valueChanged(int value)
+{
+    ui->canvas->update_light_position_y(value);
+}
+
+void MainWindow::on_light_z_position_valueChanged(int value)
+{
+    ui->canvas->update_light_position_z(value);
+}
+
+void MainWindow::on_add_slicing_plane_button_clicked()
+{
+    int slicing_plane_id = slicing_planes_count++;
+    ui->canvas->add_new_slicing_plane(slicing_plane_id);
+
+    int rows = prox_scroll_layout->rowCount();
+    QWidget *c = new QWidget;
+    QGridLayout *l = new QGridLayout(c);
+    QScrollArea *scroll = ui->scrollArea;
+
+    MyQSlider *opacity_bar = new MyQSlider(Qt::Horizontal);
+    MyQSlider *distance_bar = new MyQSlider(Qt::Horizontal);
+    MyQComboBox *dropdown = new MyQComboBox();
+    MyQPushButton *invert_button = new MyQPushButton("Invert");
+
+    QStringList list = {"X", "Y", "Z"};
+    dropdown->addItems(list);
+
+
+    const QString distname = QString::fromStdString("distance_bar" + std::to_string(slicing_plane_id));
+    distance_bar->setObjectName(distname);
+
+    const QString name = QString::fromStdString("opacity_bar_" + std::to_string(slicing_plane_id));
+    opacity_bar->setObjectName(name);
+
+    const QString dname = QString::fromStdString("dropdown_bar" + std::to_string(slicing_plane_id));
+    dropdown->setObjectName(dname);
+
+    const QString bname = QString::fromStdString("invertbutton" + std::to_string(slicing_plane_id));
+    invert_button->setObjectName(bname);
+
+
+    connect(distance_bar, &MyQSlider::valueChanged, distance_bar, &MyQSlider::myValueChanged);
+    connect(distance_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_distance);
+
+    connect(opacity_bar, &MyQSlider::valueChanged, opacity_bar, &MyQSlider::myValueChanged);
+    connect(opacity_bar, &MyQSlider::myValueChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_opacity);
+
+    connect(dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), dropdown, &MyQComboBox::myCurrentIndexChanged);
+    connect(dropdown, &MyQComboBox::myCurrentIndexChangedWithId, ui->canvas, &RayCastCanvas::update_slicing_plane_orientation);
+
+    connect(invert_button, &MyQPushButton::clicked, invert_button, &MyQPushButton::myClicked);
+    connect(invert_button, &MyQPushButton::myClickedWithName, ui->canvas, &RayCastCanvas::update_slicing_plane_invert);
+
+    QLabel *o1 = new QLabel("Opacity:");
+    QLabel *o2 = new QLabel("Distance:");
+    l->addWidget(o1,0,0);
+    l->addWidget(o2,1,0);
+    l->addWidget(invert_button,2,0);
+
+    l->addWidget(opacity_bar,0,1);
+    l->addWidget(distance_bar,1,1);
+    l->addWidget(dropdown,2,1);
+
+    QLabel *label = new QLabel("Plane");
+    prox_scroll_layout->addWidget(label,rows,0);
+    prox_scroll_layout->addWidget(c,rows,1);
 }
