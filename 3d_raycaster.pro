@@ -28,19 +28,25 @@ SOURCES += \
     src/mainwindow.cpp \
     src/trackball.cpp \
     src/raycastcanvas.cpp \
-    src/vtkvolume.cpp \
     src/mesh.cpp \
     src/osvolume.cpp \
-    src/raycastvolume.cpp
+    src/raycastvolume.cpp \
+    src/polygon.cpp \
+    src/my_q_slider.cpp \
+    src/plane.cpp \
+
 
 HEADERS += \
     src/mainwindow.h \
     src/trackball.h \
     src/raycastcanvas.h \
-    src/vtkvolume.h \
     src/mesh.h \
     src/osvolume.h \
-    src/raycastvolume.h
+    src/polygon.h \
+    src/my_q_slider.h \
+    src/my_combo_box.h \
+    src/my_button.h \
+    src/plane.h \
 
 INCLUDEPATH += \
     src
@@ -55,6 +61,6 @@ DISTFILES +=
 
 gcc:QMAKE_CXXFLAGS += -std=c++17
 gcc:QMAKE_CXXFLAGS_RELEASE += -fopenmp -Ofast
-gcc:LIBS += -fopenmp -L/usr/local/lib -lopenslide
+gcc:LIBS += -fopenmp -L/usr/local/lib -lopenslide -lGL -lGLU
 
 msvc:QMAKE_CXXFLAGS_RELEASE += /openmp /O2

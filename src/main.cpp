@@ -28,7 +28,16 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    QSurfaceFormat format;
+    format.setDepthBufferSize(32);
+    format.setVersion(4, 6);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setSamples(0);
+    QSurfaceFormat::setDefaultFormat(format);
+
     MainWindow w;
+
     w.show();
 
     return a.exec();
